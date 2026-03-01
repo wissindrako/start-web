@@ -8,10 +8,13 @@ export type Language = {
 
 export const DEFAULT_NAMESPACE = 'common';
 
-export const DEFAULT_LANGUAGE_KEY: Language['key'] = 'en';
+export const DEFAULT_LANGUAGE_KEY: Language['key'] = 'es';
 
 export type LanguageKey = (typeof AVAILABLE_LANGUAGES)[number]['key'];
 export const AVAILABLE_LANGUAGES = [
+  {
+    key: 'es',
+  } as const,
   {
     key: 'en',
   } as const,

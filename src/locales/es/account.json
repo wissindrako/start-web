@@ -1,0 +1,24 @@
+{
+  "title": "Perfil",
+  "displayPreferences": {
+    "title": "Preferencias de Visualización"
+  },
+  "userCard": {
+    "name": {
+      "label": "Nombre",
+      "updateAction": "Actualizar tu nombre"
+    },
+    "email": {
+      "label": "Email",
+      "notVerified": "No verificado"
+    }
+  },
+  "changeNameDrawer": {
+    "title": "Actualizar tu nombre",
+    "description": "Formulario para actualizar tu nombre",
+    "label": "Nombre",
+    "submitButton": "Actualizar",
+    "successMessage": "Nombre actualizado correctamente",
+    "errorMessage": "Error al actualizar tu nombre"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "common": {
+    "email": {
+      "label": "Correo electrónico",
+      "required": "El correo electrónico es obligatorio",
+      "invalid": "El correo electrónico es inválido"
+    },
+    "name": {
+      "onboardingLabel": "¿Cuál es tu nombre?",
+      "label": "Nombre",
+      "required": "El nombre es obligatorio",
+      "invalid": "El nombre es inválido",
+      "notAvailable": "N/D"
+    },
+    "onboardingStatus": {
+      "notOnboarded": "No incorporado",
+      "onboardedAt": "Incorporado {{time}}"
+    },
+    "role": {
+      "label": "Rol",
+      "cannotUpdateOwnRole": "No puedes actualizar tu propio rol."
+    }
+  },
+  "manager": {
+    "list": {
+      "title": "Usuarios",
+      "newButton": "Nuevo Usuario",
+      "loadMore": "Cargar más",
+      "showing": "Mostrando {{count}} de {{total}}",
+      "searchResults": "{{total}} resultados para \"{{searchTerm}}\""
+    },
+    "detail": {
+      "editButton": {
+        "label": "Editar"
+      },
+      "deleteButton": {
+        "label": "Eliminar"
+      },
+      "userDeleted": "Usuario eliminado",
+      "deleteError": "Error al eliminar el usuario",
+      "confirmDeleteTitle": "Eliminar {{user}}",
+      "confirmDeleteDescription": "Estás a punto de eliminar permanentemente este usuario. Esta acción no se puede deshacer.",
+      "revokeAllSessions": "Revocar todo",
+      "revokeAllError": "Error al revocar todas las sesiones",
+      "revokeSession": "Revocar",
+      "revokeError": "Error al revocar la sesión",
+      "userSessions": "Sesiones de Usuario",
+      "noSessions": "Sin sesiones de usuario",
+      "session": "Sesión {{token}}",
+      "sessionUpdated": "Actualizado {{time}}",
+      "sessionExpires": "Expira {{time}}",
+      "editUser": "Editar usuario"
+    },
+    "form": {
+      "emailAlreadyExist": "Correo electrónico ya utilizado"
+    },
+    "new": {
+      "title": "Nuevo Usuario",
+      "createButton": {
+        "label": "Crear"
+      },
+      "createError": "Error al crear un usuario"
+    },
+    "update": {
+      "title": "Actualizar Usuario",
+      "updateButton": {
+        "label": "Guardar"
+      },
+      "updateError": "Error al actualizar un usuario"
+    }
+  }
+}

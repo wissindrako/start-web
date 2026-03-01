@@ -1,0 +1,22 @@
+{
+  "welcome": {
+    "title": "Bienvenido a Start UI [web]",
+    "description": "Un frontend Proyecto Base dogmático creado y mantenido por el equipo de BearStudio y otros colaboradores. Representa el stack actualizado de nuestro equipo que usamos al crear aplicaciones web para nuestros clientes.",
+    "documentation": "Documentación",
+    "openIssue": "Abrir un issue"
+  },
+  "appSwitch": {
+    "youAreHere": "Estás aquí",
+    "noAccess": "Acceso denegado",
+    "app": {
+      "title": "App",
+      "description": "Una aplicación sencilla, mobile-first",
+      "goTo": "Ir a /app"
+    },
+    "manager": {
+      "title": "Manager",
+      "description": "Una aplicación avanzada de estilo administrativo",
+      "goTo": "Ir a /manager"
+    }
+  }
+}

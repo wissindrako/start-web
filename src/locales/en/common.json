@@ -3,6 +3,7 @@
     "label": "Language",
     "values": {
       "en": "English",
+      "es": "Spanish",
       "fr": "French",
       "ar": "Arabic",
       "sw": "Swahili"

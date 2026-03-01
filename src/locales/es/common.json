@@ -1,0 +1,31 @@
+{
+  "languages": {
+    "label": "Language",
+    "values": {
+      "en": "Inglés",
+      "es": "Español",
+      "fr": "Francés",
+      "ar": "Árabe",
+      "sw": "Suajili"
+    }
+  },
+  "themes": {
+    "label": "Tema",
+    "values": {
+      "system": "Sistema (auto)",
+      "light": "Claro",
+      "dark": "Oscuro"
+    }
+  },
+  "actions": {
+    "back": "Atrás",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "update": "Actualizar"
+  },
+  "errors": {
+    "required": "Requerido"
+  }
+}

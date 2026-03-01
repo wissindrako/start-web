@@ -1,0 +1,83 @@
+{
+  "sheet": {
+    "close": "Cerrar"
+  },
+  "dialog": {
+    "close": "Cerrar"
+  },
+  "datePickerButton": {
+    "pickADate": "Seleccionar una fecha"
+  },
+  "pageError": {
+    "403": {
+      "title": "No Autorizado",
+      "message": "No tienes acceso a esta página"
+    },
+    "404": {
+      "title": "No Encontrado",
+      "message": "Esta página no pudo ser encontrada"
+    },
+    "error-boundary": {
+      "title": "Error",
+      "message": "Se encontró un error inesperado"
+    },
+    "unknown-server-error": {
+      "title": "Error",
+      "message": "Se encontró un error inesperado del servidor"
+    },
+    "unknown-auth-error": {
+      "title": "Error",
+      "message": "Se encontró un error de autenticación"
+    },
+    "unknown": {
+      "title": "Error",
+      "message": "Se encontró un error inesperado"
+    },
+    "goHome": "Inicio",
+    "goBack": "Atrás"
+  },
+  "searchInput": {
+    "clear": "Limpiar búsqueda",
+    "placeholder": "Buscar..."
+  },
+  "datalist": {
+    "retry": "Reintentar",
+    "errorTitle": "Algo salió mal",
+    "emptyTitle": "Sin datos",
+    "noResultsTitle": "No hay resultados para \"{{searchTerm}}\"",
+    "clear": "Limpiar"
+  },
+  "confirmResponsiveDrawer": {
+    "cancelText": "Cancelar",
+    "confirmText": "Confirmar",
+    "heading": "¿Estás seguro?"
+  },
+  "searchButton": {
+    "label": "Buscar"
+  },
+  "sidebar": {
+    "title": "Sidebar",
+    "toggle": "Toggle Sidebar"
+  },
+  "backButton": {
+    "label": "Atrás"
+  },
+  "select": {
+    "placeholder": "Seleccionar..."
+  },
+  "preventNavigation": {
+    "confirmLabel": "¿Estás seguro de que quieres salir?"
+  },
+  "combobox": {
+    "placeholder": "Seleccionar...",
+    "noItemsFound": "No se encontraron elementos."
+  },
+  "errorBoundary": {
+    "title": "Error desconocido",
+    "details": "Detalles",
+    "description": "Se produjo un error inesperado al cargar este contenido",
+    "unknown": "Desconocido",
+    "copyError": "Copiar Error",
+    "copied": "Copiado"
+  }
+}
