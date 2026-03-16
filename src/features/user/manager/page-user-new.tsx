@@ -32,7 +32,6 @@ export const PageUserNew = () => {
     values: {
       name: '',
       email: '',
-      role: 'user',
     },
   });
 

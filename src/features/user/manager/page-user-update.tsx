@@ -208,7 +208,7 @@ export const PageUserUpdate = (props: { params: { id: string } }) => {
                   <Button
                     type="button"
                     size="sm"
-                    variant="outline"
+                    variant="secondary"
                     loading={updateUserRoles.isPending}
                     onClick={() =>
                       updateUserRoles.mutate({

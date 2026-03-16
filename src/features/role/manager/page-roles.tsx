@@ -158,7 +158,7 @@ export const PageRoles = (props: { search: { searchTerm?: string } }) => {
                     <DataListCell>
                       <DataListText className="text-xs text-muted-foreground">
                         {t('role:manager.list.usersCount', {
-                          count: item._count.users,
+                          count: item._count.userAssignments,
                         })}
                       </DataListText>
                     </DataListCell>

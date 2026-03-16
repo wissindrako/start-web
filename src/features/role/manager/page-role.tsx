@@ -138,7 +138,7 @@ export const PageRole = (props: { params: { id: string } }) => {
                     <dt className="w-32 flex-none font-medium text-muted-foreground">
                       {t('role:common.users.label')}
                     </dt>
-                    <dd className="flex-1">{role._count.users}</dd>
+                    <dd className="flex-1">{role._count.userAssignments}</dd>
                   </div>
                   <div className="flex gap-4 py-3">
                     <dt className="w-32 flex-none font-medium text-muted-foreground">
