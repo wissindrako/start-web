@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ORPCError } from '@orpc/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AlertCircleIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -20,6 +20,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import { authClient } from '@/features/auth/client';
+import { Role } from '@/features/role/schema';
 import { FormUser } from '@/features/user/manager/form-user';
 import { zFormFieldsUser } from '@/features/user/schema';
 import {
@@ -39,22 +40,11 @@ export const PageUserUpdate = (props: { params: { id: string } }) => {
     orpc.user.getById.queryOptions({ input: { id: props.params.id } })
   );
 
-  // All available roles
   const allRolesQuery = useQuery(orpc.role.getAll.queryOptions({ input: {} }));
 
-  // Current user role assignments
   const userRolesQuery = useQuery(
     orpc.user.getUserRoles.queryOptions({ input: { id: props.params.id } })
   );
-
-  const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([]);
-
-  // Sync selectedRoleIds when data loads
-  useEffect(() => {
-    if (userRolesQuery.data) {
-      setSelectedRoleIds(userRolesQuery.data.map((r) => r.id));
-    }
-  }, [userRolesQuery.data]);
 
   const userUpdate = useMutation(
     orpc.user.updateById.mutationOptions({
@@ -89,22 +79,6 @@ export const PageUserUpdate = (props: { params: { id: string } }) => {
     })
   );
 
-  const updateUserRoles = useMutation(
-    orpc.user.updateUserRoles.mutationOptions({
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({
-          queryKey: orpc.user.getUserRoles.key({
-            input: { id: props.params.id },
-          }),
-        });
-        toast.success(t('user:manager.update.rolesUpdated'));
-      },
-      onError: () => {
-        toast.error(t('user:manager.update.rolesUpdateError'));
-      },
-    })
-  );
-
   const form = useForm({
     resolver: zodResolver(zFormFieldsUser()),
     values: {
@@ -124,14 +98,6 @@ export const PageUserUpdate = (props: { params: { id: string } }) => {
     if (userQuery.status === 'error') return set('error');
     return set('default', { user: userQuery.data });
   });
-
-  const toggleRole = (roleId: string) => {
-    setSelectedRoleIds((prev) =>
-      prev.includes(roleId)
-        ? prev.filter((id) => id !== roleId)
-        : [...prev, roleId]
-    );
-  };
 
   return (
     <>
@@ -184,47 +150,95 @@ export const PageUserUpdate = (props: { params: { id: string } }) => {
                     ))}
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-2">
-                    {allRolesQuery.data?.items.map((role) => (
-                      <label
-                        key={role.id}
-                        className="flex cursor-pointer items-center gap-2"
-                      >
-                        <Checkbox
-                          checked={selectedRoleIds.includes(role.id)}
-                          onCheckedChange={() => toggleRole(role.id)}
-                        />
-                        <span className="text-sm font-medium">{role.name}</span>
-                        {role.description && (
-                          <span className="text-sm text-muted-foreground">
-                            — {role.description}
-                          </span>
-                        )}
-                      </label>
-                    ))}
-                  </div>
+                  <RolesSelector
+                    userId={props.params.id}
+                    allRoles={allRolesQuery.data?.items ?? []}
+                    initialRoleIds={userRolesQuery.data?.map((r) => r.id) ?? []}
+                    queryClient={queryClient}
+                    t={t}
+                  />
                 )}
-                <div className="mt-4">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="secondary"
-                    loading={updateUserRoles.isPending}
-                    onClick={() =>
-                      updateUserRoles.mutate({
-                        id: props.params.id,
-                        roleIds: selectedRoleIds,
-                      })
-                    }
-                  >
-                    {t('user:manager.update.saveRolesButton')}
-                  </Button>
-                </div>
               </CardContent>
             </Card>
           </PageLayoutContent>
         </PageLayout>
       </Form>
+    </>
+  );
+};
+
+const RolesSelector = (props: {
+  userId: string;
+  allRoles: Role[];
+  initialRoleIds: string[];
+  queryClient: ReturnType<typeof useQueryClient>;
+  t: ReturnType<typeof useTranslation<['user', 'role']>>['t'];
+}) => {
+  const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>(
+    props.initialRoleIds
+  );
+
+  const updateUserRoles = useMutation(
+    orpc.user.updateUserRoles.mutationOptions({
+      onSuccess: async () => {
+        await props.queryClient.invalidateQueries({
+          queryKey: orpc.user.getUserRoles.key({
+            input: { id: props.userId },
+          }),
+        });
+        toast.success(props.t('user:manager.update.rolesUpdated'));
+      },
+      onError: () => {
+        toast.error(props.t('user:manager.update.rolesUpdateError'));
+      },
+    })
+  );
+
+  const toggleRole = (roleId: string) => {
+    setSelectedRoleIds((prev) =>
+      prev.includes(roleId)
+        ? prev.filter((id) => id !== roleId)
+        : [...prev, roleId]
+    );
+  };
+
+  return (
+    <>
+      <div className="flex flex-col gap-2">
+        {props.allRoles.map((role) => (
+          <label
+            key={role.id}
+            className="flex cursor-pointer items-center gap-2"
+          >
+            <Checkbox
+              checked={selectedRoleIds.includes(role.id)}
+              onCheckedChange={() => toggleRole(role.id)}
+            />
+            <span className="text-sm font-medium">{role.name}</span>
+            {role.description && (
+              <span className="text-sm text-muted-foreground">
+                — {role.description}
+              </span>
+            )}
+          </label>
+        ))}
+      </div>
+      <div className="mt-4">
+        <Button
+          type="button"
+          size="sm"
+          variant="secondary"
+          loading={updateUserRoles.isPending}
+          onClick={() =>
+            updateUserRoles.mutate({
+              id: props.userId,
+              roleIds: selectedRoleIds,
+            })
+          }
+        >
+          {props.t('user:manager.update.saveRolesButton')}
+        </Button>
+      </div>
     </>
   );
 };
