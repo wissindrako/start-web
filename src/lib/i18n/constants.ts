@@ -18,15 +18,4 @@ export const AVAILABLE_LANGUAGES = [
   {
     key: 'en',
   } as const,
-  {
-    key: 'fr',
-  } as const,
-  {
-    key: 'ar',
-    dir: 'rtl',
-    fontScale: 1.2,
-  } as const,
-  {
-    key: 'sw',
-  } as const,
 ] satisfies Language[];

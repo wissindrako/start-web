@@ -66,7 +66,11 @@
       "updateButton": {
         "label": "Save"
       },
-      "updateError": "Failed to update a user"
+      "updateError": "Failed to update a user",
+      "rolesTitle": "Dynamic Roles",
+      "rolesUpdated": "Roles updated",
+      "rolesUpdateError": "Failed to update roles",
+      "saveRolesButton": "Save roles"
     }
   }
 }

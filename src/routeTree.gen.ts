@@ -19,6 +19,7 @@ import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as ApiUploadRouteImport } from './routes/api/upload'
 import { Route as ManagerUsersIndexRouteImport } from './routes/manager/users/index'
+import { Route as ManagerRolesIndexRouteImport } from './routes/manager/roles/index'
 import { Route as ManagerDashboardIndexRouteImport } from './routes/manager/dashboard.index'
 import { Route as ManagerBooksIndexRouteImport } from './routes/manager/books/index'
 import { Route as ManagerAccountIndexRouteImport } from './routes/manager/account.index'
@@ -33,6 +34,8 @@ import { Route as ApiOpenapiAppRouteImport } from './routes/api/openapi/app'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
 import { Route as ManagerUsersNewIndexRouteImport } from './routes/manager/users/new.index'
 import { Route as ManagerUsersIdIndexRouteImport } from './routes/manager/users/$id.index'
+import { Route as ManagerRolesNewIndexRouteImport } from './routes/manager/roles/new.index'
+import { Route as ManagerRolesIdIndexRouteImport } from './routes/manager/roles/$id.index'
 import { Route as ManagerBooksNewIndexRouteImport } from './routes/manager/books/new.index'
 import { Route as ManagerBooksIdIndexRouteImport } from './routes/manager/books/$id.index'
 import { Route as AppBooksIdIndexRouteImport } from './routes/app/books/$id.index'
@@ -40,6 +43,7 @@ import { Route as ApiOpenapiAuthSchemaRouteImport } from './routes/api/openapi/a
 import { Route as ApiOpenapiAppSchemaRouteImport } from './routes/api/openapi/app.schema'
 import { Route as ApiDevEmailTemplateRouteImport } from './routes/api/dev.email.$template'
 import { Route as ManagerUsersIdUpdateIndexRouteImport } from './routes/manager/users/$id.update.index'
+import { Route as ManagerRolesIdUpdateIndexRouteImport } from './routes/manager/roles/$id.update.index'
 import { Route as ManagerBooksIdUpdateIndexRouteImport } from './routes/manager/books/$id.update.index'
 
 const LogoutRoute = LogoutRouteImport.update({
@@ -90,6 +94,11 @@ const ApiUploadRoute = ApiUploadRouteImport.update({
 const ManagerUsersIndexRoute = ManagerUsersIndexRouteImport.update({
   id: '/users/',
   path: '/users/',
+  getParentRoute: () => ManagerRouteRoute,
+} as any)
+const ManagerRolesIndexRoute = ManagerRolesIndexRouteImport.update({
+  id: '/roles/',
+  path: '/roles/',
   getParentRoute: () => ManagerRouteRoute,
 } as any)
 const ManagerDashboardIndexRoute = ManagerDashboardIndexRouteImport.update({
@@ -162,6 +171,16 @@ const ManagerUsersIdIndexRoute = ManagerUsersIdIndexRouteImport.update({
   path: '/users/$id/',
   getParentRoute: () => ManagerRouteRoute,
 } as any)
+const ManagerRolesNewIndexRoute = ManagerRolesNewIndexRouteImport.update({
+  id: '/roles/new/',
+  path: '/roles/new/',
+  getParentRoute: () => ManagerRouteRoute,
+} as any)
+const ManagerRolesIdIndexRoute = ManagerRolesIdIndexRouteImport.update({
+  id: '/roles/$id/',
+  path: '/roles/$id/',
+  getParentRoute: () => ManagerRouteRoute,
+} as any)
 const ManagerBooksNewIndexRoute = ManagerBooksNewIndexRouteImport.update({
   id: '/books/new/',
   path: '/books/new/',
@@ -198,6 +217,12 @@ const ManagerUsersIdUpdateIndexRoute =
     path: '/users/$id/update/',
     getParentRoute: () => ManagerRouteRoute,
   } as any)
+const ManagerRolesIdUpdateIndexRoute =
+  ManagerRolesIdUpdateIndexRouteImport.update({
+    id: '/roles/$id/update/',
+    path: '/roles/$id/update/',
+    getParentRoute: () => ManagerRouteRoute,
+  } as any)
 const ManagerBooksIdUpdateIndexRoute =
   ManagerBooksIdUpdateIndexRouteImport.update({
     id: '/books/$id/update/',
@@ -227,6 +252,7 @@ export interface FileRoutesByFullPath {
   '/manager/account/': typeof ManagerAccountIndexRoute
   '/manager/books/': typeof ManagerBooksIndexRoute
   '/manager/dashboard/': typeof ManagerDashboardIndexRoute
+  '/manager/roles/': typeof ManagerRolesIndexRoute
   '/manager/users/': typeof ManagerUsersIndexRoute
   '/api/dev/email/$template': typeof ApiDevEmailTemplateRoute
   '/api/openapi/app/schema': typeof ApiOpenapiAppSchemaRoute
@@ -234,9 +260,12 @@ export interface FileRoutesByFullPath {
   '/app/books/$id/': typeof AppBooksIdIndexRoute
   '/manager/books/$id/': typeof ManagerBooksIdIndexRoute
   '/manager/books/new/': typeof ManagerBooksNewIndexRoute
+  '/manager/roles/$id/': typeof ManagerRolesIdIndexRoute
+  '/manager/roles/new/': typeof ManagerRolesNewIndexRoute
   '/manager/users/$id/': typeof ManagerUsersIdIndexRoute
   '/manager/users/new/': typeof ManagerUsersNewIndexRoute
   '/manager/books/$id/update/': typeof ManagerBooksIdUpdateIndexRoute
+  '/manager/roles/$id/update/': typeof ManagerRolesIdUpdateIndexRoute
   '/manager/users/$id/update/': typeof ManagerUsersIdUpdateIndexRoute
 }
 export interface FileRoutesByTo {
@@ -258,6 +287,7 @@ export interface FileRoutesByTo {
   '/manager/account': typeof ManagerAccountIndexRoute
   '/manager/books': typeof ManagerBooksIndexRoute
   '/manager/dashboard': typeof ManagerDashboardIndexRoute
+  '/manager/roles': typeof ManagerRolesIndexRoute
   '/manager/users': typeof ManagerUsersIndexRoute
   '/api/dev/email/$template': typeof ApiDevEmailTemplateRoute
   '/api/openapi/app/schema': typeof ApiOpenapiAppSchemaRoute
@@ -265,9 +295,12 @@ export interface FileRoutesByTo {
   '/app/books/$id': typeof AppBooksIdIndexRoute
   '/manager/books/$id': typeof ManagerBooksIdIndexRoute
   '/manager/books/new': typeof ManagerBooksNewIndexRoute
+  '/manager/roles/$id': typeof ManagerRolesIdIndexRoute
+  '/manager/roles/new': typeof ManagerRolesNewIndexRoute
   '/manager/users/$id': typeof ManagerUsersIdIndexRoute
   '/manager/users/new': typeof ManagerUsersNewIndexRoute
   '/manager/books/$id/update': typeof ManagerBooksIdUpdateIndexRoute
+  '/manager/roles/$id/update': typeof ManagerRolesIdUpdateIndexRoute
   '/manager/users/$id/update': typeof ManagerUsersIdUpdateIndexRoute
 }
 export interface FileRoutesById {
@@ -293,6 +326,7 @@ export interface FileRoutesById {
   '/manager/account/': typeof ManagerAccountIndexRoute
   '/manager/books/': typeof ManagerBooksIndexRoute
   '/manager/dashboard/': typeof ManagerDashboardIndexRoute
+  '/manager/roles/': typeof ManagerRolesIndexRoute
   '/manager/users/': typeof ManagerUsersIndexRoute
   '/api/dev/email/$template': typeof ApiDevEmailTemplateRoute
   '/api/openapi/app/schema': typeof ApiOpenapiAppSchemaRoute
@@ -300,9 +334,12 @@ export interface FileRoutesById {
   '/app/books/$id/': typeof AppBooksIdIndexRoute
   '/manager/books/$id/': typeof ManagerBooksIdIndexRoute
   '/manager/books/new/': typeof ManagerBooksNewIndexRoute
+  '/manager/roles/$id/': typeof ManagerRolesIdIndexRoute
+  '/manager/roles/new/': typeof ManagerRolesNewIndexRoute
   '/manager/users/$id/': typeof ManagerUsersIdIndexRoute
   '/manager/users/new/': typeof ManagerUsersNewIndexRoute
   '/manager/books/$id/update/': typeof ManagerBooksIdUpdateIndexRoute
+  '/manager/roles/$id/update/': typeof ManagerRolesIdUpdateIndexRoute
   '/manager/users/$id/update/': typeof ManagerUsersIdUpdateIndexRoute
 }
 export interface FileRouteTypes {
@@ -329,6 +366,7 @@ export interface FileRouteTypes {
     | '/manager/account/'
     | '/manager/books/'
     | '/manager/dashboard/'
+    | '/manager/roles/'
     | '/manager/users/'
     | '/api/dev/email/$template'
     | '/api/openapi/app/schema'
@@ -336,9 +374,12 @@ export interface FileRouteTypes {
     | '/app/books/$id/'
     | '/manager/books/$id/'
     | '/manager/books/new/'
+    | '/manager/roles/$id/'
+    | '/manager/roles/new/'
     | '/manager/users/$id/'
     | '/manager/users/new/'
     | '/manager/books/$id/update/'
+    | '/manager/roles/$id/update/'
     | '/manager/users/$id/update/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -360,6 +401,7 @@ export interface FileRouteTypes {
     | '/manager/account'
     | '/manager/books'
     | '/manager/dashboard'
+    | '/manager/roles'
     | '/manager/users'
     | '/api/dev/email/$template'
     | '/api/openapi/app/schema'
@@ -367,9 +409,12 @@ export interface FileRouteTypes {
     | '/app/books/$id'
     | '/manager/books/$id'
     | '/manager/books/new'
+    | '/manager/roles/$id'
+    | '/manager/roles/new'
     | '/manager/users/$id'
     | '/manager/users/new'
     | '/manager/books/$id/update'
+    | '/manager/roles/$id/update'
     | '/manager/users/$id/update'
   id:
     | '__root__'
@@ -394,6 +439,7 @@ export interface FileRouteTypes {
     | '/manager/account/'
     | '/manager/books/'
     | '/manager/dashboard/'
+    | '/manager/roles/'
     | '/manager/users/'
     | '/api/dev/email/$template'
     | '/api/openapi/app/schema'
@@ -401,9 +447,12 @@ export interface FileRouteTypes {
     | '/app/books/$id/'
     | '/manager/books/$id/'
     | '/manager/books/new/'
+    | '/manager/roles/$id/'
+    | '/manager/roles/new/'
     | '/manager/users/$id/'
     | '/manager/users/new/'
     | '/manager/books/$id/update/'
+    | '/manager/roles/$id/update/'
     | '/manager/users/$id/update/'
   fileRoutesById: FileRoutesById
 }
@@ -492,6 +541,13 @@ declare module '@tanstack/react-router' {
       path: '/users'
       fullPath: '/manager/users/'
       preLoaderRoute: typeof ManagerUsersIndexRouteImport
+      parentRoute: typeof ManagerRouteRoute
+    }
+    '/manager/roles/': {
+      id: '/manager/roles/'
+      path: '/roles'
+      fullPath: '/manager/roles/'
+      preLoaderRoute: typeof ManagerRolesIndexRouteImport
       parentRoute: typeof ManagerRouteRoute
     }
     '/manager/dashboard/': {
@@ -592,6 +648,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerUsersIdIndexRouteImport
       parentRoute: typeof ManagerRouteRoute
     }
+    '/manager/roles/new/': {
+      id: '/manager/roles/new/'
+      path: '/roles/new'
+      fullPath: '/manager/roles/new/'
+      preLoaderRoute: typeof ManagerRolesNewIndexRouteImport
+      parentRoute: typeof ManagerRouteRoute
+    }
+    '/manager/roles/$id/': {
+      id: '/manager/roles/$id/'
+      path: '/roles/$id'
+      fullPath: '/manager/roles/$id/'
+      preLoaderRoute: typeof ManagerRolesIdIndexRouteImport
+      parentRoute: typeof ManagerRouteRoute
+    }
     '/manager/books/new/': {
       id: '/manager/books/new/'
       path: '/books/new'
@@ -639,6 +709,13 @@ declare module '@tanstack/react-router' {
       path: '/users/$id/update'
       fullPath: '/manager/users/$id/update/'
       preLoaderRoute: typeof ManagerUsersIdUpdateIndexRouteImport
+      parentRoute: typeof ManagerRouteRoute
+    }
+    '/manager/roles/$id/update/': {
+      id: '/manager/roles/$id/update/'
+      path: '/roles/$id/update'
+      fullPath: '/manager/roles/$id/update/'
+      preLoaderRoute: typeof ManagerRolesIdUpdateIndexRouteImport
       parentRoute: typeof ManagerRouteRoute
     }
     '/manager/books/$id/update/': {
@@ -690,12 +767,16 @@ interface ManagerRouteRouteChildren {
   ManagerAccountIndexRoute: typeof ManagerAccountIndexRoute
   ManagerBooksIndexRoute: typeof ManagerBooksIndexRoute
   ManagerDashboardIndexRoute: typeof ManagerDashboardIndexRoute
+  ManagerRolesIndexRoute: typeof ManagerRolesIndexRoute
   ManagerUsersIndexRoute: typeof ManagerUsersIndexRoute
   ManagerBooksIdIndexRoute: typeof ManagerBooksIdIndexRoute
   ManagerBooksNewIndexRoute: typeof ManagerBooksNewIndexRoute
+  ManagerRolesIdIndexRoute: typeof ManagerRolesIdIndexRoute
+  ManagerRolesNewIndexRoute: typeof ManagerRolesNewIndexRoute
   ManagerUsersIdIndexRoute: typeof ManagerUsersIdIndexRoute
   ManagerUsersNewIndexRoute: typeof ManagerUsersNewIndexRoute
   ManagerBooksIdUpdateIndexRoute: typeof ManagerBooksIdUpdateIndexRoute
+  ManagerRolesIdUpdateIndexRoute: typeof ManagerRolesIdUpdateIndexRoute
   ManagerUsersIdUpdateIndexRoute: typeof ManagerUsersIdUpdateIndexRoute
 }
 
@@ -704,12 +785,16 @@ const ManagerRouteRouteChildren: ManagerRouteRouteChildren = {
   ManagerAccountIndexRoute: ManagerAccountIndexRoute,
   ManagerBooksIndexRoute: ManagerBooksIndexRoute,
   ManagerDashboardIndexRoute: ManagerDashboardIndexRoute,
+  ManagerRolesIndexRoute: ManagerRolesIndexRoute,
   ManagerUsersIndexRoute: ManagerUsersIndexRoute,
   ManagerBooksIdIndexRoute: ManagerBooksIdIndexRoute,
   ManagerBooksNewIndexRoute: ManagerBooksNewIndexRoute,
+  ManagerRolesIdIndexRoute: ManagerRolesIdIndexRoute,
+  ManagerRolesNewIndexRoute: ManagerRolesNewIndexRoute,
   ManagerUsersIdIndexRoute: ManagerUsersIdIndexRoute,
   ManagerUsersNewIndexRoute: ManagerUsersNewIndexRoute,
   ManagerBooksIdUpdateIndexRoute: ManagerBooksIdUpdateIndexRoute,
+  ManagerRolesIdUpdateIndexRoute: ManagerRolesIdUpdateIndexRoute,
   ManagerUsersIdUpdateIndexRoute: ManagerUsersIdUpdateIndexRoute,
 }
 

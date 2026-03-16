@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose:*)",
+      "Bash(netstat -ano)",
+      "Bash(tasklist /FI \"PID eq 22816\")",
+      "Bash(docker ps:*)",
+      "Bash(pnpm db:push)",
+      "Bash(pnpm db:seed)",
+      "Bash(dotenv -- cross-env node -e \":*)",
+      "Bash(pnpm dotenv:*)"
+    ]
+  }
+}

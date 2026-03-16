@@ -189,33 +189,52 @@ export const protectedProcedure = ({
     }
 
     if (!permission) {
-      return await next({
-        context: {
-          user,
-          session,
-        },
-      });
+      return await next({ context: { user, session } });
     }
 
-    const userHasPermission = await auth.api.userHasPermission({
-      body: {
-        userId: user.id,
-        permission,
+    // Load dynamic permissions from all the user's assigned roles (union)
+    const userWithRoles = await context.db.user.findUnique({
+      where: { id: user.id },
+      include: {
+        roles: {
+          include: {
+            role: {
+              include: { permissions: { include: { permission: true } } },
+            },
+          },
+        },
       },
     });
 
-    if (userHasPermission.error) {
-      throw new ORPCError('INTERNAL_SERVER_ERROR');
+    const seen = new Set<string>();
+    const userPermissions: { subject: string; action: string }[] = [];
+    for (const assignment of userWithRoles?.roles ?? []) {
+      for (const rp of assignment.role.permissions) {
+        const key = `${rp.permission.subject}:${rp.permission.action}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          userPermissions.push({
+            subject: rp.permission.subject,
+            action: rp.permission.action,
+          });
+        }
+      }
     }
 
-    if (!userHasPermission.success) {
+    // permission is { subject: action[] } — user must satisfy ALL subject entries
+    // and needs at least ONE matching action per subject
+    const hasAllPermissions = Object.entries(permission).every(
+      ([subject, actions]) =>
+        (actions as string[]).some((action) =>
+          userPermissions.some(
+            (up) => up.subject === subject && up.action === action
+          )
+        )
+    );
+
+    if (!hasAllPermissions) {
       throw new ORPCError('FORBIDDEN');
     }
 
-    return await next({
-      context: {
-        user,
-        session,
-      },
-    });
+    return await next({ context: { user, session } });
   });

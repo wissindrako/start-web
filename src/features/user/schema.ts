@@ -41,5 +41,4 @@ export const zFormFieldsUser = () =>
   zUser().pick({
     name: true,
     email: true,
-    role: true,
   });

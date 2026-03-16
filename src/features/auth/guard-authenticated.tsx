@@ -6,7 +6,8 @@ import { Spinner } from '@/components/ui/spinner';
 
 import { authClient } from '@/features/auth/client';
 import { PageOnboarding } from '@/features/auth/page-onboarding';
-import { Permission, Role } from '@/features/auth/permissions';
+import { Permission } from '@/features/auth/permissions';
+import { useMyPermissions } from '@/hooks/use-my-permissions';
 
 export const GuardAuthenticated = ({
   children,
@@ -16,9 +17,10 @@ export const GuardAuthenticated = ({
   permissionApps?: Permission['apps'];
 }) => {
   const session = authClient.useSession();
+  const { isLoading, checkPermission } = useMyPermissions();
   const router = useRouter();
 
-  if (session.isPending) {
+  if (session.isPending || isLoading) {
     return <Spinner full className="opacity-60" />;
   }
 
@@ -42,16 +44,8 @@ export const GuardAuthenticated = ({
     return <PageOnboarding />;
   }
 
-  // Unauthorized if the user permission do not match
-  if (
-    permissionApps &&
-    !authClient.admin.checkRolePermission({
-      role: session.data.user.role as Role,
-      permission: {
-        apps: permissionApps,
-      },
-    })
-  ) {
+  // Check apps permission against dynamic role
+  if (permissionApps && !checkPermission({ apps: permissionApps })) {
     return <PageError type="403" />;
   }
 

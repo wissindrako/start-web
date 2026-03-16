@@ -4,6 +4,7 @@ import accountRouter from './routers/account';
 import bookRouter from './routers/book';
 import configRouter from './routers/config';
 import genreRouter from './routers/genre';
+import roleRouter from './routers/role';
 import userRouter from './routers/user';
 
 export type Router = typeof router;
@@ -13,6 +14,7 @@ export const router = {
   account: accountRouter,
   book: bookRouter,
   genre: genreRouter,
+  role: roleRouter,
   user: userRouter,
   config: configRouter,
 };

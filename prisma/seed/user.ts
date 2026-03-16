@@ -4,15 +4,34 @@ import { db } from '@/server/db';
 
 import { emphasis } from './_utils';
 
+async function getRoleId(name: string): Promise<string | null> {
+  const role = await db.role.findUnique({ where: { name } });
+  return role?.id ?? null;
+}
+
+async function assignRole(userId: string, roleId: string | null) {
+  if (!roleId) return;
+  await db.userRoleAssignment.upsert({
+    where: { userId_roleId: { userId, roleId } },
+    create: { userId, roleId },
+    update: {},
+  });
+}
+
 export async function createUsers() {
   console.log(`⏳ Seeding users`);
+
+  const [adminRoleId, userRoleId] = await Promise.all([
+    getRoleId('admin'),
+    getRoleId('user'),
+  ]);
 
   let createdCounter = 0;
   const existingCount = await db.user.count();
 
   await Promise.all(
     Array.from({ length: Math.max(0, 98 - existingCount) }, async () => {
-      await db.user.create({
+      const user = await db.user.create({
         data: {
           name: faker.person.fullName(),
           email: faker.internet.email().toLowerCase(),
@@ -20,12 +39,13 @@ export async function createUsers() {
           role: 'user',
         },
       });
+      await assignRole(user.id, userRoleId);
       createdCounter += 1;
     })
   );
 
   if (!(await db.user.findUnique({ where: { email: 'user@user.com' } }))) {
-    await db.user.create({
+    const user = await db.user.create({
       data: {
         name: 'User',
         email: 'user@user.com',
@@ -34,11 +54,12 @@ export async function createUsers() {
         role: 'user',
       },
     });
+    await assignRole(user.id, userRoleId);
     createdCounter += 1;
   }
 
   if (!(await db.user.findUnique({ where: { email: 'admin@admin.com' } }))) {
-    await db.user.create({
+    const user = await db.user.create({
       data: {
         name: 'Admin',
         email: 'admin@admin.com',
@@ -47,7 +68,18 @@ export async function createUsers() {
         onboardedAt: new Date(),
       },
     });
+    await assignRole(user.id, adminRoleId);
     createdCounter += 1;
+  }
+
+  // Sync UserRoleAssignment for existing users that have none
+  const usersWithoutRoles = await db.user.findMany({
+    where: { roles: { none: {} } },
+  });
+  for (const user of usersWithoutRoles) {
+    const roleName = (user.role as string) ?? 'user';
+    const roleId = roleName === 'admin' ? adminRoleId : userRoleId;
+    await assignRole(user.id, roleId);
   }
 
   console.log(

@@ -1,11 +1,13 @@
 import { db } from '@/server/db';
 
 import { createBooks } from './book';
+import { createRoles } from './role';
 import { createUsers } from './user';
 
 async function main() {
-  await createBooks();
+  await createRoles();
   await createUsers();
+  await createBooks();
 }
 
 main()

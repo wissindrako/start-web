@@ -1,0 +1,76 @@
+{
+  "common": {
+    "name": {
+      "label": "Name",
+      "required": "Name is required"
+    },
+    "description": {
+      "label": "Description"
+    },
+    "permissions": {
+      "label": "Permissions"
+    },
+    "users": {
+      "label": "Users"
+    }
+  },
+  "subjects": {
+    "book": "Books",
+    "genre": "Genres",
+    "user": "Users",
+    "role": "Roles",
+    "account": "Account",
+    "apps": "Apps",
+    "session": "Sessions"
+  },
+  "actions": {
+    "read": "Read",
+    "create": "Create",
+    "update": "Update",
+    "delete": "Delete",
+    "list": "List",
+    "ban": "Ban",
+    "app": "App",
+    "manager": "Manager",
+    "revoke": "Revoke"
+  },
+  "manager": {
+    "list": {
+      "title": "Roles",
+      "loadMore": "Load more",
+      "showing": "Showing {{count}} of {{total}}",
+      "searchResults": "{{total}} results for \"{{searchTerm}}\"",
+      "permissionsCount": "{{count}} permission(s)",
+      "usersCount": "{{count}} user(s)"
+    },
+    "detail": {
+      "editButton": {
+        "label": "Edit"
+      },
+      "deleteButton": {
+        "label": "Delete"
+      },
+      "deleted": "Role deleted",
+      "deleteError": "Failed to delete the role",
+      "confirmDeleteTitle": "Delete \"{{name}}\"",
+      "confirmDeleteDescription": "You are about to permanently delete this role. Users assigned to this role will lose their permissions. This action cannot be undone."
+    },
+    "form": {
+      "nameAlreadyExist": "A role with this name already exists"
+    },
+    "new": {
+      "title": "New Role",
+      "createButton": {
+        "label": "Create"
+      },
+      "createError": "Failed to create the role"
+    },
+    "update": {
+      "title": "Update Role",
+      "updateButton": {
+        "label": "Save"
+      },
+      "updateError": "Failed to update the role"
+    }
+  }
+}

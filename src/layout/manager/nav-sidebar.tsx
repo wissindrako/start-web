@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router';
 import {
   LayoutDashboardIcon,
   PanelLeftIcon,
+  ShieldIcon,
   UsersIcon,
   XIcon,
 } from 'lucide-react';
@@ -127,6 +128,23 @@ export const NavSidebar = (props: { children?: ReactNode }) => {
                       )}
                     </Link>
                   </SidebarMenuItem>
+                  <WithPermissions permissions={[{ role: ['read'] }]}>
+                    <SidebarMenuItem>
+                      <Link to="/manager/roles">
+                        {({ isActive }) => (
+                          <SidebarMenuButton
+                            isActive={isActive}
+                            render={
+                              <span>
+                                <ShieldIcon />
+                                <span>{t('layout:nav.roles')}</span>
+                              </span>
+                            }
+                          />
+                        )}
+                      </Link>
+                    </SidebarMenuItem>
+                  </WithPermissions>
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>

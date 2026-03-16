@@ -14,7 +14,7 @@
     }
   },
   "changeNameDrawer": {
-    "title": "Actualizar tu nombre",
+    "title": "Actualizar nombre de usuario",
     "description": "Formulario para actualizar tu nombre",
     "label": "Nombre",
     "submitButton": "Actualizar",

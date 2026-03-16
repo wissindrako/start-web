@@ -2,6 +2,7 @@ import { ORPCError } from '@orpc/client';
 import { getRequestHeaders } from '@tanstack/react-start/server';
 import { z } from 'zod';
 
+import { zRole } from '@/features/role/schema';
 import { zSession, zUser } from '@/features/user/schema';
 import { auth } from '@/server/auth';
 import { Prisma } from '@/server/db/generated/client';
@@ -115,7 +116,7 @@ export default {
 
   updateById: protectedProcedure({
     permission: {
-      user: ['set-role'],
+      user: ['update'],
     },
   })
     .route({
@@ -128,7 +129,6 @@ export default {
         id: true,
         name: true,
         email: true,
-        role: true,
       })
     )
     .output(zUser())
@@ -149,8 +149,6 @@ export default {
         where: { id: input.id },
         data: {
           name: input.name ?? '',
-          // Prevent to change role of the connected user
-          role: context.user.id === input.id ? undefined : input.role,
           email: input.email,
           // Set email as verified if admin changed the email
           emailVerified: currentUser.email !== input.email ? true : undefined,
@@ -362,6 +360,50 @@ export default {
       if (!response.success) {
         context.logger.error('Failed to revoke the user session');
         throw new ORPCError('INTERNAL_SERVER_ERROR');
+      }
+    }),
+  getUserRoles: protectedProcedure({
+    permission: { user: ['update'] },
+  })
+    .route({ method: 'GET', path: '/users/{id}/roles', tags })
+    .input(z.object({ id: z.string() }))
+    .output(z.array(zRole()))
+    .handler(async ({ context, input }) => {
+      context.logger.info('Getting user roles');
+      const user = await context.db.user.findUnique({
+        where: { id: input.id },
+        include: {
+          roles: {
+            include: {
+              role: {
+                include: {
+                  permissions: { include: { permission: true } },
+                  _count: { select: { userAssignments: true } },
+                },
+              },
+            },
+          },
+        },
+      });
+      if (!user) throw new ORPCError('NOT_FOUND');
+      return user.roles.map((a) => a.role);
+    }),
+
+  updateUserRoles: protectedProcedure({
+    permission: { user: ['update'] },
+  })
+    .route({ method: 'POST', path: '/users/{id}/roles', tags })
+    .input(z.object({ id: z.string(), roleIds: z.array(z.string()) }))
+    .output(z.void())
+    .handler(async ({ context, input }) => {
+      context.logger.info('Updating user roles');
+      await context.db.userRoleAssignment.deleteMany({
+        where: { userId: input.id },
+      });
+      if (input.roleIds.length > 0) {
+        await context.db.userRoleAssignment.createMany({
+          data: input.roleIds.map((roleId) => ({ userId: input.id, roleId })),
+        });
       }
     }),
 };

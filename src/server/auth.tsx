@@ -98,6 +98,21 @@ export const auth = betterAuth({
           if (envClient.VITE_IS_DEMO) throw new Error('DEMO MODE');
           return { data: user };
         },
+        after: async (user) => {
+          const roleName = (user.role as string) ?? 'user';
+          const dynamicRole = await db.role.findUnique({
+            where: { name: roleName },
+          });
+          if (dynamicRole) {
+            await db.userRoleAssignment.upsert({
+              where: {
+                userId_roleId: { userId: user.id, roleId: dynamicRole.id },
+              },
+              create: { userId: user.id, roleId: dynamicRole.id },
+              update: {},
+            });
+          }
+        },
       },
       update: {
         before: async (user) => {

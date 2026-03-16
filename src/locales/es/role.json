@@ -1,0 +1,76 @@
+{
+  "common": {
+    "name": {
+      "label": "Nombre",
+      "required": "El nombre es requerido"
+    },
+    "description": {
+      "label": "Descripción"
+    },
+    "permissions": {
+      "label": "Permisos"
+    },
+    "users": {
+      "label": "Usuarios"
+    }
+  },
+  "subjects": {
+    "book": "Libros",
+    "genre": "Géneros",
+    "user": "Usuarios",
+    "role": "Roles",
+    "account": "Cuenta",
+    "apps": "Aplicaciones",
+    "session": "Sesiones"
+  },
+  "actions": {
+    "read": "Leer",
+    "create": "Crear",
+    "update": "Actualizar",
+    "delete": "Eliminar",
+    "list": "Listar",
+    "ban": "Banear",
+    "app": "App",
+    "manager": "Gestor",
+    "revoke": "Revocar"
+  },
+  "manager": {
+    "list": {
+      "title": "Roles",
+      "loadMore": "Cargar más",
+      "showing": "Mostrando {{count}} de {{total}}",
+      "searchResults": "{{total}} resultados para \"{{searchTerm}}\"",
+      "permissionsCount": "{{count}} permiso(s)",
+      "usersCount": "{{count}} usuario(s)"
+    },
+    "detail": {
+      "editButton": {
+        "label": "Editar"
+      },
+      "deleteButton": {
+        "label": "Eliminar"
+      },
+      "deleted": "Rol eliminado",
+      "deleteError": "Error al eliminar el rol",
+      "confirmDeleteTitle": "Eliminar \"{{name}}\"",
+      "confirmDeleteDescription": "Estás a punto de eliminar permanentemente este rol. Los usuarios asignados a este rol perderán sus permisos. Esta acción no se puede deshacer."
+    },
+    "form": {
+      "nameAlreadyExist": "Ya existe un rol con este nombre"
+    },
+    "new": {
+      "title": "Nuevo Rol",
+      "createButton": {
+        "label": "Crear"
+      },
+      "createError": "Error al crear el rol"
+    },
+    "update": {
+      "title": "Actualizar Rol",
+      "updateButton": {
+        "label": "Guardar"
+      },
+      "updateError": "Error al actualizar el rol"
+    }
+  }
+}

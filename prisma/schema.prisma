@@ -34,8 +34,52 @@ model User {
   banExpires  DateTime?
   onboardedAt DateTime?
 
+  roles        UserRoleAssignment[]
+
   @@unique([email])
   @@map("user")
+}
+
+model Role {
+  id              String               @id @default(cuid())
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  name            String               @unique
+  description     String?
+  permissions     RolePermission[]
+  userAssignments UserRoleAssignment[]
+
+  @@map("role")
+}
+
+model UserRoleAssignment {
+  userId    String
+  roleId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_role_assignment")
+}
+
+model Permission {
+  id      String           @id @default(cuid())
+  subject String
+  action  String
+  roles   RolePermission[]
+
+  @@unique([subject, action])
+  @@map("permission")
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permission")
 }
 
 model Session {

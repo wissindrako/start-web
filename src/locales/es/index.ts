@@ -10,6 +10,7 @@ import demo from './demo.json' with { type: 'json' };
 import emails from './emails.json' with { type: 'json' };
 import genre from './genre.json' with { type: 'json' };
 import layout from './layout.json' with { type: 'json' };
+import role from './role.json' with { type: 'json' };
 import user from './user.json' with { type: 'json' };
 
 export default {
@@ -23,5 +24,6 @@ export default {
   emails,
   genre,
   layout,
+  role,
   user,
 } as const;
