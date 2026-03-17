@@ -5,13 +5,13 @@ import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
-import { envClient } from '@/env/client';
 import { orpc } from '@/lib/orpc/client';
 import { resizeImageToSquare } from '@/lib/utils/resize-image';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 
+import { envClient } from '@/env/client';
 import { authClient } from '@/features/auth/client';
 
 const PROFILE_SIZE = 400;
@@ -83,7 +83,6 @@ export const AccountAvatarUpload = () => {
 
   const currentImage = session.data?.user.image ?? null;
   const displayImage = preview ?? currentImage;
-  const userName = session.data?.user.name ?? '';
 
   return (
     <div className="flex items-center gap-4">
