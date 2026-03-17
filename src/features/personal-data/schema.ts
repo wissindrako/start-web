@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { t } from 'i18next';
-import type { Resolver } from 'react-hook-form';
 import { z } from 'zod';
 
 import { zu } from '@/lib/zod/zod-utils';
@@ -55,9 +54,14 @@ export const zFormFieldsPersonalData = () =>
  * formulario, sin depender de superRefine (que Zod omite cuando hay errores
  * en otros campos).
  */
-export const personalDataResolver = (): Resolver<FormFieldsPersonalData> => {
-  const zResolver = zodResolver(zFormFieldsPersonalData());
-  return async (values, context, options) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const personalDataResolver = () => {
+  const zResolver = zodResolver(zFormFieldsPersonalData()) as any;
+  return async (
+    values: FormFieldsPersonalData,
+    context: unknown,
+    options: unknown
+  ) => {
     const result = await zResolver(values, context, options);
 
     if (!values.primerApellido && !values.segundoApellido) {

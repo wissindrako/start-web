@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
+import { useForm, type Resolver } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
@@ -54,7 +54,7 @@ export const PageAccountPersonalData = () => {
   );
 
   const form = useForm<FormFieldsPersonalData>({
-    resolver: personalDataResolver(),
+    resolver: personalDataResolver() as Resolver<FormFieldsPersonalData>,
     values: toFormValues(personalDataQuery.data),
   });
 
