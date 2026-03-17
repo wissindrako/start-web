@@ -54,9 +54,20 @@ export const zFormFieldsPersonalData = () =>
  * formulario, sin depender de superRefine (que Zod omite cuando hay errores
  * en otros campos).
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+type AnyResolver = (
+  values: FormFieldsPersonalData,
+  context: unknown,
+  options: unknown
+) => Promise<{
+  values: FormFieldsPersonalData;
+  errors: Record<string, { type: string; message?: string } | undefined>;
+}>;
+
 export const personalDataResolver = () => {
-  const zResolver = zodResolver(zFormFieldsPersonalData()) as any;
+  const zResolver = zodResolver(
+    zFormFieldsPersonalData()
+  ) as unknown as AnyResolver;
   return async (
     values: FormFieldsPersonalData,
     context: unknown,
