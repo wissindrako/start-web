@@ -1,0 +1,27 @@
+{
+  "common": {
+    "nombre": { "label": "First name" },
+    "primerApellido": { "label": "First surname" },
+    "segundoApellido": { "label": "Second surname" },
+    "tipoDocumento": { "label": "Document type" },
+    "numeroDocumento": { "label": "Document number" },
+    "fechaNacimiento": { "label": "Date of birth" },
+    "genero": { "label": "Gender" },
+    "telefono": { "label": "Phone" },
+    "telefonoAlternativo": { "label": "Alternative phone" },
+    "pais": { "label": "Country" },
+    "departamento": { "label": "State / Department" },
+    "ciudad": { "label": "City" },
+    "direccion": { "label": "Address" },
+    "codigoPostal": { "label": "Postal code" }
+  },
+  "manager": {
+    "update": {
+      "title": "Personal Data",
+      "cardTitle": "Identity & Contact",
+      "saveButton": { "label": "Save" },
+      "saveSuccess": "Personal data saved",
+      "saveError": "Failed to save personal data"
+    }
+  }
+}

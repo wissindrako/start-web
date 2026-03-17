@@ -2,7 +2,8 @@ import { getUiState } from '@bearstudio/ui-state';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ORPCError } from '@orpc/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AlertCircleIcon } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
+import { AlertCircleIcon, ContactIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -22,6 +23,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { authClient } from '@/features/auth/client';
 import { Role } from '@/features/role/schema';
 import { FormUser } from '@/features/user/manager/form-user';
+import { UserAvatarUpload } from '@/features/user/manager/user-avatar-upload';
 import { zFormFieldsUser } from '@/features/user/schema';
 import {
   PageLayout,
@@ -112,14 +114,31 @@ export const PageUserUpdate = (props: { params: { id: string } }) => {
           <PageLayoutTopBar
             startActions={<BackButton />}
             endActions={
-              <Button
-                size="sm"
-                type="submit"
-                className="min-w-20"
-                loading={userUpdate.isPending}
-              >
-                {t('user:manager.update.updateButton.label')}
-              </Button>
+              <>
+                <Link
+                  to="/manager/users/$id/personal-data"
+                  params={props.params}
+                >
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    render={<span />}
+                    nativeButton={false}
+                  >
+                    <ContactIcon className="mr-1.5 size-3.5" />
+                    {t('user:manager.update.personalDataButton')}
+                  </Button>
+                </Link>
+                <Button
+                  size="sm"
+                  type="submit"
+                  className="min-w-20"
+                  loading={userUpdate.isPending}
+                >
+                  {t('user:manager.update.updateButton.label')}
+                </Button>
+              </>
             }
           >
             <PageLayoutTopBarTitle>
@@ -133,6 +152,19 @@ export const PageUserUpdate = (props: { params: { id: string } }) => {
             </PageLayoutTopBarTitle>
           </PageLayoutTopBar>
           <PageLayoutContent containerClassName="flex flex-col gap-6 py-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t('user:manager.update.avatarTitle')}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <UserAvatarUpload
+                  userId={props.params.id}
+                  currentImage={userQuery.data?.image}
+                  currentThumbnail={userQuery.data?.imageThumbnail}
+                  userName={userQuery.data?.name}
+                />
+              </CardContent>
+            </Card>
             <Card>
               <CardContent>
                 <FormUser />

@@ -5,12 +5,14 @@ import { envClient } from '@/env/client';
 import { envServer } from '@/env/server';
 import { uploadClient } from '@/server/s3';
 import { bookCover } from '@/server/upload/book-cover';
+import { userAvatar } from '@/server/upload/user-avatar';
 
 const router = {
   client: uploadClient,
   bucketName: envServer.S3_BUCKET_NAME,
   routes: {
     bookCover,
+    userAvatar,
   },
 } as const satisfies Router;
 

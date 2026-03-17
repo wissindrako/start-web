@@ -20,5 +20,18 @@
     "submitButton": "Actualizar",
     "successMessage": "Nombre actualizado correctamente",
     "errorMessage": "Error al actualizar tu nombre"
+  },
+  "avatar": {
+    "title": "Foto de perfil",
+    "hint": "PNG, JPG o WebP · máx. 5 MB · se generan perfil (400×400) y miniatura (80×80)",
+    "uploadButton": "Subir imagen",
+    "updated": "Foto de perfil actualizada",
+    "removed": "Foto de perfil eliminada",
+    "updateError": "Error al guardar la foto de perfil",
+    "uploadError": "Error al subir la imagen"
+  },
+  "personalData": {
+    "title": "Datos personales",
+    "editButton": "Editar datos personales"
   }
 }

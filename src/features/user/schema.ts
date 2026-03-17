@@ -21,6 +21,7 @@ export const zUser = () =>
     emailVerified: z.boolean(),
     role: zRole().nullish(),
     image: z.string().nullish(),
+    imageThumbnail: z.string().nullish(),
     createdAt: z.date(),
     updatedAt: z.date(),
     onboardedAt: z.date().nullish(),

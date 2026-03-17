@@ -6,10 +6,10 @@ import {
   FormFieldController,
   FormFieldLabel,
 } from '@/components/form';
-
-import { AVAILABLE_PERMISSIONS, FormFieldsRole } from '@/features/role/schema';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+
+import { AVAILABLE_PERMISSIONS, FormFieldsRole } from '@/features/role/schema';
 
 export const FormRole = () => {
   const { t } = useTranslation(['role']);

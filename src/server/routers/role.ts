@@ -1,7 +1,7 @@
 import { ORPCError } from '@orpc/client';
 import { z } from 'zod';
 
-import { zRole, zFormFieldsRole } from '@/features/role/schema';
+import { zFormFieldsRole, zRole } from '@/features/role/schema';
 import { db } from '@/server/db';
 import { protectedProcedure } from '@/server/orpc';
 

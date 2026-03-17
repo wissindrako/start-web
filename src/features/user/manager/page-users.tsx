@@ -137,7 +137,7 @@ export const PageUsers = (props: { search: { searchTerm?: string } }) => {
                     <DataListCell className="flex-none">
                       <Avatar>
                         <AvatarImage
-                          src={item.image ?? undefined}
+                          src={item.imageThumbnail ?? item.image ?? undefined}
                           alt={item.name ?? ''}
                         />
                         <AvatarFallback

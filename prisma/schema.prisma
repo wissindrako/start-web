@@ -23,6 +23,7 @@ model User {
   email         String
   emailVerified Boolean
   image         String?
+  imageThumbnail String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
@@ -35,9 +36,34 @@ model User {
   onboardedAt DateTime?
 
   roles        UserRoleAssignment[]
+  personalData PersonalData?
 
   @@unique([email])
   @@map("user")
+}
+
+model PersonalData {
+  id                  String    @id @default(cuid())
+  userId              String    @unique
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nombre              String?
+  primerApellido      String?
+  segundoApellido     String?
+  tipoDocumento       String?
+  numeroDocumento     String?
+  fechaNacimiento     DateTime?
+  genero              String?
+  telefono            String?
+  telefonoAlternativo String?
+  pais                String?
+  departamento        String?
+  ciudad              String?
+  direccion           String?
+  codigoPostal        String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@map("personal_data")
 }
 
 model Role {

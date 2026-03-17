@@ -8,6 +8,7 @@ export const AVAILABLE_PERMISSIONS = [
   { subject: 'apps', actions: ['app', 'manager'] },
   { subject: 'book', actions: ['read', 'create', 'update', 'delete'] },
   { subject: 'genre', actions: ['read'] },
+  { subject: 'personalData', actions: ['read', 'create', 'update', 'delete'] },
   { subject: 'user', actions: ['list', 'create', 'update', 'delete', 'ban'] },
   { subject: 'role', actions: ['read', 'create', 'update', 'delete'] },
   { subject: 'account', actions: ['read', 'update'] },

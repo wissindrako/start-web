@@ -14,6 +14,7 @@ const statement = {
   apps: ['app', 'manager'],
   book: ['read', 'create', 'update', 'delete'],
   genre: ['read'],
+  personalData: ['read', 'create', 'update', 'delete'],
   role: ['read', 'create', 'update', 'delete'],
 } as const;
 
@@ -24,6 +25,7 @@ const user = ac.newRole({
   apps: ['app'],
   book: ['read'],
   genre: ['read'],
+  personalData: ['read', 'update'],
   role: ['read'],
 });
 
@@ -33,6 +35,7 @@ const admin = ac.newRole({
   apps: ['app', 'manager'],
   book: ['read', 'create', 'update', 'delete'],
   genre: ['read'],
+  personalData: ['read', 'create', 'update', 'delete'],
   role: ['read', 'create', 'update', 'delete'],
 });
 

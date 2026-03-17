@@ -49,7 +49,8 @@
       "session": "Session {{token}}",
       "sessionUpdated": "Updated {{time}}",
       "sessionExpires": "Expires {{time}}",
-      "editUser": "Edit user"
+      "editUser": "Edit user",
+      "personalDataButton": "Personal data"
     },
     "form": {
       "emailAlreadyExist": "Email already used"
@@ -70,7 +71,19 @@
       "rolesTitle": "Dynamic Roles",
       "rolesUpdated": "Roles updated",
       "rolesUpdateError": "Failed to update roles",
-      "saveRolesButton": "Save roles"
+      "saveRolesButton": "Save roles",
+      "personalDataButton": "Personal data",
+      "avatarTitle": "Profile picture",
+      "avatarHint": "PNG, JPG or WebP · max 5 MB · generates profile (400×400) and thumbnail (80×80)",
+      "avatarUploadButton": "Upload image",
+      "avatarUpdated": "Profile picture updated",
+      "avatarRemoved": "Profile picture removed",
+      "avatarUpdateError": "Failed to save profile picture",
+      "avatarUploadError": "Failed to upload image"
+    },
+    "uploadErrors": {
+      "NOT_AUTHENTICATED": "Not authenticated",
+      "UNAUTHORIZED": "Unauthorized"
     }
   }
 }

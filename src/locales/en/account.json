@@ -20,5 +20,18 @@
     "submitButton": "Update",
     "successMessage": "Name updated",
     "errorMessage": "Failed to update your name"
+  },
+  "avatar": {
+    "title": "Profile picture",
+    "hint": "PNG, JPG or WebP · max 5 MB · generates profile (400×400) and thumbnail (80×80)",
+    "uploadButton": "Upload image",
+    "updated": "Profile picture updated",
+    "removed": "Profile picture removed",
+    "updateError": "Failed to save profile picture",
+    "uploadError": "Failed to upload image"
+  },
+  "personalData": {
+    "title": "Personal data",
+    "editButton": "Edit personal data"
   }
 }

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { orpc } from '@/lib/orpc/client';
+
 import { authClient } from '@/features/auth/client';
 import { Permission } from '@/features/auth/permissions';
 

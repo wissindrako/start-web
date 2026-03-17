@@ -1,0 +1,27 @@
+{
+  "common": {
+    "nombre": { "label": "Nombre" },
+    "primerApellido": { "label": "Primer apellido" },
+    "segundoApellido": { "label": "Segundo apellido" },
+    "tipoDocumento": { "label": "Tipo de documento" },
+    "numeroDocumento": { "label": "Número de documento" },
+    "fechaNacimiento": { "label": "Fecha de nacimiento" },
+    "genero": { "label": "Género" },
+    "telefono": { "label": "Teléfono" },
+    "telefonoAlternativo": { "label": "Teléfono alternativo" },
+    "pais": { "label": "País" },
+    "departamento": { "label": "Departamento" },
+    "ciudad": { "label": "Ciudad" },
+    "direccion": { "label": "Dirección" },
+    "codigoPostal": { "label": "Código postal" }
+  },
+  "manager": {
+    "update": {
+      "title": "Datos Personales",
+      "cardTitle": "Identidad y Contacto",
+      "saveButton": { "label": "Guardar" },
+      "saveSuccess": "Datos personales guardados",
+      "saveError": "Error al guardar los datos personales"
+    }
+  }
+}

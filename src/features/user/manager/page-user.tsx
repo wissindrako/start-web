@@ -8,7 +8,12 @@ import {
 } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import dayjs from 'dayjs';
-import { AlertCircleIcon, PencilLineIcon, Trash2Icon } from 'lucide-react';
+import {
+  AlertCircleIcon,
+  ContactIcon,
+  PencilLineIcon,
+  Trash2Icon,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
@@ -191,6 +196,25 @@ export const PageUser = (props: { params: { id: string } }) => {
                           </span>
                         </Button>
                         <span className="absolute inset-0" />
+                      </Link>
+                    </WithPermissions>
+                    <WithPermissions permissions={[{ personalData: ['read'] }]}>
+                      <Link
+                        to="/manager/users/$id/personal-data"
+                        params={props.params}
+                        className="-m-2 self-start"
+                      >
+                        <Button
+                          size="icon-sm"
+                          variant="ghost"
+                          render={<span />}
+                          nativeButton={false}
+                        >
+                          <ContactIcon />
+                          <span className="sr-only">
+                            {t('user:manager.detail.personalDataButton')}
+                          </span>
+                        </Button>
                       </Link>
                     </WithPermissions>
                   </div>

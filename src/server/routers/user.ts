@@ -362,6 +362,40 @@ export default {
         throw new ORPCError('INTERNAL_SERVER_ERROR');
       }
     }),
+  updateImage: protectedProcedure({
+    permission: {
+      user: ['update'],
+    },
+  })
+    .route({
+      method: 'POST',
+      path: '/users/{id}/image',
+      tags,
+    })
+    .input(
+      z.object({
+        id: z.string(),
+        image: z.string().nullable(),
+        imageThumbnail: z.string().nullable(),
+      })
+    )
+    .output(zUser())
+    .handler(async ({ context, input }) => {
+      const user = await context.db.user.findUnique({
+        where: { id: input.id },
+      });
+      if (!user) throw new ORPCError('NOT_FOUND');
+
+      context.logger.info('Update user image');
+      return await context.db.user.update({
+        where: { id: input.id },
+        data: {
+          image: input.image,
+          imageThumbnail: input.imageThumbnail,
+        },
+      });
+    }),
+
   getUserRoles: protectedProcedure({
     permission: { user: ['update'] },
   })
