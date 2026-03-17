@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FormPersonalData } from '@/features/personal-data/manager/form-personal-data';
 import {
   FormFieldsPersonalData,
+  PersonalData,
   zFormFieldsPersonalData,
 } from '@/features/personal-data/schema';
 import {
@@ -26,7 +27,7 @@ import {
 } from '@/layout/app/page-layout';
 
 const toFormValues = (
-  data: Partial<FormFieldsPersonalData> | null | undefined
+  data: PersonalData | null | undefined
 ): FormFieldsPersonalData => ({
   nombre: data?.nombre ?? '',
   primerApellido: data?.primerApellido ?? null,
