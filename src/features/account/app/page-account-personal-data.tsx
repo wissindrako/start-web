@@ -1,6 +1,5 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { type Resolver, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
@@ -17,7 +16,7 @@ import { FormPersonalData } from '@/features/personal-data/manager/form-personal
 import {
   FormFieldsPersonalData,
   PersonalData,
-  zFormFieldsPersonalData,
+  personalDataResolver,
 } from '@/features/personal-data/schema';
 import {
   PageLayout,
@@ -55,9 +54,7 @@ export const PageAccountPersonalData = () => {
   );
 
   const form = useForm<FormFieldsPersonalData>({
-    resolver: zodResolver(
-      zFormFieldsPersonalData()
-    ) as Resolver<FormFieldsPersonalData>,
+    resolver: personalDataResolver(),
     values: toFormValues(personalDataQuery.data),
   });
 
@@ -82,18 +79,6 @@ export const PageAccountPersonalData = () => {
       <Form
         {...form}
         onSubmit={(values) => {
-          if (!values.primerApellido && !values.segundoApellido) {
-            const msg = t('personal-data:errors.apellidoRequired');
-            form.setError('primerApellido', { message: msg });
-            form.setError('segundoApellido', { message: msg });
-            return;
-          }
-          if (!values.fechaNacimiento) {
-            form.setError('fechaNacimiento', {
-              message: t('personal-data:errors.fechaNacimientoRequired'),
-            });
-            return;
-          }
           upsert.mutate(values);
         }}
       >

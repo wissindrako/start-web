@@ -1,3 +1,6 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { t } from 'i18next';
+import type { Resolver } from 'react-hook-form';
 import { z } from 'zod';
 
 import { zu } from '@/lib/zod/zod-utils';
@@ -45,3 +48,30 @@ export const zFormFieldsPersonalData = () =>
     direccion: zu.fieldText.required(),
     codigoPostal: zu.fieldText.nullish(),
   });
+
+/**
+ * Resolver personalizado que combina zodResolver con validaciones cruzadas.
+ * Esto permite que todos los errores aparezcan simultáneamente al enviar el
+ * formulario, sin depender de superRefine (que Zod omite cuando hay errores
+ * en otros campos).
+ */
+export const personalDataResolver = (): Resolver<FormFieldsPersonalData> => {
+  const zResolver = zodResolver(zFormFieldsPersonalData());
+  return async (values, context, options) => {
+    const result = await zResolver(values, context, options);
+
+    if (!values.primerApellido && !values.segundoApellido) {
+      const msg = t('personal-data:errors.apellidoRequired');
+      result.errors.primerApellido ??= { type: 'custom', message: msg };
+      result.errors.segundoApellido ??= { type: 'custom', message: msg };
+    }
+    if (!values.fechaNacimiento) {
+      result.errors.fechaNacimiento ??= {
+        type: 'custom',
+        message: t('personal-data:errors.fechaNacimientoRequired'),
+      };
+    }
+
+    return result;
+  };
+};
