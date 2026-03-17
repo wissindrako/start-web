@@ -82,6 +82,18 @@ export const PageAccountPersonalData = () => {
       <Form
         {...form}
         onSubmit={(values) => {
+          if (!values.primerApellido && !values.segundoApellido) {
+            const msg = t('personal-data:errors.apellidoRequired');
+            form.setError('primerApellido', { message: msg });
+            form.setError('segundoApellido', { message: msg });
+            return;
+          }
+          if (!values.fechaNacimiento) {
+            form.setError('fechaNacimiento', {
+              message: t('personal-data:errors.fechaNacimientoRequired'),
+            });
+            return;
+          }
           upsert.mutate(values);
         }}
       >
