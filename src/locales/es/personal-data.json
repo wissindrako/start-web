@@ -15,6 +15,10 @@
     "direccion": { "label": "Dirección" },
     "codigoPostal": { "label": "Código postal" }
   },
+  "errors": {
+    "apellidoRequired": "Al menos un apellido es obligatorio",
+    "fechaNacimientoRequired": "La fecha de nacimiento es obligatoria"
+  },
   "manager": {
     "update": {
       "title": "Datos Personales",

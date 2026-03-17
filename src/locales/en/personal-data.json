@@ -15,6 +15,10 @@
     "direccion": { "label": "Address" },
     "codigoPostal": { "label": "Postal code" }
   },
+  "errors": {
+    "apellidoRequired": "At least one surname is required",
+    "fechaNacimientoRequired": "Date of birth is required"
+  },
   "manager": {
     "update": {
       "title": "Personal Data",
