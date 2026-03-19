@@ -24,7 +24,10 @@ export const zUser = () =>
     imageThumbnail: z.string().nullish(),
     createdAt: z.date(),
     updatedAt: z.date(),
-    onboardedAt: z.date().nullish(),
+    verifiedAt: z.date().nullish(),
+    banned: z.boolean().nullish(),
+    banReason: z.string().nullish(),
+    banExpires: z.date().nullish(),
   });
 
 export type Session = z.infer<ReturnType<typeof zSession>>;

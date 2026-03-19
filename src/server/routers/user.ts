@@ -396,6 +396,105 @@ export default {
       });
     }),
 
+  setVerified: protectedProcedure({
+    permission: {
+      user: ['update'],
+    },
+  })
+    .route({
+      method: 'POST',
+      path: '/users/{id}/set-verified',
+      tags,
+    })
+    .input(
+      z.object({
+        id: z.string(),
+        verified: z.boolean(),
+      })
+    )
+    .output(zUser())
+    .handler(async ({ context, input }) => {
+      const user = await context.db.user.findUnique({
+        where: { id: input.id },
+      });
+      if (!user) throw new ORPCError('NOT_FOUND');
+
+      context.logger.info('Set user verified status');
+      return await context.db.user.update({
+        where: { id: input.id },
+        data: { verifiedAt: input.verified ? new Date() : null },
+      });
+    }),
+
+  banUser: protectedProcedure({
+    permission: {
+      user: ['update'],
+    },
+  })
+    .route({
+      method: 'POST',
+      path: '/users/{id}/ban',
+      tags,
+    })
+    .input(
+      z.object({
+        id: z.string(),
+        reason: z.string().optional(),
+        banExpires: z.coerce.date().optional(),
+      })
+    )
+    .output(zUser())
+    .handler(async ({ context, input }) => {
+      if (context.user.id === input.id) {
+        throw new ORPCError('BAD_REQUEST', {
+          message: 'You cannot ban yourself',
+        });
+      }
+      const user = await context.db.user.findUnique({
+        where: { id: input.id },
+      });
+      if (!user) throw new ORPCError('NOT_FOUND');
+
+      context.logger.info('Banning user');
+      return await context.db.user.update({
+        where: { id: input.id },
+        data: {
+          banned: true,
+          banReason: input.reason ?? null,
+          banExpires: input.banExpires ?? null,
+        },
+      });
+    }),
+
+  unbanUser: protectedProcedure({
+    permission: {
+      user: ['update'],
+    },
+  })
+    .route({
+      method: 'POST',
+      path: '/users/{id}/unban',
+      tags,
+    })
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .output(zUser())
+    .handler(async ({ context, input }) => {
+      const user = await context.db.user.findUnique({
+        where: { id: input.id },
+      });
+      if (!user) throw new ORPCError('NOT_FOUND');
+
+      context.logger.info('Unbanning user');
+      return await context.db.user.update({
+        where: { id: input.id },
+        data: { banned: false, banReason: null, banExpires: null },
+      });
+    }),
+
   getUserRoles: protectedProcedure({
     permission: { user: ['update'] },
   })

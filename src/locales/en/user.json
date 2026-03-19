@@ -12,9 +12,9 @@
       "invalid": "Name is invalid",
       "notAvailable": "N/A"
     },
-    "onboardingStatus": {
-      "notOnboarded": "Not onboarded",
-      "onboardedAt": "Onboarded {{time}}"
+    "verifiedStatus": {
+      "notVerified": "Not verified",
+      "verifiedAt": "Verified {{time}}"
     },
     "role": {
       "label": "Role",
@@ -27,7 +27,11 @@
       "newButton": "New User",
       "loadMore": "Load more",
       "showing": "Showing {{count}} of {{total}}",
-      "searchResults": "{{total}} results for \"{{searchTerm}}\""
+      "searchResults": "{{total}} results for \"{{searchTerm}}\"",
+      "confirmVerifyTitle": "Verify {{user}}",
+      "confirmVerifyDescription": "Are you sure you want to verify this user?",
+      "confirmUnverifyTitle": "Remove verification from {{user}}",
+      "confirmUnverifyDescription": "Are you sure you want to remove verification from this user?"
     },
     "detail": {
       "editButton": {
@@ -50,7 +54,27 @@
       "sessionUpdated": "Updated {{time}}",
       "sessionExpires": "Expires {{time}}",
       "editUser": "Edit user",
-      "personalDataButton": "Personal data"
+      "personalDataButton": "Personal data",
+      "verifyButton": "Verify",
+      "unverifyButton": "Remove verification",
+      "verified": "User verified",
+      "unverified": "Verification removed",
+      "verifyError": "Failed to change verification",
+      "banButton": "Block user",
+      "unbanButton": "Unblock user",
+      "banned": "User blocked",
+      "unbanned": "User unblocked",
+      "banError": "Failed to block user",
+      "unbanError": "Failed to unblock user",
+      "confirmBanTitle": "Block {{user}}",
+      "confirmBanDescription": "This user will immediately lose access to the system. You can unblock them at any time.",
+      "confirmUnbanTitle": "Unblock {{user}}",
+      "confirmUnbanDescription": "This user will regain access to the system.",
+      "banReasonLabel": "Reason (optional)",
+      "banReasonPlaceholder": "e.g. Violation of terms of service",
+      "banExpiresLabel": "Block until (leave empty for permanent)",
+      "cancelButton": "Cancel",
+      "bannedBadge": "Blocked"
     },
     "form": {
       "emailAlreadyExist": "Email already used"

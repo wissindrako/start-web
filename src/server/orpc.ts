@@ -188,6 +188,12 @@ export const protectedProcedure = ({
       throw new ORPCError('UNAUTHORIZED');
     }
 
+    if (user.banned) {
+      throw new ORPCError('FORBIDDEN', {
+        message: 'User is banned',
+      });
+    }
+
     if (!permission) {
       return await next({ context: { user, session } });
     }

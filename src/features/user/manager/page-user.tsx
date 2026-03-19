@@ -1,4 +1,5 @@
 import { getUiState } from '@bearstudio/ui-state';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { ORPCError } from '@orpc/client';
 import {
   useInfiniteQuery,
@@ -10,18 +11,29 @@ import { Link } from '@tanstack/react-router';
 import dayjs from 'dayjs';
 import {
   AlertCircleIcon,
+  BanIcon,
   ContactIcon,
   PencilLineIcon,
+  ShieldCheckIcon,
   Trash2Icon,
 } from 'lucide-react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { z } from 'zod';
 
 import { orpc } from '@/lib/orpc/client';
 import { useNavigateBack } from '@/hooks/use-navigate-back';
 
 import { BackButton } from '@/components/back-button';
 import { PageError } from '@/components/errors/page-error';
+import {
+  Form,
+  FormField,
+  FormFieldController,
+  FormFieldLabel,
+} from '@/components/form';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -42,6 +54,14 @@ import {
   DataListRow,
   DataListText,
 } from '@/components/ui/datalist';
+import {
+  ResponsiveDrawer,
+  ResponsiveDrawerContent,
+  ResponsiveDrawerDescription,
+  ResponsiveDrawerFooter,
+  ResponsiveDrawerHeader,
+  ResponsiveDrawerTitle,
+} from '@/components/ui/responsive-drawer';
 import { ResponsiveIconButton } from '@/components/ui/responsive-icon-button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Spinner } from '@/components/ui/spinner';
@@ -110,33 +130,39 @@ export const PageUser = (props: { params: { id: string } }) => {
         endActions={
           <>
             {session.data?.user.id !== props.params.id && (
-              <WithPermissions
-                permissions={[
-                  {
-                    user: ['delete'],
-                  },
-                ]}
-              >
-                <ConfirmResponsiveDrawer
-                  onConfirm={() => deleteUser()}
-                  title={t('user:manager.detail.confirmDeleteTitle', {
-                    user: userQuery.data?.name ?? userQuery.data?.email ?? '--',
-                  })}
-                  description={t(
-                    'user:manager.detail.confirmDeleteDescription'
-                  )}
-                  confirmText={t('user:manager.detail.deleteButton.label')}
-                  confirmVariant="destructive"
-                >
-                  <ResponsiveIconButton
-                    variant="ghost"
-                    label={t('user:manager.detail.deleteButton.label')}
-                    size="sm"
+              <>
+                <WithPermissions permissions={[{ user: ['update'] }]}>
+                  {ui.when('default', ({ user }) => (
+                    <BanUserButton
+                      userId={props.params.id}
+                      userName={user.name ?? user.email ?? '--'}
+                      banned={!!user.banned}
+                    />
+                  ))}
+                </WithPermissions>
+                <WithPermissions permissions={[{ user: ['delete'] }]}>
+                  <ConfirmResponsiveDrawer
+                    onConfirm={() => deleteUser()}
+                    title={t('user:manager.detail.confirmDeleteTitle', {
+                      user:
+                        userQuery.data?.name ?? userQuery.data?.email ?? '--',
+                    })}
+                    description={t(
+                      'user:manager.detail.confirmDeleteDescription'
+                    )}
+                    confirmText={t('user:manager.detail.deleteButton.label')}
+                    confirmVariant="destructive"
                   >
-                    <Trash2Icon />
-                  </ResponsiveIconButton>
-                </ConfirmResponsiveDrawer>
-              </WithPermissions>
+                    <ResponsiveIconButton
+                      variant="ghost"
+                      label={t('user:manager.detail.deleteButton.label')}
+                      size="sm"
+                    >
+                      <Trash2Icon />
+                    </ResponsiveIconButton>
+                  </ConfirmResponsiveDrawer>
+                </WithPermissions>
+              </>
             )}
           </>
         }
@@ -226,17 +252,22 @@ export const PageUser = (props: { params: { id: string } }) => {
                     >
                       {user.role ?? '-'}
                     </Badge>
+                    {user.banned && (
+                      <Badge variant="negative">
+                        {t('user:manager.detail.bannedBadge')}
+                      </Badge>
+                    )}
                     <p className="text-sm text-muted-foreground">
-                      {user.onboardedAt ? (
+                      {user.verifiedAt ? (
                         <>
-                          {t('user:common.onboardingStatus.onboardedAt', {
-                            time: dayjs(user.onboardedAt).format(
+                          {t('user:common.verifiedStatus.verifiedAt', {
+                            time: dayjs(user.verifiedAt).format(
                               'DD/MM/YYYY [at] HH:mm'
                             ),
                           })}
                         </>
                       ) : (
-                        <>{t('user:common.onboardingStatus.notOnboarded')}</>
+                        <>{t('user:common.verifiedStatus.notVerified')}</>
                       )}
                     </p>
                   </div>
@@ -449,5 +480,165 @@ const RevokeSessionButton = (props: {
     >
       {t('user:manager.detail.revokeSession')}
     </Button>
+  );
+};
+
+const zBanForm = () =>
+  z.object({
+    reason: z.string().optional(),
+    banExpires: z.date().optional(),
+  });
+type BanFormFields = z.infer<ReturnType<typeof zBanForm>>;
+
+const BanUserButton = (props: {
+  userId: string;
+  userName: string;
+  banned: boolean;
+}) => {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation(['user']);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const form = useForm<BanFormFields>({
+    resolver: zodResolver(zBanForm()),
+    defaultValues: { reason: '', banExpires: undefined },
+  });
+
+  const banUser = useMutation(
+    orpc.user.banUser.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: orpc.user.getById.key({ input: { id: props.userId } }),
+        });
+        toast.success(t('user:manager.detail.banned'));
+        setIsOpen(false);
+        form.reset();
+      },
+      onError: () => {
+        toast.error(t('user:manager.detail.banError'));
+      },
+    })
+  );
+
+  const unbanUser = useMutation(
+    orpc.user.unbanUser.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: orpc.user.getById.key({ input: { id: props.userId } }),
+        });
+        toast.success(t('user:manager.detail.unbanned'));
+        setIsOpen(false);
+      },
+      onError: () => {
+        toast.error(t('user:manager.detail.unbanError'));
+      },
+    })
+  );
+
+  const handleConfirm = form.handleSubmit((values) => {
+    banUser.mutate({
+      id: props.userId,
+      reason: values.reason || undefined,
+      banExpires: values.banExpires,
+    });
+  });
+
+  const isPending = banUser.isPending || unbanUser.isPending;
+
+  return (
+    <>
+      <ResponsiveIconButton
+        variant="ghost"
+        label={
+          props.banned
+            ? t('user:manager.detail.unbanButton')
+            : t('user:manager.detail.banButton')
+        }
+        size="sm"
+        loading={isPending}
+        onClick={() => setIsOpen(true)}
+      >
+        {props.banned ? <ShieldCheckIcon /> : <BanIcon />}
+      </ResponsiveIconButton>
+
+      <ResponsiveDrawer open={isOpen} onOpenChange={setIsOpen}>
+        <ResponsiveDrawerContent className="sm:max-w-sm">
+          <ResponsiveDrawerHeader>
+            <ResponsiveDrawerTitle>
+              {props.banned
+                ? t('user:manager.detail.confirmUnbanTitle', {
+                    user: props.userName,
+                  })
+                : t('user:manager.detail.confirmBanTitle', {
+                    user: props.userName,
+                  })}
+            </ResponsiveDrawerTitle>
+            <ResponsiveDrawerDescription>
+              {props.banned
+                ? t('user:manager.detail.confirmUnbanDescription')
+                : t('user:manager.detail.confirmBanDescription')}
+            </ResponsiveDrawerDescription>
+          </ResponsiveDrawerHeader>
+
+          {!props.banned && (
+            <Form {...form}>
+              <div className="flex flex-col gap-4 px-4 pb-2 sm:px-6">
+                <FormField>
+                  <FormFieldLabel>
+                    {t('user:manager.detail.banReasonLabel')}
+                  </FormFieldLabel>
+                  <FormFieldController
+                    type="textarea"
+                    control={form.control}
+                    name="reason"
+                    placeholder={t('user:manager.detail.banReasonPlaceholder')}
+                    rows={3}
+                  />
+                </FormField>
+                <FormField>
+                  <FormFieldLabel>
+                    {t('user:manager.detail.banExpiresLabel')}
+                  </FormFieldLabel>
+                  <FormFieldController
+                    type="date"
+                    control={form.control}
+                    name="banExpires"
+                  />
+                </FormField>
+              </div>
+            </Form>
+          )}
+
+          <ResponsiveDrawerFooter>
+            <Button
+              variant="secondary"
+              className="max-sm:w-full"
+              onClick={() => {
+                setIsOpen(false);
+                form.reset();
+              }}
+            >
+              {t('user:manager.detail.cancelButton')}
+            </Button>
+            <Button
+              variant={props.banned ? 'default' : 'destructive'}
+              className="max-sm:w-full"
+              loading={isPending}
+              onClick={() => {
+                if (props.banned) {
+                  unbanUser.mutate({ id: props.userId });
+                } else {
+                  handleConfirm();
+                }
+              }}
+            >
+              {props.banned
+                ? t('user:manager.detail.unbanButton')
+                : t('user:manager.detail.banButton')}
+            </Button>
+          </ResponsiveDrawerFooter>
+        </ResponsiveDrawerContent>
+      </ResponsiveDrawer>
+    </>
   );
 };

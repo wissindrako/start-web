@@ -12,9 +12,9 @@
       "invalid": "El nombre es inválido",
       "notAvailable": "N/D"
     },
-    "onboardingStatus": {
-      "notOnboarded": "No incorporado",
-      "onboardedAt": "Incorporado {{time}}"
+    "verifiedStatus": {
+      "notVerified": "No verificado",
+      "verifiedAt": "Verificado {{time}}"
     },
     "role": {
       "label": "Rol",
@@ -27,7 +27,11 @@
       "newButton": "Nuevo Usuario",
       "loadMore": "Cargar más",
       "showing": "Mostrando {{count}} de {{total}}",
-      "searchResults": "{{total}} resultados para \"{{searchTerm}}\""
+      "searchResults": "{{total}} resultados para \"{{searchTerm}}\"",
+      "confirmVerifyTitle": "Verificar {{user}}",
+      "confirmVerifyDescription": "¿Confirmas que deseas verificar a este usuario?",
+      "confirmUnverifyTitle": "Quitar verificación a {{user}}",
+      "confirmUnverifyDescription": "¿Confirmas que deseas quitar la verificación a este usuario?"
     },
     "detail": {
       "editButton": {
@@ -50,7 +54,27 @@
       "sessionUpdated": "Actualizado {{time}}",
       "sessionExpires": "Expira {{time}}",
       "editUser": "Editar usuario",
-      "personalDataButton": "Datos personales"
+      "personalDataButton": "Datos personales",
+      "verifyButton": "Verificar",
+      "unverifyButton": "Quitar verificación",
+      "verified": "Usuario verificado",
+      "unverified": "Verificación eliminada",
+      "verifyError": "Error al cambiar la verificación",
+      "banButton": "Bloquear usuario",
+      "unbanButton": "Desbloquear usuario",
+      "banned": "Usuario bloqueado",
+      "unbanned": "Usuario desbloqueado",
+      "banError": "Error al bloquear el usuario",
+      "unbanError": "Error al desbloquear el usuario",
+      "confirmBanTitle": "Bloquear a {{user}}",
+      "confirmBanDescription": "Este usuario perderá el acceso al sistema de inmediato. Puedes desbloquearlo en cualquier momento.",
+      "confirmUnbanTitle": "Desbloquear a {{user}}",
+      "confirmUnbanDescription": "Este usuario recuperará el acceso al sistema.",
+      "banReasonLabel": "Motivo (opcional)",
+      "banReasonPlaceholder": "Ej. Incumplimiento de términos de servicio",
+      "banExpiresLabel": "Bloquear hasta (dejar vacío para permanente)",
+      "cancelButton": "Cancelar",
+      "bannedBadge": "Bloqueado"
     },
     "form": {
       "emailAlreadyExist": "Correo electrónico ya utilizado"
@@ -74,7 +98,7 @@
       "saveRolesButton": "Guardar roles",
       "personalDataButton": "Datos personales",
       "avatarTitle": "Foto de perfil",
-      "avatarHint": "PNG, JPG o WebP · máx. 5 MB · se generan perfil (400×400) y miniatura (80×80)",
+      "avatarHint": "PNG, JPG o WebP · máx. 5 MB",
       "avatarUploadButton": "Subir imagen",
       "avatarUpdated": "Foto de perfil actualizada",
       "avatarRemoved": "Foto de perfil eliminada",

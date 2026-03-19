@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from '@tanstack/react-router';
 import { ArrowLeftIcon } from 'lucide-react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
@@ -37,6 +38,7 @@ export default function PageLoginVerify({
 }) {
   const { t } = useTranslation(['auth', 'common']);
   const session = authClient.useSession();
+  const router = useRouter();
 
   const form = useForm({
     mode: 'onSubmit',
@@ -64,6 +66,12 @@ export default function PageLoginVerify({
             )
           : error.message || t('auth:errorCode.UNKNOWN_ERROR')
       );
+
+      if (error.code === 'BANNED_USER') {
+        router.navigate({ to: '/login', replace: true });
+        return;
+      }
+
       form.setError('otp', {
         message: t('auth:common.otp.invalid'),
       });

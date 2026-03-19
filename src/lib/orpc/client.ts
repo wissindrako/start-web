@@ -18,6 +18,17 @@ const link = new RPCLink({
       if (error instanceof ORPCError && error.message === 'DEMO_MODE_ENABLED') {
         openDemoModeDrawer();
       }
+
+      // When the server rejects the request due to auth (session revoked or
+      // user banned), notify GuardAuthenticated to refetch the session so it
+      // can show the appropriate screen (login redirect or banned page)
+      // instead of a generic "unknown server error".
+      if (
+        error instanceof ORPCError &&
+        (error.code === 'UNAUTHORIZED' || error.code === 'FORBIDDEN')
+      ) {
+        window.dispatchEvent(new CustomEvent('auth:session-invalid'));
+      }
     }),
   ],
 });
