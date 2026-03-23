@@ -1,16 +1,21 @@
 import { getUiState } from '@bearstudio/ui-state';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { Link, useRouter } from '@tanstack/react-router';
 import dayjs from 'dayjs';
-import { PlusIcon } from 'lucide-react';
+import { BadgeCheckIcon, PlusIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
 import { orpc } from '@/lib/orpc/client';
-import { cn } from '@/lib/tailwind/utils';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { ConfirmResponsiveDrawer } from '@/components/ui/confirm-responsive-drawer';
 import {
   DataList,
   DataListCell,
@@ -21,16 +26,28 @@ import {
   DataListRowResults,
   DataListText,
 } from '@/components/ui/datalist';
+import { ResponsiveIconButton } from '@/components/ui/responsive-icon-button';
 import { ResponsiveIconButtonLink } from '@/components/ui/responsive-icon-button-link';
 import { SearchButton } from '@/components/ui/search-button';
 import { SearchInput } from '@/components/ui/search-input';
 
+import { authClient } from '@/features/auth/client';
+import { WithPermissions } from '@/features/auth/with-permission';
+import { User } from '@/features/user/schema';
 import {
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
   PageLayoutTopBarTitle,
 } from '@/layout/manager/page-layout';
+
+const getDisplayName = (user: User): string => {
+  const { nombre, primerApellido, segundoApellido } = user.personalData ?? {};
+  const fullName = [nombre, primerApellido, segundoApellido]
+    .filter(Boolean)
+    .join(' ');
+  return fullName || user.name || user.email;
+};
 
 export const PageUsers = (props: { search: { searchTerm?: string } }) => {
   const { t } = useTranslation(['user']);
@@ -149,7 +166,7 @@ export const PageUsers = (props: { search: { searchTerm?: string } }) => {
                     <DataListCell>
                       <DataListText className="font-medium">
                         <Link to="/manager/users/$id" params={{ id: item.id }}>
-                          {item.name}
+                          {getDisplayName(item)}
                           <span className="absolute inset-0" />
                         </Link>
                       </DataListText>
@@ -157,33 +174,22 @@ export const PageUsers = (props: { search: { searchTerm?: string } }) => {
                         {item.email}
                       </DataListText>
                     </DataListCell>
-                    <DataListCell className="flex-[0.5] max-sm:hidden">
+                    <DataListCell className="flex-none max-sm:hidden">
                       <Badge
-                        variant={
-                          item.role === 'admin' ? 'default' : 'secondary'
-                        }
+                        variant={item.verifiedAt ? 'default' : 'secondary'}
                       >
-                        {item.role ?? '-'}
+                        {item.verifiedAt
+                          ? t('user:common.verifiedStatus.verifiedAt', {
+                              time: dayjs(item.verifiedAt).fromNow(),
+                            })
+                          : t('user:common.verifiedStatus.notVerified')}
                       </Badge>
                     </DataListCell>
-                    <DataListCell className="flex-[0.5] max-sm:hidden">
-                      <DataListText
-                        className={cn(
-                          'text-xs text-muted-foreground',
-                          !item.onboardedAt && 'opacity-60'
-                        )}
-                      >
-                        {item.onboardedAt ? (
-                          <>
-                            {t('user:common.onboardingStatus.onboardedAt', {
-                              time: dayjs(item.onboardedAt).fromNow(),
-                            })}
-                          </>
-                        ) : (
-                          t('user:common.onboardingStatus.notOnboarded')
-                        )}
-                      </DataListText>
-                    </DataListCell>
+                    <WithPermissions permissions={[{ user: ['update'] }]}>
+                      <DataListCell className="relative z-10 flex-none">
+                        <VerifyUserButton item={item} />
+                      </DataListCell>
+                    </WithPermissions>
                   </DataListRow>
                 ))}
                 <DataListRow>
@@ -213,5 +219,70 @@ export const PageUsers = (props: { search: { searchTerm?: string } }) => {
         </DataList>
       </PageLayoutContent>
     </PageLayout>
+  );
+};
+
+const VerifyUserButton = ({ item }: { item: User }) => {
+  const { t } = useTranslation(['user']);
+  const queryClient = useQueryClient();
+  const session = authClient.useSession();
+
+  const setVerified = useMutation(
+    orpc.user.setVerified.mutationOptions({
+      onSuccess: async (updatedUser) => {
+        await queryClient.invalidateQueries({
+          queryKey: orpc.user.getAll.key(),
+          type: 'all',
+        });
+        toast.success(
+          updatedUser.verifiedAt
+            ? t('user:manager.detail.verified')
+            : t('user:manager.detail.unverified')
+        );
+      },
+      onError: () => {
+        toast.error(t('user:manager.detail.verifyError'));
+      },
+    })
+  );
+
+  if (session.data?.user.id === item.id) return null;
+
+  const userName = item.name ?? item.email;
+
+  return (
+    <ConfirmResponsiveDrawer
+      onConfirm={() =>
+        setVerified.mutate({ id: item.id, verified: !item.verifiedAt })
+      }
+      title={
+        item.verifiedAt
+          ? t('user:manager.list.confirmUnverifyTitle', { user: userName })
+          : t('user:manager.list.confirmVerifyTitle', { user: userName })
+      }
+      description={
+        item.verifiedAt
+          ? t('user:manager.list.confirmUnverifyDescription')
+          : t('user:manager.list.confirmVerifyDescription')
+      }
+      confirmText={
+        item.verifiedAt
+          ? t('user:manager.detail.unverifyButton')
+          : t('user:manager.detail.verifyButton')
+      }
+    >
+      <ResponsiveIconButton
+        variant="ghost"
+        size="sm"
+        label={
+          item.verifiedAt
+            ? t('user:manager.detail.unverifyButton')
+            : t('user:manager.detail.verifyButton')
+        }
+        loading={setVerified.isPending}
+      >
+        <BadgeCheckIcon />
+      </ResponsiveIconButton>
+    </ConfirmResponsiveDrawer>
   );
 };

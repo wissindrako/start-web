@@ -28,6 +28,13 @@ export const zUser = () =>
     banned: z.boolean().nullish(),
     banReason: z.string().nullish(),
     banExpires: z.date().nullish(),
+    personalData: z
+      .object({
+        nombre: z.string().nullish(),
+        primerApellido: z.string().nullish(),
+        segundoApellido: z.string().nullish(),
+      })
+      .nullish(),
   });
 
 export type Session = z.infer<ReturnType<typeof zSession>>;

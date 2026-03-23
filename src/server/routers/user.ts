@@ -68,6 +68,15 @@ export default {
             name: 'asc',
           },
           where,
+          include: {
+            personalData: {
+              select: {
+                nombre: true,
+                primerApellido: true,
+                segundoApellido: true,
+              },
+            },
+          },
         }),
       ]);
 
