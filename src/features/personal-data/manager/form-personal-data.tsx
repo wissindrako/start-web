@@ -7,7 +7,11 @@ import {
   FormFieldLabel,
 } from '@/components/form';
 
-import { FormFieldsPersonalData } from '@/features/personal-data/schema';
+import {
+  FormFieldsPersonalData,
+  GENERO_OPTIONS,
+  TIPO_DOCUMENTO_OPTIONS,
+} from '@/features/personal-data/schema';
 
 export const FormPersonalData = () => {
   const { t } = useTranslation(['personal-data']);
@@ -54,9 +58,14 @@ export const FormPersonalData = () => {
             {t('personal-data:common.tipoDocumento.label')}
           </FormFieldLabel>
           <FormFieldController
-            type="text"
+            type="select"
             control={form.control}
             name="tipoDocumento"
+            placeholder={t('personal-data:common.tipoDocumento.placeholder')}
+            items={TIPO_DOCUMENTO_OPTIONS.map((value) => ({
+              value,
+              label: t(`personal-data:common.tipoDocumento.options.${value}`),
+            }))}
           />
         </FormField>
         <FormField>
@@ -87,9 +96,14 @@ export const FormPersonalData = () => {
             {t('personal-data:common.genero.label')}
           </FormFieldLabel>
           <FormFieldController
-            type="text"
+            type="select"
             control={form.control}
             name="genero"
+            placeholder={t('personal-data:common.genero.placeholder')}
+            items={GENERO_OPTIONS.map((value) => ({
+              value,
+              label: t(`personal-data:common.genero.options.${value}`),
+            }))}
           />
         </FormField>
       </div>

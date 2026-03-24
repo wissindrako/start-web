@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useForm, type Resolver } from 'react-hook-form';
+import { type Resolver, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
@@ -17,6 +17,8 @@ import {
   FormFieldsPersonalData,
   PersonalData,
   personalDataResolver,
+  TIPO_DOCUMENTO_OPTIONS,
+  TipoDocumento,
 } from '@/features/personal-data/schema';
 import {
   PageLayout,
@@ -31,10 +33,14 @@ const toFormValues = (
   nombre: data?.nombre ?? '',
   primerApellido: data?.primerApellido ?? null,
   segundoApellido: data?.segundoApellido ?? null,
-  tipoDocumento: data?.tipoDocumento ?? null,
+  tipoDocumento: TIPO_DOCUMENTO_OPTIONS.includes(
+    data?.tipoDocumento as TipoDocumento
+  )
+    ? (data?.tipoDocumento as TipoDocumento)
+    : 'CI',
   numeroDocumento: data?.numeroDocumento ?? '',
   fechaNacimiento: data?.fechaNacimiento ?? null,
-  genero: data?.genero ?? '',
+  genero: data?.genero ?? undefined,
   telefono: data?.telefono ?? '',
   telefonoAlternativo: data?.telefonoAlternativo ?? null,
   pais: data?.pais ?? null,

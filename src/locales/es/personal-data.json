@@ -3,10 +3,22 @@
     "nombre": { "label": "Nombre" },
     "primerApellido": { "label": "Primer apellido" },
     "segundoApellido": { "label": "Segundo apellido" },
-    "tipoDocumento": { "label": "Tipo de documento" },
+    "tipoDocumento": {
+      "label": "Tipo de documento",
+      "placeholder": "Seleccionar tipo de documento",
+      "options": {
+        "DNI": "DNI",
+        "CI": "Cédula de identidad",
+        "PASAPORTE": "Pasaporte"
+      }
+    },
     "numeroDocumento": { "label": "Número de documento" },
     "fechaNacimiento": { "label": "Fecha de nacimiento" },
-    "genero": { "label": "Género" },
+    "genero": {
+      "label": "Género",
+      "placeholder": "Seleccionar género",
+      "options": { "M": "Masculino", "F": "Femenino" }
+    },
     "telefono": { "label": "Teléfono" },
     "telefonoAlternativo": { "label": "Teléfono alternativo" },
     "pais": { "label": "País" },
@@ -17,7 +29,8 @@
   },
   "errors": {
     "apellidoRequired": "Al menos un apellido es obligatorio",
-    "fechaNacimientoRequired": "La fecha de nacimiento es obligatoria"
+    "fechaNacimientoRequired": "La fecha de nacimiento es obligatoria",
+    "generoRequired": "Selecciona un género"
   },
   "manager": {
     "update": {

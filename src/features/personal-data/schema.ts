@@ -4,6 +4,12 @@ import { z } from 'zod';
 
 import { zu } from '@/lib/zod/zod-utils';
 
+export const GENERO_OPTIONS = ['M', 'F'] as const;
+export type Genero = (typeof GENERO_OPTIONS)[number];
+
+export const TIPO_DOCUMENTO_OPTIONS = ['DNI', 'CI', 'PASAPORTE'] as const;
+export type TipoDocumento = (typeof TIPO_DOCUMENTO_OPTIONS)[number];
+
 export type PersonalData = z.infer<ReturnType<typeof zPersonalData>>;
 export const zPersonalData = () =>
   z.object({
@@ -15,7 +21,7 @@ export const zPersonalData = () =>
     tipoDocumento: zu.fieldText.nullish(),
     numeroDocumento: zu.fieldText.nullish(),
     fechaNacimiento: z.date().nullish(),
-    genero: zu.fieldText.nullish(),
+    genero: z.enum(GENERO_OPTIONS).nullish(),
     telefono: zu.fieldText.nullish(),
     telefonoAlternativo: zu.fieldText.nullish(),
     pais: zu.fieldText.nullish(),
@@ -35,10 +41,14 @@ export const zFormFieldsPersonalData = () =>
     nombre: zu.fieldText.required(),
     primerApellido: zu.fieldText.nullish(),
     segundoApellido: zu.fieldText.nullish(),
-    tipoDocumento: zu.fieldText.nullish(),
+    tipoDocumento: z.enum(TIPO_DOCUMENTO_OPTIONS).optional(),
     numeroDocumento: zu.fieldText.required(),
     fechaNacimiento: z.coerce.date().nullish(),
-    genero: zu.fieldText.required(),
+    genero: z
+      .enum(GENERO_OPTIONS, {
+        error: t('personal-data:errors.generoRequired'),
+      })
+      .optional(),
     telefono: zu.fieldText.required(),
     telefonoAlternativo: zu.fieldText.nullish(),
     pais: zu.fieldText.nullish(),
@@ -75,6 +85,12 @@ export const personalDataResolver = () => {
   ) => {
     const result = await zResolver(values, context, options);
 
+    if (!values.genero) {
+      result.errors.genero ??= {
+        type: 'custom',
+        message: t('personal-data:errors.generoRequired'),
+      };
+    }
     if (!values.primerApellido && !values.segundoApellido) {
       const msg = t('personal-data:errors.apellidoRequired');
       result.errors.primerApellido ??= { type: 'custom', message: msg };
