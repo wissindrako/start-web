@@ -7,7 +7,7 @@ import { zu } from '@/lib/zod/zod-utils';
 export const GENERO_OPTIONS = ['M', 'F'] as const;
 export type Genero = (typeof GENERO_OPTIONS)[number];
 
-export const TIPO_DOCUMENTO_OPTIONS = ['DNI', 'CI', 'PASAPORTE'] as const;
+export const TIPO_DOCUMENTO_OPTIONS = ['CI', 'DNI', 'PASAPORTE'] as const;
 export type TipoDocumento = (typeof TIPO_DOCUMENTO_OPTIONS)[number];
 
 export type PersonalData = z.infer<ReturnType<typeof zPersonalData>>;

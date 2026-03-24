@@ -46,7 +46,7 @@ export default {
         nombre: z.string().nullish(),
         primerApellido: z.string().nullish(),
         segundoApellido: z.string().nullish(),
-        tipoDocumento: z.enum(['DNI', 'CI', 'PASAPORTE']).nullish(),
+        tipoDocumento: z.enum(['CI', 'DNI', 'PASAPORTE']).nullish(),
         numeroDocumento: z.string().nullish(),
         fechaNacimiento: z.coerce.date().nullish(),
         genero: z.enum(['M', 'F']).nullish(),
