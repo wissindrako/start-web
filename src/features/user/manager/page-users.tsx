@@ -6,7 +6,7 @@ import {
 } from '@tanstack/react-query';
 import { Link, useRouter } from '@tanstack/react-router';
 import dayjs from 'dayjs';
-import { BadgeCheckIcon, PlusIcon } from 'lucide-react';
+import { BadgeCheckIcon, PlusIcon, RefreshCwIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
@@ -95,14 +95,25 @@ export const PageUsers = (props: { search: { searchTerm?: string } }) => {
     <PageLayout>
       <PageLayoutTopBar
         endActions={
-          <ResponsiveIconButtonLink
-            label={t('user:manager.list.newButton')}
-            variant="secondary"
-            size="sm"
-            to="/manager/users/new"
-          >
-            <PlusIcon />
-          </ResponsiveIconButtonLink>
+          <>
+            <ResponsiveIconButton
+              label={t('user:manager.list.refreshButton')}
+              variant="ghost"
+              size="sm"
+              loading={usersQuery.isFetching}
+              onClick={() => usersQuery.refetch()}
+            >
+              <RefreshCwIcon />
+            </ResponsiveIconButton>
+            <ResponsiveIconButtonLink
+              label={t('user:manager.list.newButton')}
+              variant="secondary"
+              size="sm"
+              to="/manager/users/new"
+            >
+              <PlusIcon />
+            </ResponsiveIconButtonLink>
+          </>
         }
       >
         <PageLayoutTopBarTitle>
@@ -172,6 +183,9 @@ export const PageUsers = (props: { search: { searchTerm?: string } }) => {
                       </DataListText>
                       <DataListText className="text-xs text-muted-foreground">
                         {item.email}
+                        {item.personalData?.numeroDocumento && (
+                          <> · {item.personalData.numeroDocumento}</>
+                        )}
                       </DataListText>
                     </DataListCell>
                     <DataListCell className="flex-none max-sm:hidden">

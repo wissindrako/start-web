@@ -12,6 +12,7 @@ import genre from './genre.json' with { type: 'json' };
 import layout from './layout.json' with { type: 'json' };
 import personalData from './personal-data.json' with { type: 'json' };
 import role from './role.json' with { type: 'json' };
+import systemConfig from './system-config.json' with { type: 'json' };
 import user from './user.json' with { type: 'json' };
 
 export default {
@@ -27,5 +28,6 @@ export default {
   layout,
   'personal-data': personalData,
   role,
+  'system-config': systemConfig,
   user,
 } as const;

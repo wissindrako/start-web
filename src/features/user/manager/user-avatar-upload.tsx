@@ -5,12 +5,13 @@ import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
-import { envClient } from '@/env/client';
 import { orpc } from '@/lib/orpc/client';
 import { resizeImageToSquare } from '@/lib/utils/resize-image';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+
+import { envClient } from '@/env/client';
 
 // Profile size: 400×400 — used in detail and edit views
 const PROFILE_SIZE = 400;

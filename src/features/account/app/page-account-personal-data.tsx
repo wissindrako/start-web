@@ -70,6 +70,9 @@ export const PageAccountPersonalData = () => {
         await queryClient.invalidateQueries({
           queryKey: orpc.account.getPersonalData.key({ input: {} }),
         });
+        await queryClient.invalidateQueries({
+          queryKey: orpc.personalData.getByUserId.key(),
+        });
         toast.success(t('personal-data:manager.update.saveSuccess'));
         navigateBack({ ignoreBlocker: true });
       },

@@ -27,10 +27,10 @@ services:
       - minio:/data/minio
     command: minio server /data/minio --address :${DOCKER_MINIO_API_PORT} --console-address :${DOCKER_MINIO_UI_PORT}
     healthcheck:
-      test: ['CMD', 'mc', 'ready', 'local']
+      test: ['CMD-SHELL', 'curl -sf http://localhost:${DOCKER_MINIO_API_PORT}/minio/health/live || exit 1']
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   maildev:
     image: maildev/maildev:2.2.1

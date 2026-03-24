@@ -1,13 +1,17 @@
+import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import {
   LayoutDashboardIcon,
   PanelLeftIcon,
+  SettingsIcon,
   ShieldIcon,
   UsersIcon,
   XIcon,
 } from 'lucide-react';
 import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+
+import { orpc } from '@/lib/orpc/client';
 
 import { Logo } from '@/components/brand/logo';
 import { IconBookOpen } from '@/components/icons/generated';
@@ -32,6 +36,9 @@ import { NavUser } from '@/layout/manager/nav-user';
 
 export const NavSidebar = (props: { children?: ReactNode }) => {
   const { t } = useTranslation(['layout']);
+  const systemConfigQuery = useQuery(orpc.systemConfig.get.queryOptions());
+  const systemName = systemConfigQuery.data?.systemName;
+  const logoUrl = systemConfigQuery.data?.logoUrl;
   return (
     <SidebarProvider>
       <Sidebar>
@@ -44,7 +51,19 @@ export const NavSidebar = (props: { children?: ReactNode }) => {
                   render={
                     <Link to="/manager">
                       <span>
-                        <Logo className="w-24 group-data-[collapsible=icon]:w-18" />
+                        {logoUrl ? (
+                          <img
+                            src={logoUrl}
+                            alt={systemName ?? 'Logo'}
+                            className="h-8 w-auto object-contain group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:object-cover"
+                          />
+                        ) : systemName ? (
+                          <span className="truncate text-base font-semibold">
+                            {systemName}
+                          </span>
+                        ) : (
+                          <Logo className="w-24 group-data-[collapsible=icon]:w-18" />
+                        )}
                       </span>
                     </Link>
                   }
@@ -138,6 +157,23 @@ export const NavSidebar = (props: { children?: ReactNode }) => {
                               <span>
                                 <ShieldIcon />
                                 <span>{t('layout:nav.roles')}</span>
+                              </span>
+                            }
+                          />
+                        )}
+                      </Link>
+                    </SidebarMenuItem>
+                  </WithPermissions>
+                  <WithPermissions permissions={[{ systemConfig: ['update'] }]}>
+                    <SidebarMenuItem>
+                      <Link to="/manager/settings">
+                        {({ isActive }) => (
+                          <SidebarMenuButton
+                            isActive={isActive}
+                            render={
+                              <span>
+                                <SettingsIcon />
+                                <span>{t('layout:nav.settings')}</span>
                               </span>
                             }
                           />

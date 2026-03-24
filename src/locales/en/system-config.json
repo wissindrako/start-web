@@ -1,0 +1,17 @@
+{
+  "manager": {
+    "update": {
+      "title": "System Settings",
+      "brandingTitle": "Branding",
+      "saveButton": "Save",
+      "saveSuccess": "Settings saved",
+      "saveError": "Failed to save settings",
+      "systemNameLabel": "System name",
+      "systemNamePlaceholder": "e.g. My App",
+      "logoLabel": "Logo",
+      "logoHint": "PNG, JPG or WebP · max 5 MB",
+      "logoUploadButton": "Upload logo",
+      "logoUploadError": "Failed to upload logo"
+    }
+  }
+}

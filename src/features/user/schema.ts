@@ -33,6 +33,7 @@ export const zUser = () =>
         nombre: z.string().nullish(),
         primerApellido: z.string().nullish(),
         segundoApellido: z.string().nullish(),
+        numeroDocumento: z.string().nullish(),
       })
       .nullish(),
   });

@@ -17,6 +17,11 @@ enum UserRole {
   admin
 }
 
+enum Genero {
+  M
+  F
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String
@@ -33,7 +38,7 @@ model User {
   banned      Boolean?
   banReason   String?
   banExpires  DateTime?
-  onboardedAt DateTime?
+  verifiedAt  DateTime?
 
   roles        UserRoleAssignment[]
   personalData PersonalData?
@@ -52,7 +57,7 @@ model PersonalData {
   tipoDocumento       String?
   numeroDocumento     String?
   fechaNacimiento     DateTime?
-  genero              String?
+  genero              Genero?
   telefono            String?
   telefonoAlternativo String?
   pais                String?
@@ -153,6 +158,16 @@ model Verification {
   updatedAt  DateTime? @updatedAt
 
   @@map("verification")
+}
+
+model SystemConfig {
+  id         String   @id @default("singleton")
+  systemName String?
+  logoUrl    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("system_config")
 }
 
 model Book {

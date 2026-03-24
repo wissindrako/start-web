@@ -19,6 +19,7 @@ import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as ApiUploadRouteImport } from './routes/api/upload'
 import { Route as ManagerUsersIndexRouteImport } from './routes/manager/users/index'
+import { Route as ManagerSettingsIndexRouteImport } from './routes/manager/settings/index'
 import { Route as ManagerRolesIndexRouteImport } from './routes/manager/roles/index'
 import { Route as ManagerDashboardIndexRouteImport } from './routes/manager/dashboard.index'
 import { Route as ManagerBooksIndexRouteImport } from './routes/manager/books/index'
@@ -96,6 +97,11 @@ const ApiUploadRoute = ApiUploadRouteImport.update({
 const ManagerUsersIndexRoute = ManagerUsersIndexRouteImport.update({
   id: '/users/',
   path: '/users/',
+  getParentRoute: () => ManagerRouteRoute,
+} as any)
+const ManagerSettingsIndexRoute = ManagerSettingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
   getParentRoute: () => ManagerRouteRoute,
 } as any)
 const ManagerRolesIndexRoute = ManagerRolesIndexRouteImport.update({
@@ -267,6 +273,7 @@ export interface FileRoutesByFullPath {
   '/manager/books/': typeof ManagerBooksIndexRoute
   '/manager/dashboard/': typeof ManagerDashboardIndexRoute
   '/manager/roles/': typeof ManagerRolesIndexRoute
+  '/manager/settings/': typeof ManagerSettingsIndexRoute
   '/manager/users/': typeof ManagerUsersIndexRoute
   '/api/dev/email/$template': typeof ApiDevEmailTemplateRoute
   '/api/openapi/app/schema': typeof ApiOpenapiAppSchemaRoute
@@ -304,6 +311,7 @@ export interface FileRoutesByTo {
   '/manager/books': typeof ManagerBooksIndexRoute
   '/manager/dashboard': typeof ManagerDashboardIndexRoute
   '/manager/roles': typeof ManagerRolesIndexRoute
+  '/manager/settings': typeof ManagerSettingsIndexRoute
   '/manager/users': typeof ManagerUsersIndexRoute
   '/api/dev/email/$template': typeof ApiDevEmailTemplateRoute
   '/api/openapi/app/schema': typeof ApiOpenapiAppSchemaRoute
@@ -345,6 +353,7 @@ export interface FileRoutesById {
   '/manager/books/': typeof ManagerBooksIndexRoute
   '/manager/dashboard/': typeof ManagerDashboardIndexRoute
   '/manager/roles/': typeof ManagerRolesIndexRoute
+  '/manager/settings/': typeof ManagerSettingsIndexRoute
   '/manager/users/': typeof ManagerUsersIndexRoute
   '/api/dev/email/$template': typeof ApiDevEmailTemplateRoute
   '/api/openapi/app/schema': typeof ApiOpenapiAppSchemaRoute
@@ -387,6 +396,7 @@ export interface FileRouteTypes {
     | '/manager/books/'
     | '/manager/dashboard/'
     | '/manager/roles/'
+    | '/manager/settings/'
     | '/manager/users/'
     | '/api/dev/email/$template'
     | '/api/openapi/app/schema'
@@ -424,6 +434,7 @@ export interface FileRouteTypes {
     | '/manager/books'
     | '/manager/dashboard'
     | '/manager/roles'
+    | '/manager/settings'
     | '/manager/users'
     | '/api/dev/email/$template'
     | '/api/openapi/app/schema'
@@ -464,6 +475,7 @@ export interface FileRouteTypes {
     | '/manager/books/'
     | '/manager/dashboard/'
     | '/manager/roles/'
+    | '/manager/settings/'
     | '/manager/users/'
     | '/api/dev/email/$template'
     | '/api/openapi/app/schema'
@@ -567,6 +579,13 @@ declare module '@tanstack/react-router' {
       path: '/users'
       fullPath: '/manager/users/'
       preLoaderRoute: typeof ManagerUsersIndexRouteImport
+      parentRoute: typeof ManagerRouteRoute
+    }
+    '/manager/settings/': {
+      id: '/manager/settings/'
+      path: '/settings'
+      fullPath: '/manager/settings/'
+      preLoaderRoute: typeof ManagerSettingsIndexRouteImport
       parentRoute: typeof ManagerRouteRoute
     }
     '/manager/roles/': {
@@ -810,6 +829,7 @@ interface ManagerRouteRouteChildren {
   ManagerBooksIndexRoute: typeof ManagerBooksIndexRoute
   ManagerDashboardIndexRoute: typeof ManagerDashboardIndexRoute
   ManagerRolesIndexRoute: typeof ManagerRolesIndexRoute
+  ManagerSettingsIndexRoute: typeof ManagerSettingsIndexRoute
   ManagerUsersIndexRoute: typeof ManagerUsersIndexRoute
   ManagerBooksIdIndexRoute: typeof ManagerBooksIdIndexRoute
   ManagerBooksNewIndexRoute: typeof ManagerBooksNewIndexRoute
@@ -829,6 +849,7 @@ const ManagerRouteRouteChildren: ManagerRouteRouteChildren = {
   ManagerBooksIndexRoute: ManagerBooksIndexRoute,
   ManagerDashboardIndexRoute: ManagerDashboardIndexRoute,
   ManagerRolesIndexRoute: ManagerRolesIndexRoute,
+  ManagerSettingsIndexRoute: ManagerSettingsIndexRoute,
   ManagerUsersIndexRoute: ManagerUsersIndexRoute,
   ManagerBooksIdIndexRoute: ManagerBooksIdIndexRoute,
   ManagerBooksNewIndexRoute: ManagerBooksNewIndexRoute,

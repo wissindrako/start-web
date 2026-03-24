@@ -25,6 +25,7 @@
     "list": {
       "title": "Users",
       "newButton": "New User",
+      "refreshButton": "Refresh",
       "loadMore": "Load more",
       "showing": "Showing {{count}} of {{total}}",
       "searchResults": "{{total}} results for \"{{searchTerm}}\"",

@@ -31,7 +31,7 @@ export const auth = betterAuth({
   }),
   user: {
     additionalFields: {
-      onboardedAt: {
+      verifiedAt: {
         type: 'date',
       },
     },

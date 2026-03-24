@@ -42,7 +42,7 @@ const mockUserFromDb = {
   image: null,
   createdAt: now,
   updatedAt: now,
-  onboardedAt: null,
+  verifiedAt: null,
 };
 
 const mockSessionFromDb = {

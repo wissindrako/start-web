@@ -50,7 +50,7 @@ export async function createUsers() {
         name: 'User',
         email: 'user@user.com',
         emailVerified: true,
-        onboardedAt: new Date(),
+        verifiedAt: new Date(),
         role: 'user',
       },
     });
@@ -65,7 +65,7 @@ export async function createUsers() {
         email: 'admin@admin.com',
         emailVerified: true,
         role: 'admin',
-        onboardedAt: new Date(),
+        verifiedAt: new Date(),
       },
     });
     await assignRole(user.id, adminRoleId);

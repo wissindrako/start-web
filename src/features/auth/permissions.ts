@@ -16,6 +16,7 @@ const statement = {
   genre: ['read'],
   personalData: ['read', 'create', 'update', 'delete'],
   role: ['read', 'create', 'update', 'delete'],
+  systemConfig: ['read', 'update'],
 } as const;
 
 const ac = createAccessControl(statement);
@@ -37,6 +38,7 @@ const admin = ac.newRole({
   genre: ['read'],
   personalData: ['read', 'create', 'update', 'delete'],
   role: ['read', 'create', 'update', 'delete'],
+  systemConfig: ['read', 'update'],
 });
 
 export const rolesNames = ['admin', 'user'] as const;

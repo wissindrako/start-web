@@ -25,6 +25,7 @@
     "list": {
       "title": "Usuarios",
       "newButton": "Nuevo Usuario",
+      "refreshButton": "Actualizar",
       "loadMore": "Cargar más",
       "showing": "Mostrando {{count}} de {{total}}",
       "searchResults": "{{total}} resultados para \"{{searchTerm}}\"",

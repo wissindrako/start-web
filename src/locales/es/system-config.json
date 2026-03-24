@@ -1,0 +1,17 @@
+{
+  "manager": {
+    "update": {
+      "title": "Configuración del Sistema",
+      "brandingTitle": "Marca",
+      "saveButton": "Guardar",
+      "saveSuccess": "Configuración guardada",
+      "saveError": "Error al guardar la configuración",
+      "systemNameLabel": "Nombre del sistema",
+      "systemNamePlaceholder": "Ej. Mi Aplicación",
+      "logoLabel": "Logo",
+      "logoHint": "PNG, JPG o WebP · máx. 5 MB",
+      "logoUploadButton": "Subir logo",
+      "logoUploadError": "Error al subir el logo"
+    }
+  }
+}

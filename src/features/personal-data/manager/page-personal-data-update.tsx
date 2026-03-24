@@ -3,6 +3,8 @@ import { type Resolver, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
+import { Skeleton } from '@/components/ui/skeleton';
+
 import { orpc } from '@/lib/orpc/client';
 import { useNavigateBack } from '@/hooks/use-navigate-back';
 
@@ -54,6 +56,10 @@ export const PagePersonalDataUpdate = (props: { params: { id: string } }) => {
   const { t } = useTranslation(['personal-data']);
   const { navigateBack } = useNavigateBack();
   const queryClient = useQueryClient();
+
+  const userQuery = useQuery(
+    orpc.user.getById.queryOptions({ input: { id: props.params.id } })
+  );
 
   const personalDataQuery = useQuery(
     orpc.personalData.getByUserId.queryOptions({
@@ -107,7 +113,11 @@ export const PagePersonalDataUpdate = (props: { params: { id: string } }) => {
             }
           >
             <PageLayoutTopBarTitle>
-              {t('personal-data:manager.update.title')}
+              {userQuery.isPending ? (
+                <Skeleton className="h-4 w-48" />
+              ) : (
+                userQuery.data?.name || userQuery.data?.email
+              )}
             </PageLayoutTopBarTitle>
           </PageLayoutTopBar>
           <PageLayoutContent containerClassName="py-4">

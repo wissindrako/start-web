@@ -6,6 +6,7 @@ import configRouter from './routers/config';
 import genreRouter from './routers/genre';
 import personalDataRouter from './routers/personal-data';
 import roleRouter from './routers/role';
+import systemConfigRouter from './routers/system-config';
 import userRouter from './routers/user';
 
 export type Router = typeof router;
@@ -17,6 +18,7 @@ export const router = {
   genre: genreRouter,
   personalData: personalDataRouter,
   role: roleRouter,
+  systemConfig: systemConfigRouter,
   user: userRouter,
   config: configRouter,
 };

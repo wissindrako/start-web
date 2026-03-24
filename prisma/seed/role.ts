@@ -27,6 +27,12 @@ const ROLES = [
       { subject: 'role', action: 'create' },
       { subject: 'role', action: 'update' },
       { subject: 'role', action: 'delete' },
+      { subject: 'personalData', action: 'read' },
+      { subject: 'personalData', action: 'create' },
+      { subject: 'personalData', action: 'update' },
+      { subject: 'personalData', action: 'delete' },
+      { subject: 'systemConfig', action: 'read' },
+      { subject: 'systemConfig', action: 'update' },
     ],
   },
   {
@@ -38,6 +44,8 @@ const ROLES = [
       { subject: 'book', action: 'read' },
       { subject: 'genre', action: 'read' },
       { subject: 'role', action: 'read' },
+      { subject: 'personalData', action: 'read' },
+      { subject: 'personalData', action: 'update' },
     ],
   },
 ] as const;

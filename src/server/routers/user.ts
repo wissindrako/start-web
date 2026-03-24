@@ -40,16 +40,31 @@ export default {
     .handler(async ({ context, input }) => {
       const where = {
         OR: [
+          { name: { contains: input.searchTerm, mode: 'insensitive' } },
+          { email: { contains: input.searchTerm, mode: 'insensitive' } },
           {
-            name: {
-              contains: input.searchTerm,
-              mode: 'insensitive',
-            },
-          },
-          {
-            email: {
-              contains: input.searchTerm,
-              mode: 'insensitive',
+            personalData: {
+              OR: [
+                { nombre: { contains: input.searchTerm, mode: 'insensitive' } },
+                {
+                  primerApellido: {
+                    contains: input.searchTerm,
+                    mode: 'insensitive',
+                  },
+                },
+                {
+                  segundoApellido: {
+                    contains: input.searchTerm,
+                    mode: 'insensitive',
+                  },
+                },
+                {
+                  numeroDocumento: {
+                    contains: input.searchTerm,
+                    mode: 'insensitive',
+                  },
+                },
+              ],
             },
           },
         ],
@@ -74,6 +89,7 @@ export default {
                 nombre: true,
                 primerApellido: true,
                 segundoApellido: true,
+                numeroDocumento: true,
               },
             },
           },
