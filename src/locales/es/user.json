@@ -54,6 +54,7 @@
       "sessionUpdated": "Actualizado {{time}}",
       "sessionExpires": "Expira {{time}}",
       "editUser": "Editar usuario",
+      "personalDataTitle": "Datos Personales",
       "personalDataButton": "Datos personales",
       "verifyButton": "Verificar",
       "unverifyButton": "Quitar verificación",

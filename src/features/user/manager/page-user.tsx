@@ -68,6 +68,7 @@ import { Spinner } from '@/components/ui/spinner';
 
 import { authClient } from '@/features/auth/client';
 import { WithPermissions } from '@/features/auth/with-permission';
+import { TIPO_DOCUMENTO_OPTIONS } from '@/features/personal-data/schema';
 import {
   PageLayout,
   PageLayoutContent,
@@ -274,7 +275,10 @@ export const PageUser = (props: { params: { id: string } }) => {
                 </CardContent>
               </Card>
 
-              <div className="flex min-w-0 flex-2 flex-col">
+              <div className="flex min-w-0 flex-2 flex-col gap-4">
+                <WithPermissions permissions={[{ personalData: ['read'] }]}>
+                  <PersonalDataCard userId={props.params.id} />
+                </WithPermissions>
                 <WithPermissions permissions={[{ session: ['list'] }]}>
                   <UserSessions userId={props.params.id} />
                 </WithPermissions>
@@ -284,6 +288,89 @@ export const PageUser = (props: { params: { id: string } }) => {
           .exhaustive()}
       </PageLayoutContent>
     </PageLayout>
+  );
+};
+
+const PersonalDataCard = (props: { userId: string }) => {
+  const { t } = useTranslation(['personal-data', 'user']);
+  const personalDataQuery = useQuery(
+    orpc.personalData.getByUserId.queryOptions({
+      input: { userId: props.userId },
+    })
+  );
+
+  const data = personalDataQuery.data;
+  if (personalDataQuery.isPending) return null;
+  if (!data) return null;
+
+  const rows: { label: string; value: string | null | undefined }[] = [
+    {
+      label: t('personal-data:common.nombre.label'),
+      value:
+        [data.nombre, data.primerApellido, data.segundoApellido]
+          .filter(Boolean)
+          .join(' ') || null,
+    },
+    {
+      label: t('personal-data:common.tipoDocumento.label'),
+      value: TIPO_DOCUMENTO_OPTIONS.includes(data.tipoDocumento as never)
+        ? t(`personal-data:common.tipoDocumento.options.${data.tipoDocumento}`)
+        : data.tipoDocumento,
+    },
+    {
+      label: t('personal-data:common.numeroDocumento.label'),
+      value: data.numeroDocumento,
+    },
+    {
+      label: t('personal-data:common.fechaNacimiento.label'),
+      value: data.fechaNacimiento
+        ? dayjs(data.fechaNacimiento).format('DD/MM/YYYY')
+        : null,
+    },
+    {
+      label: t('personal-data:common.genero.label'),
+      value: data.genero
+        ? t(`personal-data:common.genero.options.${data.genero}`)
+        : null,
+    },
+    { label: t('personal-data:common.telefono.label'), value: data.telefono },
+    {
+      label: t('personal-data:common.telefonoAlternativo.label'),
+      value: data.telefonoAlternativo,
+    },
+    { label: t('personal-data:common.pais.label'), value: data.pais },
+    {
+      label: t('personal-data:common.departamento.label'),
+      value: data.departamento,
+    },
+    { label: t('personal-data:common.ciudad.label'), value: data.ciudad },
+    { label: t('personal-data:common.direccion.label'), value: data.direccion },
+    {
+      label: t('personal-data:common.codigoPostal.label'),
+      value: data.codigoPostal,
+    },
+  ].filter((r) => r.value);
+
+  if (!rows.length) return null;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm font-medium">
+          {t('user:manager.detail.personalDataTitle')}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <dl className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {rows.map((row) => (
+            <div key={row.label}>
+              <dt className="text-xs text-muted-foreground">{row.label}</dt>
+              <dd className="text-sm">{row.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </CardContent>
+    </Card>
   );
 };
 
