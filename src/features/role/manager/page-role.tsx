@@ -1,6 +1,7 @@
 import { getUiState } from '@bearstudio/ui-state';
 import { ORPCError } from '@orpc/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
 import { AlertCircleIcon, PencilLineIcon, Trash2Icon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -10,8 +11,9 @@ import { useNavigateBack } from '@/hooks/use-navigate-back';
 
 import { BackButton } from '@/components/back-button';
 import { PageError } from '@/components/errors/page-error';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ButtonLink } from '@/components/ui/button-link';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmResponsiveDrawer } from '@/components/ui/confirm-responsive-drawer';
 import { ResponsiveIconButton } from '@/components/ui/responsive-icon-button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -24,6 +26,67 @@ import {
   PageLayoutTopBar,
   PageLayoutTopBarTitle,
 } from '@/layout/manager/page-layout';
+
+const RoleUsersCard = (props: { roleId: string }) => {
+  const { t } = useTranslation(['role']);
+  const usersQuery = useQuery(
+    orpc.role.getUsersByRoleId.queryOptions({ input: { id: props.roleId } })
+  );
+
+  const users = usersQuery.data ?? [];
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm font-medium">
+          {t('role:manager.detail.usersTitle')}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {usersQuery.isPending ? (
+          <div className="flex flex-col gap-2">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-9 w-full" />
+            ))}
+          </div>
+        ) : users.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            {t('role:manager.detail.noUsers')}
+          </p>
+        ) : (
+          <div className="flex flex-col divide-y">
+            {users.map((user) => (
+              <Link
+                key={user.id}
+                to="/manager/users/$id"
+                params={{ id: user.id }}
+                className="flex items-center gap-3 py-2 hover:opacity-75"
+              >
+                <Avatar className="size-7">
+                  <AvatarImage
+                    src={user.imageThumbnail ?? user.image ?? undefined}
+                    alt={user.name ?? ''}
+                  />
+                  <AvatarFallback variant="boring" name={user.name ?? ''} />
+                </Avatar>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">
+                    {user.name || (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {user.email}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
 
 export const PageRole = (props: { params: { id: string } }) => {
   const { t } = useTranslation(['role']);
@@ -117,53 +180,56 @@ export const PageRole = (props: { params: { id: string } }) => {
           .match('not-found', () => <PageError type="404" />)
           .match('error', () => <PageError type="unknown-server-error" />)
           .match('default', ({ role }) => (
-            <Card className="py-1">
-              <CardContent>
-                <dl className="flex flex-col divide-y text-sm">
-                  <div className="flex gap-4 py-3">
-                    <dt className="w-32 flex-none font-medium text-muted-foreground">
-                      {t('role:common.name.label')}
-                    </dt>
-                    <dd className="flex-1">{role.name}</dd>
-                  </div>
-                  {role.description && (
+            <div className="flex flex-col gap-4">
+              <Card className="py-1">
+                <CardContent>
+                  <dl className="flex flex-col divide-y text-sm">
                     <div className="flex gap-4 py-3">
                       <dt className="w-32 flex-none font-medium text-muted-foreground">
-                        {t('role:common.description.label')}
+                        {t('role:common.name.label')}
                       </dt>
-                      <dd className="flex-1">{role.description}</dd>
+                      <dd className="flex-1">{role.name}</dd>
                     </div>
-                  )}
-                  <div className="flex gap-4 py-3">
-                    <dt className="w-32 flex-none font-medium text-muted-foreground">
-                      {t('role:common.users.label')}
-                    </dt>
-                    <dd className="flex-1">{role._count.userAssignments}</dd>
-                  </div>
-                  <div className="flex gap-4 py-3">
-                    <dt className="w-32 flex-none font-medium text-muted-foreground">
-                      {t('role:common.permissions.label')}
-                    </dt>
-                    <dd className="flex-1">
-                      {role.permissions.length === 0 ? (
-                        <span className="text-muted-foreground">—</span>
-                      ) : (
-                        <div className="flex flex-wrap gap-2">
-                          {role.permissions.map((rp) => (
-                            <span
-                              key={rp.permissionId}
-                              className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium capitalize"
-                            >
-                              {rp.permission.subject}:{rp.permission.action}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </dd>
-                  </div>
-                </dl>
-              </CardContent>
-            </Card>
+                    {role.description && (
+                      <div className="flex gap-4 py-3">
+                        <dt className="w-32 flex-none font-medium text-muted-foreground">
+                          {t('role:common.description.label')}
+                        </dt>
+                        <dd className="flex-1">{role.description}</dd>
+                      </div>
+                    )}
+                    <div className="flex gap-4 py-3">
+                      <dt className="w-32 flex-none font-medium text-muted-foreground">
+                        {t('role:common.users.label')}
+                      </dt>
+                      <dd className="flex-1">{role._count.userAssignments}</dd>
+                    </div>
+                    <div className="flex gap-4 py-3">
+                      <dt className="w-32 flex-none font-medium text-muted-foreground">
+                        {t('role:common.permissions.label')}
+                      </dt>
+                      <dd className="flex-1">
+                        {role.permissions.length === 0 ? (
+                          <span className="text-muted-foreground">—</span>
+                        ) : (
+                          <div className="flex flex-wrap gap-2">
+                            {role.permissions.map((rp) => (
+                              <span
+                                key={rp.permissionId}
+                                className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium capitalize"
+                              >
+                                {rp.permission.subject}:{rp.permission.action}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </dd>
+                    </div>
+                  </dl>
+                </CardContent>
+              </Card>
+              <RoleUsersCard roleId={role.id} />
+            </div>
           ))
           .exhaustive()}
       </PageLayoutContent>

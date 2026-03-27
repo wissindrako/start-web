@@ -279,6 +279,9 @@ export const PageUser = (props: { params: { id: string } }) => {
                 <WithPermissions permissions={[{ personalData: ['read'] }]}>
                   <PersonalDataCard userId={props.params.id} />
                 </WithPermissions>
+                <WithPermissions permissions={[{ role: ['read'] }]}>
+                  <UserRolesCard userId={props.params.id} />
+                </WithPermissions>
                 <WithPermissions permissions={[{ session: ['list'] }]}>
                   <UserSessions userId={props.params.id} />
                 </WithPermissions>
@@ -369,6 +372,51 @@ const PersonalDataCard = (props: { userId: string }) => {
             </div>
           ))}
         </dl>
+      </CardContent>
+    </Card>
+  );
+};
+
+const UserRolesCard = (props: { userId: string }) => {
+  const { t } = useTranslation(['user', 'role']);
+  const rolesQuery = useQuery(
+    orpc.user.getUserRoles.queryOptions({ input: { id: props.userId } })
+  );
+
+  if (rolesQuery.isPending) return null;
+
+  const roles = rolesQuery.data ?? [];
+  if (!roles.length) return null;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm font-medium">
+          {t('user:manager.detail.userRolesTitle')}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-wrap gap-2">
+          {roles.map((role) => (
+            <div
+              key={role.id}
+              className="flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-sm"
+            >
+              <span className="font-medium">{role.name}</span>
+              <Badge
+                variant={role.scope === 'local' ? 'secondary' : 'outline'}
+                className="text-xs"
+              >
+                {t(`role:scopes.${role.scope}`)}
+              </Badge>
+              {role.scope === 'external' && role.externalSystem && (
+                <span className="text-xs text-muted-foreground">
+                  {role.externalSystem.label ?? role.externalSystem.name}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );

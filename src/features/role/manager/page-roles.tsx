@@ -4,6 +4,8 @@ import { Link, useRouter } from '@tanstack/react-router';
 import { PlusIcon, ShieldIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+import { Badge } from '@/components/ui/badge';
+
 import { orpc } from '@/lib/orpc/client';
 
 import { Button } from '@/components/ui/button';
@@ -136,11 +138,21 @@ export const PageRoles = (props: { search: { searchTerm?: string } }) => {
                       <ShieldIcon className="size-4 text-muted-foreground" />
                     </DataListCell>
                     <DataListCell>
-                      <DataListText className="font-medium">
+                      <DataListText className="flex items-center gap-2 font-medium">
                         <Link to="/manager/roles/$id" params={{ id: item.id }}>
                           {item.name}
                           <span className="absolute inset-0" />
                         </Link>
+                        <Badge
+                          variant={
+                            item.scope === 'local' ? 'secondary' : 'outline'
+                          }
+                          className="relative z-10 text-xs"
+                        >
+                          {item.scope === 'external' && item.system
+                            ? `${t('role:scopes.external')} · ${item.system}`
+                            : t(`role:scopes.${item.scope}`)}
+                        </Badge>
                       </DataListText>
                       {item.description && (
                         <DataListText className="text-xs text-muted-foreground">

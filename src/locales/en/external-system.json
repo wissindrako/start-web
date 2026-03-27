@@ -1,0 +1,57 @@
+{
+  "common": {
+    "name": {
+      "label": "Name",
+      "required": "Name is required",
+      "hint": "Used as identifier (lowercase, e.g. mobile, erp-v2)"
+    },
+    "label": {
+      "label": "Display name"
+    },
+    "modules": {
+      "label": "Modules"
+    }
+  },
+  "module": {
+    "name": {
+      "label": "Module name",
+      "placeholder": "e.g. invoices, orders"
+    },
+    "actions": {
+      "label": "Actions"
+    },
+    "add": "Add module",
+    "remove": "Remove module"
+  },
+  "actions": {
+    "read": "Read",
+    "create": "Create",
+    "update": "Update",
+    "delete": "Delete"
+  },
+  "manager": {
+    "list": {
+      "title": "External Systems",
+      "empty": "No external systems configured",
+      "modulesCount": "{{count}} module(s)"
+    },
+    "detail": {
+      "editButton": { "label": "Edit" },
+      "deleteButton": { "label": "Delete" },
+      "deleted": "System deleted",
+      "deleteError": "Failed to delete the system",
+      "confirmDeleteTitle": "Delete \"{{name}}\"",
+      "confirmDeleteDescription": "You are about to permanently delete this system. Roles assigned to this system will lose their system reference. This action cannot be undone."
+    },
+    "new": {
+      "title": "New External System",
+      "createButton": { "label": "Create" },
+      "createError": "Failed to create the system"
+    },
+    "update": {
+      "title": "Edit External System",
+      "updateButton": { "label": "Save" },
+      "updateError": "Failed to update the system"
+    }
+  }
+}

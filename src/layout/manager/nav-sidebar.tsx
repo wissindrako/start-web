@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router';
 import {
   LayoutDashboardIcon,
   PanelLeftIcon,
+  ServerIcon,
   SettingsIcon,
   ShieldIcon,
   UsersIcon,
@@ -157,6 +158,23 @@ export const NavSidebar = (props: { children?: ReactNode }) => {
                               <span>
                                 <ShieldIcon />
                                 <span>{t('layout:nav.roles')}</span>
+                              </span>
+                            }
+                          />
+                        )}
+                      </Link>
+                    </SidebarMenuItem>
+                  </WithPermissions>
+                  <WithPermissions permissions={[{ externalSystem: ['read'] }]}>
+                    <SidebarMenuItem>
+                      <Link to="/manager/external-systems">
+                        {({ isActive }) => (
+                          <SidebarMenuButton
+                            isActive={isActive}
+                            render={
+                              <span>
+                                <ServerIcon />
+                                <span>{t('layout:nav.externalSystems')}</span>
                               </span>
                             }
                           />

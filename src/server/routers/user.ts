@@ -521,7 +521,7 @@ export default {
     }),
 
   getUserRoles: protectedProcedure({
-    permission: { user: ['update'] },
+    permission: { role: ['read'] },
   })
     .route({ method: 'GET', path: '/users/{id}/roles', tags })
     .input(z.object({ id: z.string() }))
@@ -537,6 +537,9 @@ export default {
                 include: {
                   permissions: { include: { permission: true } },
                   _count: { select: { userAssignments: true } },
+                  externalSystem: {
+                    include: { modules: { orderBy: { order: 'asc' } } },
+                  },
                 },
               },
             },

@@ -1,0 +1,57 @@
+{
+  "common": {
+    "name": {
+      "label": "Nombre",
+      "required": "El nombre es requerido",
+      "hint": "Usado como identificador (minúsculas, ej. mobile, erp-v2)"
+    },
+    "label": {
+      "label": "Nombre para mostrar"
+    },
+    "modules": {
+      "label": "Módulos"
+    }
+  },
+  "module": {
+    "name": {
+      "label": "Nombre del módulo",
+      "placeholder": "ej. facturas, pedidos"
+    },
+    "actions": {
+      "label": "Acciones"
+    },
+    "add": "Agregar módulo",
+    "remove": "Eliminar módulo"
+  },
+  "actions": {
+    "read": "Leer",
+    "create": "Crear",
+    "update": "Actualizar",
+    "delete": "Eliminar"
+  },
+  "manager": {
+    "list": {
+      "title": "Sistemas Externos",
+      "empty": "No hay sistemas externos configurados",
+      "modulesCount": "{{count}} módulo(s)"
+    },
+    "detail": {
+      "editButton": { "label": "Editar" },
+      "deleteButton": { "label": "Eliminar" },
+      "deleted": "Sistema eliminado",
+      "deleteError": "Error al eliminar el sistema",
+      "confirmDeleteTitle": "Eliminar \"{{name}}\"",
+      "confirmDeleteDescription": "Estás a punto de eliminar permanentemente este sistema. Los roles asignados a este sistema perderán su referencia. Esta acción no se puede deshacer."
+    },
+    "new": {
+      "title": "Nuevo Sistema Externo",
+      "createButton": { "label": "Crear" },
+      "createError": "Error al crear el sistema"
+    },
+    "update": {
+      "title": "Editar Sistema Externo",
+      "updateButton": { "label": "Guardar" },
+      "updateError": "Error al actualizar el sistema"
+    }
+  }
+}

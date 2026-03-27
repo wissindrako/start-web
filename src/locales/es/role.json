@@ -7,12 +7,28 @@
     "description": {
       "label": "Descripción"
     },
+    "scope": {
+      "label": "Alcance",
+      "hint": {
+        "local": "Este rol aplica al panel de administración de esta aplicación.",
+        "external": "Este rol aplica a un sistema externo (app móvil, API, etc.)."
+      }
+    },
+    "system": {
+      "label": "Sistema",
+      "placeholder": "Selecciona un sistema",
+      "empty": "No hay sistemas configurados. Crea uno primero en Sistemas Externos."
+    },
     "permissions": {
       "label": "Permisos"
     },
     "users": {
       "label": "Usuarios"
     }
+  },
+  "scopes": {
+    "local": "Local",
+    "external": "Externo"
   },
   "subjects": {
     "book": "Libros",
@@ -21,7 +37,10 @@
     "role": "Roles",
     "account": "Cuenta",
     "apps": "Aplicaciones",
-    "session": "Sesiones"
+    "session": "Sesiones",
+    "personalData": "Datos Personales",
+    "systemConfig": "Config. del Sistema",
+    "externalSystem": "Sistemas Externos"
   },
   "actions": {
     "read": "Leer",
@@ -33,6 +52,13 @@
     "app": "App",
     "manager": "Gestor",
     "revoke": "Revocar"
+  },
+  "external": {
+    "addModule": "Agregar módulo",
+    "modulePlaceholder": "Nombre del módulo, ej: facturas",
+    "removeModule": "Eliminar módulo",
+    "addAction": "Agregar",
+    "customActionPlaceholder": "Acción personalizada, ej: aprobar"
   },
   "manager": {
     "list": {
@@ -53,7 +79,9 @@
       "deleted": "Rol eliminado",
       "deleteError": "Error al eliminar el rol",
       "confirmDeleteTitle": "Eliminar \"{{name}}\"",
-      "confirmDeleteDescription": "Estás a punto de eliminar permanentemente este rol. Los usuarios asignados a este rol perderán sus permisos. Esta acción no se puede deshacer."
+      "confirmDeleteDescription": "Estás a punto de eliminar permanentemente este rol. Los usuarios asignados a este rol perderán sus permisos. Esta acción no se puede deshacer.",
+      "usersTitle": "Usuarios con este rol",
+      "noUsers": "Sin usuarios asignados a este rol"
     },
     "form": {
       "nameAlreadyExist": "Ya existe un rol con este nombre"

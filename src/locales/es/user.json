@@ -57,6 +57,8 @@
       "editUser": "Editar usuario",
       "personalDataTitle": "Datos Personales",
       "personalDataButton": "Datos personales",
+      "userRolesTitle": "Roles asignados",
+      "noRoles": "Sin roles asignados",
       "verifyButton": "Verificar",
       "unverifyButton": "Quitar verificación",
       "verified": "Usuario verificado",

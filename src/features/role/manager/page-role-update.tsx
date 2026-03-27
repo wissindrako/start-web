@@ -35,6 +35,8 @@ export const PageRoleUpdate = (props: { params: { id: string } }) => {
     values: {
       name: roleQuery.data?.name ?? '',
       description: roleQuery.data?.description ?? '',
+      scope: roleQuery.data?.scope ?? 'local',
+      systemId: roleQuery.data?.systemId ?? null,
       permissions:
         roleQuery.data?.permissions.map((rp) => ({
           subject: rp.permission.subject,

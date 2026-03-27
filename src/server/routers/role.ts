@@ -94,6 +94,9 @@ export default {
           include: {
             permissions: { include: { permission: true } },
             _count: { select: { userAssignments: true } },
+            externalSystem: {
+              include: { modules: { orderBy: { order: 'asc' } } },
+            },
           },
         }),
       ]);
@@ -124,6 +127,9 @@ export default {
         include: {
           permissions: { include: { permission: true } },
           _count: { select: { userAssignments: true } },
+          externalSystem: {
+            include: { modules: { orderBy: { order: 'asc' } } },
+          },
         },
       });
 
@@ -157,6 +163,8 @@ export default {
         data: {
           name: input.name,
           description: input.description ?? null,
+          scope: input.scope,
+          systemId: input.systemId ?? null,
           permissions: {
             create: permissionIds.map((permissionId) => ({ permissionId })),
           },
@@ -164,6 +172,9 @@ export default {
         include: {
           permissions: { include: { permission: true } },
           _count: { select: { userAssignments: true } },
+          externalSystem: {
+            include: { modules: { orderBy: { order: 'asc' } } },
+          },
         },
       });
     }),
@@ -196,6 +207,8 @@ export default {
         data: {
           name: input.name,
           description: input.description ?? null,
+          scope: input.scope,
+          systemId: input.systemId ?? null,
           permissions: {
             create: permissionIds.map((permissionId) => ({ permissionId })),
           },
@@ -203,8 +216,46 @@ export default {
         include: {
           permissions: { include: { permission: true } },
           _count: { select: { userAssignments: true } },
+          externalSystem: {
+            include: { modules: { orderBy: { order: 'asc' } } },
+          },
         },
       });
+    }),
+
+  getUsersByRoleId: protectedProcedure({
+    permission: { role: ['read'] },
+  })
+    .route({ method: 'GET', path: '/roles/{id}/users', tags })
+    .input(z.object({ id: z.string() }))
+    .output(
+      z.array(
+        z.object({
+          id: z.string(),
+          name: z.string().nullish(),
+          email: z.string(),
+          image: z.string().nullish(),
+          imageThumbnail: z.string().nullish(),
+        })
+      )
+    )
+    .handler(async ({ context, input }) => {
+      const assignments = await context.db.userRoleAssignment.findMany({
+        where: { roleId: input.id },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              image: true,
+              imageThumbnail: true,
+            },
+          },
+        },
+        orderBy: { user: { name: 'asc' } },
+      });
+      return assignments.map((a) => a.user);
     }),
 
   deleteById: protectedProcedure({

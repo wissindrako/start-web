@@ -5,6 +5,7 @@ import { emphasis } from './_utils';
 const ROLES = [
   {
     name: 'admin',
+    scope: 'local' as const,
     description: 'Full access to all features',
     permissions: [
       { subject: 'apps', action: 'app' },
@@ -37,6 +38,7 @@ const ROLES = [
   },
   {
     name: 'user',
+    scope: 'local' as const,
     description: 'Standard user access',
     permissions: [
       { subject: 'apps', action: 'app' },
@@ -78,6 +80,11 @@ export async function createRoles() {
       const existingPermIds = new Set(existingPerms.map((p) => p.permissionId));
       const toAdd = permissionIds.filter((id) => !existingPermIds.has(id));
 
+      await db.role.update({
+        where: { id: existing.id },
+        data: { scope: roleData.scope },
+      });
+
       if (toAdd.length > 0) {
         await db.rolePermission.createMany({
           data: toAdd.map((permissionId) => ({
@@ -98,6 +105,7 @@ export async function createRoles() {
         data: {
           name: roleData.name,
           description: roleData.description,
+          scope: roleData.scope,
           permissions: {
             create: permissionIds.map((permissionId) => ({ permissionId })),
           },

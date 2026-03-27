@@ -71,12 +71,44 @@ model PersonalData {
   @@map("personal_data")
 }
 
+enum RoleScope {
+  local
+  external
+}
+
+model ExternalSystem {
+  id        String           @id @default(cuid())
+  name      String           @unique
+  label     String?
+  modules   ExternalModule[]
+  roles     Role[]
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@map("external_system")
+}
+
+model ExternalModule {
+  id       String         @id @default(cuid())
+  systemId String
+  system   ExternalSystem @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  name     String
+  actions  String[]
+  order    Int            @default(0)
+
+  @@unique([systemId, name])
+  @@map("external_module")
+}
+
 model Role {
   id              String               @id @default(cuid())
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
   name            String               @unique
   description     String?
+  scope           RoleScope            @default(local)
+  systemId        String?
+  externalSystem  ExternalSystem?      @relation(fields: [systemId], references: [id], onDelete: SetNull)
   permissions     RolePermission[]
   userAssignments UserRoleAssignment[]
 

@@ -7,12 +7,28 @@
     "description": {
       "label": "Description"
     },
+    "scope": {
+      "label": "Scope",
+      "hint": {
+        "local": "This role applies to the admin panel of this application.",
+        "external": "This role applies to an external system (mobile app, API, etc.)."
+      }
+    },
+    "system": {
+      "label": "System",
+      "placeholder": "Select a system",
+      "empty": "No systems configured. Create one first in External Systems."
+    },
     "permissions": {
       "label": "Permissions"
     },
     "users": {
       "label": "Users"
     }
+  },
+  "scopes": {
+    "local": "Local",
+    "external": "External"
   },
   "subjects": {
     "book": "Books",
@@ -21,7 +37,10 @@
     "role": "Roles",
     "account": "Account",
     "apps": "Apps",
-    "session": "Sessions"
+    "session": "Sessions",
+    "personalData": "Personal Data",
+    "systemConfig": "System Config",
+    "externalSystem": "External Systems"
   },
   "actions": {
     "read": "Read",
@@ -33,6 +52,13 @@
     "app": "App",
     "manager": "Manager",
     "revoke": "Revoke"
+  },
+  "external": {
+    "addModule": "Add module",
+    "modulePlaceholder": "Module name, e.g. invoices",
+    "removeModule": "Remove module",
+    "addAction": "Add",
+    "customActionPlaceholder": "Custom action, e.g. approve"
   },
   "manager": {
     "list": {
@@ -53,7 +79,9 @@
       "deleted": "Role deleted",
       "deleteError": "Failed to delete the role",
       "confirmDeleteTitle": "Delete \"{{name}}\"",
-      "confirmDeleteDescription": "You are about to permanently delete this role. Users assigned to this role will lose their permissions. This action cannot be undone."
+      "confirmDeleteDescription": "You are about to permanently delete this role. Users assigned to this role will lose their permissions. This action cannot be undone.",
+      "usersTitle": "Users with this role",
+      "noUsers": "No users assigned to this role"
     },
     "form": {
       "nameAlreadyExist": "A role with this name already exists"
