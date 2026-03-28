@@ -3,8 +3,6 @@ import { type Resolver, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
-import { Skeleton } from '@/components/ui/skeleton';
-
 import { orpc } from '@/lib/orpc/client';
 import { useNavigateBack } from '@/hooks/use-navigate-back';
 
@@ -13,6 +11,7 @@ import { Form } from '@/components/form';
 import { PreventNavigation } from '@/components/prevent-navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 import { FormPersonalData } from '@/features/personal-data/manager/form-personal-data';
 import {

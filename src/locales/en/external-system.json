@@ -18,7 +18,8 @@
       "placeholder": "e.g. invoices, orders"
     },
     "actions": {
-      "label": "Actions"
+      "label": "Actions",
+      "placeholder": "e.g. approve, export"
     },
     "add": "Add module",
     "remove": "Remove module"
@@ -46,12 +47,27 @@
     "new": {
       "title": "New External System",
       "createButton": { "label": "Create" },
-      "createError": "Failed to create the system"
+      "createError": "Failed to create the system",
+      "nameAlreadyUsed": "A system with this name already exists"
     },
     "update": {
       "title": "Edit External System",
       "updateButton": { "label": "Save" },
-      "updateError": "Failed to update the system"
+      "updateError": "Failed to update the system",
+      "nameAlreadyUsed": "A system with this name already exists"
+    },
+    "apiKey": {
+      "title": "API Key",
+      "description": "Use this key to authenticate requests from your external system. Send it in the X-Api-Key header.",
+      "show": "Show",
+      "hide": "Hide",
+      "copied": "API Key copied",
+      "rotate": "Rotate key",
+      "rotated": "API Key rotated successfully",
+      "rotateError": "Failed to rotate API Key",
+      "rotateHint": "Rotating the key invalidates the previous one. Update your external system with the new key.",
+      "confirmRotateTitle": "Rotate API Key?",
+      "confirmRotateDescription": "The previous key will stop working immediately. You will need to update your external system with the new key."
     }
   }
 }

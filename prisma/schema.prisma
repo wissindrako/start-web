@@ -80,6 +80,7 @@ model ExternalSystem {
   id        String           @id @default(cuid())
   name      String           @unique
   label     String?
+  apiKey    String           @unique @default(uuid())
   modules   ExternalModule[]
   roles     Role[]
   createdAt DateTime         @default(now())

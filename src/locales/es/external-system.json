@@ -18,7 +18,8 @@
       "placeholder": "ej. facturas, pedidos"
     },
     "actions": {
-      "label": "Acciones"
+      "label": "Acciones",
+      "placeholder": "ej. aprobar, exportar"
     },
     "add": "Agregar módulo",
     "remove": "Eliminar módulo"
@@ -46,12 +47,27 @@
     "new": {
       "title": "Nuevo Sistema Externo",
       "createButton": { "label": "Crear" },
-      "createError": "Error al crear el sistema"
+      "createError": "Error al crear el sistema",
+      "nameAlreadyUsed": "Ya existe un sistema con este nombre"
     },
     "update": {
       "title": "Editar Sistema Externo",
       "updateButton": { "label": "Guardar" },
-      "updateError": "Error al actualizar el sistema"
+      "updateError": "Error al actualizar el sistema",
+      "nameAlreadyUsed": "Ya existe un sistema con este nombre"
+    },
+    "apiKey": {
+      "title": "API Key",
+      "description": "Usa esta clave para autenticar solicitudes desde tu sistema externo. Envíala en el header X-Api-Key.",
+      "show": "Mostrar",
+      "hide": "Ocultar",
+      "copied": "API Key copiada",
+      "rotate": "Rotar clave",
+      "rotated": "API Key rotada correctamente",
+      "rotateError": "Error al rotar la API Key",
+      "rotateHint": "Rotar la clave invalida la anterior. Actualiza tu sistema externo con la nueva clave.",
+      "confirmRotateTitle": "¿Rotar API Key?",
+      "confirmRotateDescription": "La clave anterior dejará de funcionar inmediatamente. Deberás actualizar tu sistema externo con la nueva clave."
     }
   }
 }

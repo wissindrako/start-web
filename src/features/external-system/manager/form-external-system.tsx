@@ -171,7 +171,7 @@ export const FormExternalSystem = () => {
                       <Input
                         className="h-7 text-xs"
                         placeholder={t(
-                          'external-system:module.name.placeholder'
+                          'external-system:module.actions.placeholder'
                         )}
                         value={customInputs[index] ?? ''}
                         onChange={(e) =>

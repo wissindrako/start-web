@@ -1,6 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
+import { ReactNode } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+
+import { orpc } from '@/lib/orpc/client';
 
 import {
   FormField,
@@ -23,7 +26,6 @@ import {
   FormFieldsRole,
   ROLE_SCOPES,
 } from '@/features/role/schema';
-import { orpc } from '@/lib/orpc/client';
 
 // ─── External: system selector + module checkboxes ───────────────────────────
 
@@ -71,6 +73,40 @@ const ExternalSystemPermissions = ({
     onPermissionsChange([]);
   };
 
+  let systemFieldContent: ReactNode;
+  if (isLoadingSystems) {
+    systemFieldContent = (
+      <div className="h-9 animate-pulse rounded-md bg-muted" />
+    );
+  } else if (systems.length === 0) {
+    systemFieldContent = (
+      <p className="text-sm text-muted-foreground">
+        {t('role:common.system.empty')}
+      </p>
+    );
+  } else {
+    systemFieldContent = (
+      <Select value={systemId ?? undefined} onValueChange={handleSystemChange}>
+        <SelectTrigger>
+          <SelectValue placeholder={t('role:common.system.placeholder')}>
+            {(value: string | null) => {
+              if (!value) return null;
+              const s = systems.find((s) => s.id === value);
+              return s ? (s.label ?? s.name) : value;
+            }}
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {systems.map((s) => (
+            <SelectItem key={s.id} value={s.id}>
+              {s.label ?? s.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4">
       {/* System selector */}
@@ -78,35 +114,7 @@ const ExternalSystemPermissions = ({
         <Label className="text-sm font-medium">
           {t('role:common.system.label')}
         </Label>
-        {isLoadingSystems ? (
-          <div className="h-9 animate-pulse rounded-md bg-muted" />
-        ) : systems.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            {t('role:common.system.empty')}
-          </p>
-        ) : (
-          <Select
-            value={systemId ?? undefined}
-            onValueChange={handleSystemChange}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={t('role:common.system.placeholder')}>
-                {(value: string | null) => {
-                  if (!value) return null;
-                  const s = systems.find((s) => s.id === value);
-                  return s ? (s.label ?? s.name) : value;
-                }}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {systems.map((s) => (
-                <SelectItem key={s.id} value={s.id}>
-                  {s.label ?? s.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
+        {systemFieldContent}
       </div>
 
       {/* Modules from the selected system */}

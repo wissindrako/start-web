@@ -3,6 +3,7 @@ import { ArrowRightIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { cn } from '@/lib/tailwind/utils';
+import { useMyPermissions } from '@/hooks/use-my-permissions';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,31 +16,16 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
-import { authClient } from '@/features/auth/client';
-import { Role } from '@/features/auth/permissions';
-
 export const DemoAppSwitch = () => {
   const { t } = useTranslation(['demo']);
-  const session = authClient.useSession();
-  const userRole = session.data?.user.role;
+  const { checkPermission } = useMyPermissions();
   const matchRoute = useMatchRoute();
   const currentApp = matchRoute({ to: '/manager', fuzzy: true })
     ? 'manager'
     : 'app';
 
-  const hasAppAccess = authClient.admin.checkRolePermission({
-    role: userRole as Role,
-    permission: {
-      apps: ['app'],
-    },
-  });
-
-  const hasManagerAccess = authClient.admin.checkRolePermission({
-    role: userRole as Role,
-    permission: {
-      apps: ['manager'],
-    },
-  });
+  const hasAppAccess = checkPermission({ apps: ['app'] });
+  const hasManagerAccess = checkPermission({ apps: ['manager'] });
 
   return (
     <div className="flex gap-4 max-xs:flex-col">

@@ -66,7 +66,10 @@
     "placeholder": "Seleccionar..."
   },
   "preventNavigation": {
-    "confirmLabel": "¿Estás seguro de que quieres salir?"
+    "confirmLabel": "¿Estás seguro de que quieres salir?",
+    "description": "Tienes cambios sin guardar. Si sales ahora, se perderán.",
+    "confirmText": "Salir sin guardar",
+    "cancelText": "Seguir editando"
   },
   "combobox": {
     "placeholder": "Seleccionar...",

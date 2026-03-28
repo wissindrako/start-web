@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 
 import { orpc } from '@/lib/orpc/client';
 
-import { Button } from '@/components/ui/button';
 import {
   DataList,
   DataListCell,

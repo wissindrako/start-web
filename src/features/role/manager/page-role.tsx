@@ -43,46 +43,54 @@ const RoleUsersCard = (props: { roleId: string }) => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {usersQuery.isPending ? (
-          <div className="flex flex-col gap-2">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-9 w-full" />
-            ))}
-          </div>
-        ) : users.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            {t('role:manager.detail.noUsers')}
-          </p>
-        ) : (
-          <div className="flex flex-col divide-y">
-            {users.map((user) => (
-              <Link
-                key={user.id}
-                to="/manager/users/$id"
-                params={{ id: user.id }}
-                className="flex items-center gap-3 py-2 hover:opacity-75"
-              >
-                <Avatar className="size-7">
-                  <AvatarImage
-                    src={user.imageThumbnail ?? user.image ?? undefined}
-                    alt={user.name ?? ''}
-                  />
-                  <AvatarFallback variant="boring" name={user.name ?? ''} />
-                </Avatar>
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium">
-                    {user.name || (
-                      <span className="text-muted-foreground">—</span>
-                    )}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {user.email}
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
+        {(() => {
+          if (usersQuery.isPending) {
+            return (
+              <div className="flex flex-col gap-2">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-9 w-full" />
+                ))}
+              </div>
+            );
+          }
+          if (users.length === 0) {
+            return (
+              <p className="text-sm text-muted-foreground">
+                {t('role:manager.detail.noUsers')}
+              </p>
+            );
+          }
+          return (
+            <div className="flex flex-col divide-y">
+              {users.map((user) => (
+                <Link
+                  key={user.id}
+                  to="/manager/users/$id"
+                  params={{ id: user.id }}
+                  className="flex items-center gap-3 py-2 hover:opacity-75"
+                >
+                  <Avatar className="size-7">
+                    <AvatarImage
+                      src={user.imageThumbnail ?? user.image ?? undefined}
+                      alt={user.name ?? ''}
+                    />
+                    <AvatarFallback variant="boring" name={user.name ?? ''} />
+                  </Avatar>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">
+                      {user.name || (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {user.email}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          );
+        })()}
       </CardContent>
     </Card>
   );

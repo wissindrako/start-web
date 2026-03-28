@@ -404,7 +404,7 @@ const UserRolesCard = (props: { userId: string }) => {
             >
               <span className="font-medium">{role.name}</span>
               <Badge
-                variant={role.scope === 'local' ? 'secondary' : 'outline'}
+                variant={role.scope === 'local' ? 'secondary' : 'default'}
                 className="text-xs"
               >
                 {t(`role:scopes.${role.scope}`)}

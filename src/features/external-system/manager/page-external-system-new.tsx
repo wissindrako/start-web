@@ -1,6 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { ORPCError } from '@orpc/client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -43,17 +45,34 @@ export const PageExternalSystemNew = () => {
           queryKey: orpc.externalSystem.getAll.key(),
           type: 'all',
         });
-        navigate({ to: '/manager/external-systems' });
       },
-      onError: () => {
+      onError: (error) => {
+        if (
+          error instanceof ORPCError &&
+          error.code === 'CONFLICT' &&
+          (error.data as { target?: string[] })?.target?.includes('name')
+        ) {
+          form.setError('name', {
+            message: t('external-system:manager.new.nameAlreadyUsed'),
+          });
+          return;
+        }
         toast.error(t('external-system:manager.new.createError'));
       },
     })
   );
 
+  useEffect(() => {
+    if (create.isSuccess) {
+      navigate({ to: '/manager/external-systems' });
+    }
+  }, [create.isSuccess, navigate]);
+
   return (
     <>
-      <PreventNavigation shouldBlock={form.formState.isDirty} />
+      <PreventNavigation
+        shouldBlock={form.formState.isDirty && !create.isSuccess}
+      />
       <Form
         {...form}
         onSubmit={(values) => {

@@ -14,21 +14,19 @@ import {
   FormFieldController,
   FormFieldLabel,
 } from '@/components/form';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import { envClient } from '@/env/client';
-
+import { FormFieldsSystemConfig } from '@/features/system-config/schema';
 import {
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
   PageLayoutTopBarTitle,
 } from '@/layout/manager/page-layout';
-
-import { FormFieldsSystemConfig } from '@/features/system-config/schema';
 
 export const PageSystemConfig = () => {
   const { t } = useTranslation(['system-config']);

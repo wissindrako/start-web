@@ -21,7 +21,13 @@ export const zExternalSystem = () =>
     updatedAt: z.date(),
   });
 
+export const zExternalSystemWithKey = () =>
+  zExternalSystem().extend({ apiKey: z.string() });
+
 export type ExternalSystem = z.infer<ReturnType<typeof zExternalSystem>>;
+export type ExternalSystemWithKey = z.infer<
+  ReturnType<typeof zExternalSystemWithKey>
+>;
 export type ExternalModule = z.infer<ReturnType<typeof zExternalModule>>;
 
 export const zFormFieldsExternalModule = () =>

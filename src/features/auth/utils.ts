@@ -1,18 +1,20 @@
 import { useRouter, useSearch } from '@tanstack/react-router';
 import { useEffect } from 'react';
 
+import { useMyPermissions } from '@/hooks/use-my-permissions';
+
 import { authClient } from '@/features/auth/client';
-import { Role } from '@/features/auth/permissions';
 
 export const useRedirectAfterLogin = () => {
   const search = useSearch({ strict: false });
   const router = useRouter();
   const session = authClient.useSession();
+  const { isLoading, checkPermission } = useMyPermissions();
   const searchRedirect = search.redirect;
 
   useEffect(() => {
     const exec = () => {
-      if (session.isPending || !session.data) {
+      if (session.isPending || !session.data || isLoading) {
         return;
       }
 
@@ -26,52 +28,26 @@ export const useRedirectAfterLogin = () => {
         return;
       }
 
-      const userRole = session.data?.user.role;
-
-      if (!userRole) {
-        router.navigate({
-          replace: true,
-          to: '/',
-        });
+      if (checkPermission({ apps: ['manager'] })) {
+        router.navigate({ replace: true, to: '/manager' });
         return;
       }
 
-      if (
-        authClient.admin.checkRolePermission({
-          role: userRole as Role,
-          permission: {
-            apps: ['manager'],
-          },
-        })
-      ) {
-        router.navigate({
-          replace: true,
-          to: '/manager',
-        });
+      if (checkPermission({ apps: ['app'] })) {
+        router.navigate({ replace: true, to: '/app' });
         return;
       }
 
-      if (
-        authClient.admin.checkRolePermission({
-          role: userRole as Role,
-          permission: {
-            apps: ['app'],
-          },
-        })
-      ) {
-        router.navigate({
-          replace: true,
-          to: '/app',
-        });
-        return;
-      }
-
-      router.navigate({
-        replace: true,
-        to: '/',
-      });
+      router.navigate({ replace: true, to: '/' });
     };
 
     exec();
-  }, [searchRedirect, session.isPending, session.data, router]);
+  }, [
+    searchRedirect,
+    session.isPending,
+    session.data,
+    isLoading,
+    checkPermission,
+    router,
+  ]);
 };

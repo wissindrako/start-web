@@ -2,7 +2,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ORPCError } from '@orpc/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
-import { Trash2Icon } from 'lucide-react';
+import { CopyIcon, RefreshCwIcon, Trash2Icon } from 'lucide-react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -13,7 +14,7 @@ import { BackButton } from '@/components/back-button';
 import { Form } from '@/components/form';
 import { PreventNavigation } from '@/components/prevent-navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmResponsiveDrawer } from '@/components/ui/confirm-responsive-drawer';
 import { ResponsiveIconButton } from '@/components/ui/responsive-icon-button';
 import { Spinner } from '@/components/ui/spinner';
@@ -65,7 +66,17 @@ export const PageExternalSystemUpdate = (props: { params: { id: string } }) => {
         });
         toast.success(t('external-system:manager.update.updateButton.label'));
       },
-      onError: () => {
+      onError: (error) => {
+        if (
+          error instanceof ORPCError &&
+          error.code === 'CONFLICT' &&
+          (error.data as { target?: string[] })?.target?.includes('name')
+        ) {
+          form.setError('name', {
+            message: t('external-system:manager.update.nameAlreadyUsed'),
+          });
+          return;
+        }
         toast.error(t('external-system:manager.update.updateError'));
       },
     })
@@ -90,6 +101,33 @@ export const PageExternalSystemUpdate = (props: { params: { id: string } }) => {
       },
     })
   );
+
+  const [showApiKey, setShowApiKey] = useState(false);
+
+  const rotateApiKey = useMutation(
+    orpc.externalSystem.rotateApiKey.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: orpc.externalSystem.getById.key({
+            input: { id: props.params.id },
+          }),
+          type: 'all',
+        });
+        toast.success(t('external-system:manager.apiKey.rotated'));
+        setShowApiKey(true);
+      },
+      onError: () => {
+        toast.error(t('external-system:manager.apiKey.rotateError'));
+      },
+    })
+  );
+
+  const copyApiKey = async () => {
+    const key = systemQuery.data?.apiKey;
+    if (!key) return;
+    await navigator.clipboard.writeText(key);
+    toast.success(t('external-system:manager.apiKey.copied'));
+  };
 
   if (systemQuery.isPending) {
     return (
@@ -170,6 +208,74 @@ export const PageExternalSystemUpdate = (props: { params: { id: string } }) => {
                 <FormExternalSystem />
               </CardContent>
             </Card>
+
+            {systemQuery.data && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium">
+                    {t('external-system:manager.apiKey.title')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-3">
+                  <p className="text-xs text-muted-foreground">
+                    {t('external-system:manager.apiKey.description')}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 rounded-md bg-muted px-3 py-2 font-mono text-sm break-all">
+                      {showApiKey
+                        ? systemQuery.data.apiKey
+                        : '••••••••-••••-••••-••••-••••••••••••'}
+                    </code>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowApiKey((v) => !v)}
+                    >
+                      {showApiKey
+                        ? t('external-system:manager.apiKey.hide')
+                        : t('external-system:manager.apiKey.show')}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="icon-sm"
+                      onClick={copyApiKey}
+                    >
+                      <CopyIcon className="size-4" />
+                    </Button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <p className="flex-1 text-xs text-muted-foreground">
+                      {t('external-system:manager.apiKey.rotateHint')}
+                    </p>
+                    <ConfirmResponsiveDrawer
+                      onConfirm={() =>
+                        rotateApiKey.mutate({ id: props.params.id })
+                      }
+                      title={t(
+                        'external-system:manager.apiKey.confirmRotateTitle'
+                      )}
+                      description={t(
+                        'external-system:manager.apiKey.confirmRotateDescription'
+                      )}
+                      confirmText={t('external-system:manager.apiKey.rotate')}
+                      confirmVariant="destructive"
+                    >
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        loading={rotateApiKey.isPending}
+                      >
+                        <RefreshCwIcon className="size-4" />
+                        {t('external-system:manager.apiKey.rotate')}
+                      </Button>
+                    </ConfirmResponsiveDrawer>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </PageLayoutContent>
         </PageLayout>
       </Form>

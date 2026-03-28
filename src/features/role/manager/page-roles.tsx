@@ -4,10 +4,9 @@ import { Link, useRouter } from '@tanstack/react-router';
 import { PlusIcon, ShieldIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-import { Badge } from '@/components/ui/badge';
-
 import { orpc } from '@/lib/orpc/client';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   DataList,
@@ -145,12 +144,12 @@ export const PageRoles = (props: { search: { searchTerm?: string } }) => {
                         </Link>
                         <Badge
                           variant={
-                            item.scope === 'local' ? 'secondary' : 'outline'
+                            item.scope === 'local' ? 'secondary' : 'default'
                           }
                           className="relative z-10 text-xs"
                         >
-                          {item.scope === 'external' && item.system
-                            ? `${t('role:scopes.external')} · ${item.system}`
+                          {item.scope === 'external' && item.externalSystem
+                            ? `${t('role:scopes.external')} · ${item.externalSystem.label ?? item.externalSystem.name}`
                             : t(`role:scopes.${item.scope}`)}
                         </Badge>
                       </DataListText>

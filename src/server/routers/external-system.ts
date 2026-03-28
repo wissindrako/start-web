@@ -1,8 +1,10 @@
 import { ORPCError } from '@orpc/client';
+import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 
 import {
   zExternalSystem,
+  zExternalSystemWithKey,
   zFormFieldsExternalSystem,
 } from '@/features/external-system/schema';
 import { db } from '@/server/db';
@@ -61,7 +63,7 @@ export default {
   })
     .route({ method: 'GET', path: '/external-systems/{id}', tags })
     .input(z.object({ id: z.string() }))
-    .output(zExternalSystem())
+    .output(zExternalSystemWithKey())
     .handler(async ({ context, input }) => {
       const system = await context.db.externalSystem.findUnique({
         where: { id: input.id },
@@ -69,6 +71,25 @@ export default {
       });
       if (!system) throw new ORPCError('NOT_FOUND');
       return system;
+    }),
+
+  rotateApiKey: protectedProcedure({
+    permission: { externalSystem: ['update'] },
+  })
+    .route({
+      method: 'POST',
+      path: '/external-systems/{id}/rotate-api-key',
+      tags,
+    })
+    .input(z.object({ id: z.string() }))
+    .output(zExternalSystemWithKey())
+    .handler(async ({ context, input }) => {
+      await assertExists(context.db, input.id);
+      return context.db.externalSystem.update({
+        where: { id: input.id },
+        data: { apiKey: randomUUID() },
+        include: includeModules,
+      });
     }),
 
   create: protectedProcedure({

@@ -1,8 +1,9 @@
 import { t } from 'i18next';
 import { z } from 'zod';
 
-import { zExternalModule } from '@/features/external-system/schema';
 import { zu } from '@/lib/zod/zod-utils';
+
+import { zExternalModule } from '@/features/external-system/schema';
 
 export const ROLE_SCOPES = ['local', 'external'] as const;
 export type RoleScope = (typeof ROLE_SCOPES)[number];

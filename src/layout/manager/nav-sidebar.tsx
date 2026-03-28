@@ -40,6 +40,24 @@ export const NavSidebar = (props: { children?: ReactNode }) => {
   const systemConfigQuery = useQuery(orpc.systemConfig.get.queryOptions());
   const systemName = systemConfigQuery.data?.systemName;
   const logoUrl = systemConfigQuery.data?.logoUrl;
+
+  let brandLogo: ReactNode;
+  if (logoUrl) {
+    brandLogo = (
+      <img
+        src={logoUrl}
+        alt={systemName ?? 'Logo'}
+        className="h-8 w-auto object-contain group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:object-cover"
+      />
+    );
+  } else if (systemName) {
+    brandLogo = (
+      <span className="truncate text-base font-semibold">{systemName}</span>
+    );
+  } else {
+    brandLogo = <Logo className="w-24 group-data-[collapsible=icon]:w-18" />;
+  }
+
   return (
     <SidebarProvider>
       <Sidebar>
@@ -51,21 +69,7 @@ export const NavSidebar = (props: { children?: ReactNode }) => {
                   className="h-auto"
                   render={
                     <Link to="/manager">
-                      <span>
-                        {logoUrl ? (
-                          <img
-                            src={logoUrl}
-                            alt={systemName ?? 'Logo'}
-                            className="h-8 w-auto object-contain group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:object-cover"
-                          />
-                        ) : systemName ? (
-                          <span className="truncate text-base font-semibold">
-                            {systemName}
-                          </span>
-                        ) : (
-                          <Logo className="w-24 group-data-[collapsible=icon]:w-18" />
-                        )}
-                      </span>
+                      <span>{brandLogo}</span>
                     </Link>
                   }
                 />

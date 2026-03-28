@@ -29,7 +29,7 @@ export const useMyPermissions = () => {
   };
 
   return {
-    isLoading: query.isPending && !!session.data?.user,
+    isLoading: (query.isPending || query.isError) && !!session.data?.user,
     hasPermission,
     checkPermission,
   };
