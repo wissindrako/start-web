@@ -29,6 +29,7 @@
       "loadMore": "Load more",
       "showing": "Showing {{count}} of {{total}}",
       "searchResults": "{{total}} results for \"{{searchTerm}}\"",
+      "filterByRole": "Filter by role",
       "confirmVerifyTitle": "Verify {{user}}",
       "confirmVerifyDescription": "Are you sure you want to verify this user?",
       "confirmUnverifyTitle": "Remove verification from {{user}}",

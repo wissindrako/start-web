@@ -2,6 +2,7 @@ import { getUiState } from '@bearstudio/ui-state';
 import {
   useInfiniteQuery,
   useMutation,
+  useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
 import { Link, useRouter } from '@tanstack/react-router';
@@ -30,6 +31,13 @@ import { ResponsiveIconButton } from '@/components/ui/responsive-icon-button';
 import { ResponsiveIconButtonLink } from '@/components/ui/responsive-icon-button-link';
 import { SearchButton } from '@/components/ui/search-button';
 import { SearchInput } from '@/components/ui/search-input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 import { authClient } from '@/features/auth/client';
 import { WithPermissions } from '@/features/auth/with-permission';
@@ -49,16 +57,21 @@ const getDisplayName = (user: User): string => {
   return fullName || user.name || user.email;
 };
 
-export const PageUsers = (props: { search: { searchTerm?: string } }) => {
+export const PageUsers = (props: {
+  search: { searchTerm?: string; roleId?: string };
+}) => {
   const { t } = useTranslation(['user']);
   const router = useRouter();
+
+  const rolesQuery = useQuery(orpc.role.getAll.queryOptions());
+  const roles = rolesQuery.data?.items ?? [];
 
   const searchInputProps = {
     value: props.search.searchTerm ?? '',
     onChange: (value: string) =>
       router.navigate({
         to: '.',
-        search: { searchTerm: value },
+        search: (prev) => ({ ...prev, searchTerm: value }),
         replace: true,
       }),
   };
@@ -67,6 +80,7 @@ export const PageUsers = (props: { search: { searchTerm?: string } }) => {
     orpc.user.getAll.infiniteOptions({
       input: (cursor: string | undefined) => ({
         searchTerm: props.search.searchTerm,
+        roleId: props.search.roleId,
         cursor,
       }),
       initialPageParam: undefined,
@@ -119,6 +133,32 @@ export const PageUsers = (props: { search: { searchTerm?: string } }) => {
         <PageLayoutTopBarTitle>
           {t('user:manager.list.title')}
         </PageLayoutTopBarTitle>
+        <Select
+          value={props.search.roleId ?? ''}
+          onValueChange={(value) =>
+            router.navigate({
+              to: '.',
+              search: (prev) => ({ ...prev, roleId: value || undefined }),
+              replace: true,
+            })
+          }
+        >
+          <SelectTrigger size="sm" className="max-w-2xs">
+            <SelectValue placeholder={t('user:manager.list.filterByRole')}>
+              {props.search.roleId
+                ? (roles.find((r) => r.id === props.search.roleId)?.name ??
+                  props.search.roleId)
+                : undefined}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {roles.map((role) => (
+              <SelectItem key={role.id} value={role.id}>
+                {role.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <SearchButton
           {...searchInputProps}
           className="-mx-2 md:hidden"
@@ -187,6 +227,19 @@ export const PageUsers = (props: { search: { searchTerm?: string } }) => {
                           <> · {item.personalData.numeroDocumento}</>
                         )}
                       </DataListText>
+                      {!!item.roles?.length && (
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {item.roles.map((r) => (
+                            <Badge
+                              key={r.id}
+                              variant="secondary"
+                              className="text-xs"
+                            >
+                              {r.name}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                     </DataListCell>
                     <DataListCell className="flex-none max-sm:hidden">
                       <Badge

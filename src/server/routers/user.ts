@@ -27,6 +27,7 @@ export default {
           cursor: z.string().optional(),
           limit: z.coerce.number().int().min(1).max(100).prefault(20),
           searchTerm: z.string().trim().optional().prefault(''),
+          roleId: z.string().optional(),
         })
         .prefault({})
     )
@@ -39,33 +40,43 @@ export default {
     )
     .handler(async ({ context, input }) => {
       const where = {
-        OR: [
-          { name: { contains: input.searchTerm, mode: 'insensitive' } },
-          { email: { contains: input.searchTerm, mode: 'insensitive' } },
+        AND: [
+          input.roleId ? { roles: { some: { roleId: input.roleId } } } : {},
           {
-            personalData: {
-              OR: [
-                { nombre: { contains: input.searchTerm, mode: 'insensitive' } },
-                {
-                  primerApellido: {
-                    contains: input.searchTerm,
-                    mode: 'insensitive',
-                  },
+            OR: [
+              { name: { contains: input.searchTerm, mode: 'insensitive' } },
+              { email: { contains: input.searchTerm, mode: 'insensitive' } },
+              {
+                personalData: {
+                  OR: [
+                    {
+                      nombre: {
+                        contains: input.searchTerm,
+                        mode: 'insensitive',
+                      },
+                    },
+                    {
+                      primerApellido: {
+                        contains: input.searchTerm,
+                        mode: 'insensitive',
+                      },
+                    },
+                    {
+                      segundoApellido: {
+                        contains: input.searchTerm,
+                        mode: 'insensitive',
+                      },
+                    },
+                    {
+                      numeroDocumento: {
+                        contains: input.searchTerm,
+                        mode: 'insensitive',
+                      },
+                    },
+                  ],
                 },
-                {
-                  segundoApellido: {
-                    contains: input.searchTerm,
-                    mode: 'insensitive',
-                  },
-                },
-                {
-                  numeroDocumento: {
-                    contains: input.searchTerm,
-                    mode: 'insensitive',
-                  },
-                },
-              ],
-            },
+              },
+            ],
           },
         ],
       } satisfies Prisma.UserWhereInput;
@@ -92,6 +103,11 @@ export default {
                 numeroDocumento: true,
               },
             },
+            roles: {
+              select: {
+                role: { select: { id: true, name: true } },
+              },
+            },
           },
         }),
       ]);
@@ -103,7 +119,10 @@ export default {
       }
 
       return {
-        items,
+        items: items.map((item) => ({
+          ...item,
+          roles: item.roles.map((r) => r.role),
+        })),
         nextCursor,
         total,
       };

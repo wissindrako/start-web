@@ -7,11 +7,7 @@ import { protectedProcedure } from '@/server/orpc';
 const tags = ['personal-data'];
 
 export default {
-  getByUserId: protectedProcedure({
-    permission: {
-      personalData: ['read'],
-    },
-  })
+  getByUserId: protectedProcedure({ permission: null })
     .route({
       method: 'GET',
       path: '/personal-data/{userId}',
@@ -24,17 +20,36 @@ export default {
     )
     .output(zPersonalData().nullable())
     .handler(async ({ context, input }) => {
+      if (context.user.id !== input.userId) {
+        const userWithRoles = await context.db.user.findUnique({
+          where: { id: context.user.id },
+          include: {
+            roles: {
+              include: {
+                role: {
+                  include: { permissions: { include: { permission: true } } },
+                },
+              },
+            },
+          },
+        });
+        const canRead = userWithRoles?.roles.some((assignment) =>
+          assignment.role.permissions.some(
+            (rp) =>
+              rp.permission.subject === 'personalData' &&
+              rp.permission.action === 'read'
+          )
+        );
+        if (!canRead) throw new ORPCError('FORBIDDEN');
+      }
+
       context.logger.info('Getting personal data');
       return await context.db.personalData.findUnique({
         where: { userId: input.userId },
       });
     }),
 
-  upsertByUserId: protectedProcedure({
-    permission: {
-      personalData: ['update'],
-    },
-  })
+  upsertByUserId: protectedProcedure({ permission: null })
     .route({
       method: 'POST',
       path: '/personal-data/{userId}',
@@ -61,6 +76,29 @@ export default {
     )
     .output(zPersonalData())
     .handler(async ({ context, input }) => {
+      if (context.user.id !== input.userId) {
+        const userWithRoles = await context.db.user.findUnique({
+          where: { id: context.user.id },
+          include: {
+            roles: {
+              include: {
+                role: {
+                  include: { permissions: { include: { permission: true } } },
+                },
+              },
+            },
+          },
+        });
+        const canUpdate = userWithRoles?.roles.some((assignment) =>
+          assignment.role.permissions.some(
+            (rp) =>
+              rp.permission.subject === 'personalData' &&
+              rp.permission.action === 'update'
+          )
+        );
+        if (!canUpdate) throw new ORPCError('FORBIDDEN');
+      }
+
       const user = await context.db.user.findUnique({
         where: { id: input.userId },
       });

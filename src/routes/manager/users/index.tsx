@@ -9,10 +9,11 @@ export const Route = createFileRoute('/manager/users/')({
   validateSearch: zodValidator(
     z.object({
       searchTerm: z.string().prefault(''),
+      roleId: z.string().optional(),
     })
   ),
   search: {
-    middlewares: [stripSearchParams({ searchTerm: '' })],
+    middlewares: [stripSearchParams({ searchTerm: '', roleId: undefined })],
   },
 });
 

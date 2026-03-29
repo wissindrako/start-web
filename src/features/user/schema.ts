@@ -36,6 +36,7 @@ export const zUser = () =>
         numeroDocumento: z.string().nullish(),
       })
       .nullish(),
+    roles: z.array(z.object({ id: z.string(), name: z.string() })).optional(),
   });
 
 export type Session = z.infer<ReturnType<typeof zSession>>;
