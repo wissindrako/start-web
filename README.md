@@ -61,6 +61,66 @@ pnpm dk:start # Only if your Docker containers are not running
 pnpm dev
 ```
 
+## Configuración inicial (paso a paso)
+
+Seguí estos pasos para correr el proyecto desde cero en una máquina nueva.
+
+**1. Prerrequisitos**
+
+Asegurate de tener instalado:
+- [Node.js](https://nodejs.org) >= 22.13
+- [pnpm](https://pnpm.io/) — `npm install -g pnpm`
+- [Docker Desktop](https://www.docker.com/)
+
+**2. Clonar y configurar**
+
+```bash
+git clone <repo-url>
+cd <carpeta-del-proyecto>
+cp .env.example .env
+```
+
+Abrí `.env` y configurá como mínimo:
+- `AUTH_SECRET` — generalo con `npx @better-auth/cli@latest secret`
+- Las credenciales de base de datos y MinIO pueden dejarse con los valores por defecto si usás Docker
+
+**3. Instalar dependencias**
+
+```bash
+pnpm install
+```
+
+**4. Levantar infraestructura e inicializar la base de datos**
+
+```bash
+pnpm dk:init   # Descarga y levanta los contenedores Docker (Postgres, MinIO, Maildev)
+               # También crea el bucket de MinIO en el primer arranque
+pnpm db:init   # Aplica el schema de Prisma a la BD y ejecuta el seed inicial
+```
+
+**5. Configurar el IDE**
+
+```bash
+# VS Code
+cp .vscode/settings.example.json .vscode/settings.json
+```
+
+**6. Iniciar el servidor de desarrollo**
+
+```bash
+pnpm dev
+```
+
+La app estará disponible en [http://localhost:3001](http://localhost:3001).
+
+Las credenciales del administrador por defecto las crea el seed — revisá `prisma/seed.ts` para ver el email y la contraseña.
+
+> **Las próximas veces** solo necesitás: `pnpm dk:start` (si Docker no está corriendo) y luego `pnpm dev`.
+
+## Crear un nuevo módulo
+
+Ver la guía completa con ejemplos de código, checklist y módulos de referencia en [docs/new-module.md](docs/new-module.md).
+
 
 
 
