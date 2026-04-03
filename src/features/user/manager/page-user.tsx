@@ -205,45 +205,48 @@ export const PageUser = (props: { params: { id: string } }) => {
                       </CardTitle>
                       <CardDescription>{user.email}</CardDescription>
                     </div>
-                    <WithPermissions permissions={[{ user: ['update'] }]}>
-                      <Link
-                        to="/manager/users/$id/update"
-                        params={props.params}
-                        className="-m-2 self-start"
-                      >
-                        <Button
-                          size="icon-sm"
-                          variant="ghost"
-                          render={<span />}
-                          nativeButton={false}
+                    <div className="relative z-10 flex flex-none items-center gap-1">
+                      <WithPermissions permissions={[{ user: ['update'] }]}>
+                        <Link
+                          to="/manager/users/$id/update"
+                          params={props.params}
+                          className="-m-2 self-start"
                         >
-                          <PencilLineIcon />
-                          <span className="sr-only">
-                            {t('user:manager.detail.editUser')}
-                          </span>
-                        </Button>
-                        <span className="absolute inset-0" />
-                      </Link>
-                    </WithPermissions>
-                    <WithPermissions permissions={[{ personalData: ['read'] }]}>
-                      <Link
-                        to="/manager/users/$id/personal-data"
-                        params={props.params}
-                        className="-m-2 self-start"
+                          <Button
+                            size="icon-sm"
+                            variant="ghost"
+                            render={<span />}
+                            nativeButton={false}
+                          >
+                            <PencilLineIcon />
+                            <span className="sr-only">
+                              {t('user:manager.detail.editUser')}
+                            </span>
+                          </Button>
+                        </Link>
+                      </WithPermissions>
+                      <WithPermissions
+                        permissions={[{ personalData: ['read'] }]}
                       >
-                        <Button
-                          size="icon-sm"
-                          variant="ghost"
-                          render={<span />}
-                          nativeButton={false}
+                        <Link
+                          to="/manager/users/$id/personal-data"
+                          params={props.params}
+                          className="-m-2 self-start"
                         >
-                          <ContactIcon />
-                          <span className="sr-only">
-                            {t('user:manager.detail.personalDataButton')}
-                          </span>
-                        </Button>
-                      </Link>
-                    </WithPermissions>
+                          <Button
+                            size="icon-sm"
+                            variant="ghost"
+                            render={<span />}
+                            nativeButton={false}
+                          >
+                            <ContactIcon />
+                            <span className="sr-only">
+                              {t('user:manager.detail.personalDataButton')}
+                            </span>
+                          </Button>
+                        </Link>
+                      </WithPermissions>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-4">

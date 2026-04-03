@@ -30,6 +30,7 @@
       "showing": "Mostrando {{count}} de {{total}}",
       "searchResults": "{{total}} resultados para \"{{searchTerm}}\"",
       "filterByRole": "Filtrar por rol",
+      "allRoles": "Todos los roles",
       "confirmVerifyTitle": "Verificar {{user}}",
       "confirmVerifyDescription": "¿Confirmas que deseas verificar a este usuario?",
       "confirmUnverifyTitle": "Quitar verificación a {{user}}",

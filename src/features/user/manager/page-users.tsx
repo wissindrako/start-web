@@ -152,6 +152,7 @@ export const PageUsers = (props: {
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="">{t('user:manager.list.allRoles')}</SelectItem>
             {roles.map((role) => (
               <SelectItem key={role.id} value={role.id}>
                 {role.name}
@@ -223,10 +224,12 @@ export const PageUsers = (props: {
                       </DataListText>
                       <DataListText className="text-xs text-muted-foreground">
                         {item.email}
-                        {item.personalData?.numeroDocumento && (
-                          <> · {item.personalData.numeroDocumento}</>
-                        )}
                       </DataListText>
+                      {item.personalData?.numeroDocumento && (
+                        <DataListText className="text-xs text-muted-foreground">
+                          {item.personalData.numeroDocumento}
+                        </DataListText>
+                      )}
                       {!!item.roles?.length && (
                         <div className="mt-1 flex flex-wrap gap-1">
                           {item.roles.map((r) => (

@@ -137,11 +137,13 @@ export const PageRoles = (props: { search: { searchTerm?: string } }) => {
                       <ShieldIcon className="size-4 text-muted-foreground" />
                     </DataListCell>
                     <DataListCell>
-                      <DataListText className="flex items-center gap-2 font-medium">
+                      <DataListText className="font-medium">
                         <Link to="/manager/roles/$id" params={{ id: item.id }}>
                           {item.name}
                           <span className="absolute inset-0" />
                         </Link>
+                      </DataListText>
+                      <DataListText className="text-xs text-muted-foreground">
                         <Badge
                           variant={
                             item.scope === 'local' ? 'secondary' : 'default'
@@ -159,14 +161,12 @@ export const PageRoles = (props: { search: { searchTerm?: string } }) => {
                         </DataListText>
                       )}
                     </DataListCell>
-                    <DataListCell>
+                    <DataListCell className="flex-none">
                       <DataListText className="text-xs text-muted-foreground">
                         {t('role:manager.list.permissionsCount', {
                           count: item.permissions.length,
                         })}
                       </DataListText>
-                    </DataListCell>
-                    <DataListCell>
                       <DataListText className="text-xs text-muted-foreground">
                         {t('role:manager.list.usersCount', {
                           count: item._count.userAssignments,

@@ -21,12 +21,12 @@ export function Default() {
       </p>
       <div className="flex gap-2">
         <Button
-          disabled={searchTerm === 'Start UI'}
+          disabled={searchTerm === 'FlyNow Admin'}
           size="xs"
           variant="secondary"
-          onClick={() => setSearchTerm('Start UI')}
+          onClick={() => setSearchTerm('FlyNow Admin')}
         >
-          Set to "Start UI"
+          Set to "FlyNow Admin"
         </Button>
         <Button
           disabled={searchTerm === 'React'}
