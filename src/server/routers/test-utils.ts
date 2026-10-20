@@ -3,13 +3,20 @@ import { vi } from 'vitest';
 const hoisted = vi.hoisted(() => ({
   mockGetSession: vi.fn(),
   mockUserHasPermission: vi.fn(),
+  mockGetEffectivePermissions: vi.fn(),
+  mockSatisfiesPermission: vi.fn(),
 }));
 
 export const mockGetSession = hoisted.mockGetSession;
 export const mockUserHasPermission = hoisted.mockUserHasPermission;
+// Effective permissions of the authenticated user (see mockUserPermissions)
+export const mockGetEffectivePermissions = hoisted.mockGetEffectivePermissions;
+// Spy on the route permission check (wraps the real implementation)
+export const mockSatisfiesPermission = hoisted.mockSatisfiesPermission;
 
 import type { Mock } from 'vitest';
 
+import { AVAILABLE_PERMISSIONS } from '@/features/role/schema';
 import type { PrismaClient } from '@/server/db/generated/client';
 
 type ModelKeys = {
@@ -48,4 +55,30 @@ export function setupAuthenticatedUser() {
     session: mockSession,
   });
   mockUserHasPermission.mockResolvedValue({ success: true, error: false });
+  mockUserPermissions('all');
+}
+
+const ALL_PERMISSIONS = AVAILABLE_PERMISSIONS.flatMap((p) =>
+  p.actions.map((action) => ({ subject: p.subject, action }))
+);
+
+/**
+ * Sets what the authenticated user can do: 'all' (every permission of the
+ * catalog) or a `{ subject: actions[] }` map (`{}` = nothing).
+ */
+export function mockUserPermissions(
+  permissions: 'all' | Record<string, string[]>
+) {
+  const list =
+    permissions === 'all'
+      ? ALL_PERMISSIONS
+      : Object.entries(permissions).flatMap(([subject, actions]) =>
+          actions.map((action) => ({ subject, action }))
+        );
+
+  mockGetEffectivePermissions.mockResolvedValue({
+    roles: [],
+    permissions: list.map((p) => ({ ...p, source: 'role' as const })),
+    denied: [],
+  });
 }
