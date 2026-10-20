@@ -7,6 +7,7 @@ import { zSession, zUser } from '@/features/user/schema';
 import { auth } from '@/server/auth';
 import { Prisma } from '@/server/db/generated/client';
 import { protectedProcedure } from '@/server/orpc';
+import { assertRequesterHolds } from '@/server/permissions';
 
 const tags = ['users'];
 
@@ -216,6 +217,15 @@ export default {
     .output(zUser())
     .handler(async ({ context, input }) => {
       context.logger.info('Create user');
+
+      // The static admin role unlocks Better Auth's admin API (ban,
+      // impersonate, set role...): only admins can hand it out
+      if (input.role === 'admin' && context.user.role !== 'admin') {
+        throw new ORPCError('FORBIDDEN', {
+          message: 'Only admins can create admin users',
+        });
+      }
+
       return await context.db.user.create({
         data: {
           email: input.email,
@@ -551,6 +561,39 @@ export default {
     .output(z.void())
     .handler(async ({ context, input }) => {
       context.logger.info('Updating user roles');
+
+      if (input.id === context.user.id) {
+        throw new ORPCError('FORBIDDEN', {
+          message: 'Cannot change your own roles',
+        });
+      }
+
+      // Assigning or removing an identity-center role requires holding all
+      // of its permissions (external-system roles are not restricted)
+      const current = await context.db.userRoleAssignment.findMany({
+        where: { userId: input.id },
+        select: { roleId: true },
+      });
+      const currentIds = current.map((a) => a.roleId);
+      const changedIds = [
+        ...input.roleIds.filter((id) => !currentIds.includes(id)),
+        ...currentIds.filter((id) => !input.roleIds.includes(id)),
+      ];
+      const changedLocalRoles = await context.db.role.findMany({
+        where: { id: { in: changedIds }, systemId: null },
+        include: { permissions: { include: { permission: true } } },
+      });
+      await assertRequesterHolds(
+        context.db,
+        context.user.id,
+        changedLocalRoles.flatMap((role) =>
+          role.permissions.map(({ permission }) => ({
+            subject: permission.subject,
+            action: permission.action,
+          }))
+        )
+      );
+
       await context.db.userRoleAssignment.deleteMany({
         where: { userId: input.id },
       });

@@ -16,6 +16,7 @@ const statement = {
   externalSystem: ['read', 'create', 'update', 'delete'],
   genre: ['read'],
   personalData: ['read', 'create', 'update', 'delete'],
+  privilege: ['read', 'manage'],
   role: ['read', 'create', 'update', 'delete'],
   systemConfig: ['read', 'update'],
 } as const;
@@ -39,6 +40,7 @@ const admin = ac.newRole({
   externalSystem: ['read', 'create', 'update', 'delete'],
   genre: ['read'],
   personalData: ['read', 'create', 'update', 'delete'],
+  privilege: ['read', 'manage'],
   role: ['read', 'create', 'update', 'delete'],
   systemConfig: ['read', 'update'],
 });

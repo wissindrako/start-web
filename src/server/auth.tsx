@@ -18,7 +18,19 @@ import {
 import { permissions } from '@/features/auth/permissions';
 import { db } from '@/server/db';
 import { sendEmail } from '@/server/email';
+import { getEffectivePermissions, hasPermissions } from '@/server/permissions';
 import { getUserLanguage } from '@/server/utils';
+
+async function canManageExternalSystems(userId: string | undefined) {
+  if (!userId) return false;
+  const { permissions } = await getEffectivePermissions(db, {
+    userId,
+    systemId: null,
+  });
+  return hasPermissions(permissions, [
+    { subject: 'externalSystem', action: 'update' },
+  ]);
+}
 
 export type Auth = typeof auth;
 export const auth = betterAuth({
@@ -108,6 +120,10 @@ export const auth = betterAuth({
       loginPage: '/login',
       consentPage: '/oauth/consent',
       scopes: ['openid', 'profile', 'email', 'offline_access'],
+      // OAuth clients and resources belong to external systems: only those
+      // who manage external systems can create or change them
+      clientPrivileges: ({ user }) => canManageExternalSystems(user?.id),
+      resourcePrivileges: ({ user }) => canManageExternalSystems(user?.id),
     }),
   ],
   databaseHooks: {

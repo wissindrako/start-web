@@ -4,6 +4,11 @@ import { z } from 'zod';
 import { zFormFieldsRole, zRole } from '@/features/role/schema';
 import { db } from '@/server/db';
 import { protectedProcedure } from '@/server/orpc';
+import {
+  assertRequesterHolds,
+  DynamicPermission,
+  getEffectivePermissions,
+} from '@/server/permissions';
 
 type Db = typeof db;
 
@@ -17,35 +22,11 @@ export default {
     .route({ method: 'GET', path: '/roles/my-permissions', tags })
     .output(z.array(zDynamicPermission()))
     .handler(async ({ context }) => {
-      const user = await context.db.user.findUnique({
-        where: { id: context.user.id },
-        include: {
-          roles: {
-            include: {
-              role: {
-                include: { permissions: { include: { permission: true } } },
-              },
-            },
-          },
-        },
+      const { permissions } = await getEffectivePermissions(context.db, {
+        userId: context.user.id,
+        systemId: null,
       });
-
-      // Union of permissions from all assigned roles (deduplicated)
-      const seen = new Set<string>();
-      const permissions: { subject: string; action: string }[] = [];
-      for (const assignment of user?.roles ?? []) {
-        for (const rp of assignment.role.permissions) {
-          const key = `${rp.permission.subject}:${rp.permission.action}`;
-          if (!seen.has(key)) {
-            seen.add(key);
-            permissions.push({
-              subject: rp.permission.subject,
-              action: rp.permission.action,
-            });
-          }
-        }
-      }
-      return permissions;
+      return permissions.map(({ subject, action }) => ({ subject, action }));
     }),
 
   getAll: protectedProcedure({
@@ -153,6 +134,15 @@ export default {
     .handler(async ({ context, input }) => {
       context.logger.info('Create role');
 
+      // Identity-center roles can only hold permissions the requester has
+      if (!input.systemId) {
+        await assertRequesterHolds(
+          context.db,
+          context.user.id,
+          input.permissions
+        );
+      }
+
       const permissionIds = await getOrCreatePermissions(
         context.db,
         input.permissions
@@ -190,6 +180,23 @@ export default {
     .output(zRole())
     .handler(async ({ context, input }) => {
       context.logger.info('Update role');
+
+      const current = await context.db.role.findUnique({
+        where: { id: input.id },
+        include: { permissions: { include: { permission: true } } },
+      });
+      if (!current) throw new ORPCError('NOT_FOUND');
+
+      // Adding or removing identity-center permissions requires holding them
+      const before = current.systemId
+        ? []
+        : current.permissions.map(({ permission }) => permission);
+      const after = input.systemId ? [] : input.permissions;
+      await assertRequesterHolds(
+        context.db,
+        context.user.id,
+        symmetricDifference(before, after)
+      );
 
       const permissionIds = await getOrCreatePermissions(
         context.db,
@@ -272,6 +279,19 @@ export default {
       await context.db.role.delete({ where: { id: input.id } });
     }),
 };
+
+function symmetricDifference(
+  a: DynamicPermission[],
+  b: DynamicPermission[]
+): DynamicPermission[] {
+  const key = (p: DynamicPermission) => `${p.subject}:${p.action}`;
+  const aKeys = new Set(a.map(key));
+  const bKeys = new Set(b.map(key));
+  return [
+    ...a.filter((p) => !bKeys.has(key(p))),
+    ...b.filter((p) => !aKeys.has(key(p))),
+  ].map(({ subject, action }) => ({ subject, action }));
+}
 
 async function getOrCreatePermissions(
   prisma: Db,

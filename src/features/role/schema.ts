@@ -28,6 +28,8 @@ export const AVAILABLE_PERMISSIONS = [
     actions: ['read', 'create', 'update', 'delete'],
   },
   { subject: 'session', scope: 'local', actions: ['list', 'revoke'] },
+  // Per-user grant/deny exceptions to role permissions
+  { subject: 'privilege', scope: 'local', actions: ['read', 'manage'] },
   { subject: 'systemConfig', scope: 'local', actions: ['read', 'update'] },
   {
     subject: 'book',

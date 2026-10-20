@@ -3,8 +3,12 @@ import { getRequestHeaders } from '@tanstack/react-start/server';
 import { z } from 'zod';
 
 import { publicProcedure } from '@/server/orpc';
+import { getEffectivePermissions } from '@/server/permissions';
 
 const tags = ['external-api'];
+
+// Module every system has: identity-center account actions
+const ACCOUNT_MODULE = 'account';
 
 const externalApiProcedure = () =>
   publicProcedure().use(async ({ context, next }) => {
@@ -29,7 +33,15 @@ const externalApiProcedure = () =>
     return next({ context: { system } });
   });
 
+const zModule = () =>
+  z.object({
+    name: z.string().trim().toLowerCase().min(1),
+    actions: z.array(z.string().trim().min(1)).min(1),
+  });
+
 export default {
+  // Effective permissions of a user in the calling system: its roles +
+  // granted privileges - denied privileges (expired ones ignored)
   getUserPermissions: externalApiProcedure()
     .route({
       method: 'GET',
@@ -46,38 +58,75 @@ export default {
       })
     )
     .handler(async ({ context, input }) => {
-      const assignments = await context.db.userRoleAssignment.findMany({
-        where: {
-          userId: input.userId,
-          role: { systemId: context.system.id },
-        },
-        include: {
-          role: {
-            include: { permissions: { include: { permission: true } } },
-          },
-        },
+      const { roles, permissions } = await getEffectivePermissions(context.db, {
+        userId: input.userId,
+        systemId: context.system.id,
       });
 
-      const roles = assignments.map((a) => ({
-        id: a.role.id,
-        name: a.role.name,
-      }));
+      return {
+        roles,
+        permissions: permissions.map(({ subject, action }) => ({
+          subject,
+          action,
+        })),
+      };
+    }),
 
-      const seen = new Set<string>();
-      const permissions: { subject: string; action: string }[] = [];
-      for (const { role } of assignments) {
-        for (const rp of role.permissions) {
-          const key = `${rp.permission.subject}:${rp.permission.action}`;
-          if (!seen.has(key)) {
-            seen.add(key);
-            permissions.push({
-              subject: rp.permission.subject,
-              action: rp.permission.action,
-            });
-          }
-        }
+  // The system declares its permission catalog (e.g. on startup). Modules
+  // not listed are removed, except the default account module.
+  syncModules: externalApiProcedure()
+    .route({ method: 'PUT', path: '/external/modules', tags })
+    .input(z.object({ modules: z.array(zModule()) }))
+    .output(
+      z.object({
+        modules: z.array(
+          z.object({ name: z.string(), actions: z.array(z.string()) })
+        ),
+      })
+    )
+    .handler(async ({ context, input }) => {
+      const systemId = context.system.id;
+      const names = input.modules.map((m) => m.name);
+
+      if (new Set(names).size !== names.length) {
+        throw new ORPCError('BAD_REQUEST', {
+          message: 'Duplicated module names',
+        });
       }
 
-      return { roles, permissions };
+      const modules = await context.db.$transaction(async (tx) => {
+        for (const [order, module] of input.modules.entries()) {
+          const actions = [...new Set(module.actions)];
+          await tx.externalModule.upsert({
+            where: { systemId_name: { systemId, name: module.name } },
+            create: { systemId, name: module.name, actions, order },
+            update: { actions, order },
+          });
+        }
+
+        await tx.externalModule.deleteMany({
+          where: {
+            systemId,
+            name: { notIn: [...names, ACCOUNT_MODULE] },
+          },
+        });
+
+        return tx.externalModule.findMany({
+          where: { systemId },
+          orderBy: { order: 'asc' },
+        });
+      });
+
+      context.logger.info(
+        { systemId, modules: modules.length },
+        'External system modules synced'
+      );
+
+      return {
+        modules: modules.map((m) => ({
+          name: m.name,
+          actions: m.actions as string[],
+        })),
+      };
     }),
 };
