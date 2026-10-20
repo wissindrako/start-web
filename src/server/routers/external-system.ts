@@ -56,8 +56,9 @@ export default {
       });
     }),
 
+  // Returns the API key: only for those who manage external systems
   getById: protectedProcedure({
-    permission: { role: ['read'] },
+    permission: { externalSystem: ['read'] },
   })
     .route({ method: 'GET', path: '/external-systems/{id}', tags })
     .input(z.object({ id: z.string() }))
