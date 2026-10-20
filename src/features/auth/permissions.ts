@@ -57,5 +57,5 @@ export const permissions = {
 };
 
 export type Permission = NonNullable<
-  Parameters<typeof authClient.admin.hasPermission>['0']['permission']
+  Parameters<typeof authClient.admin.hasPermission>['0']['permissions']
 >;

@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+
 import { authClient } from '@/features/auth/client';
 
 function parseUserAgent(ua: string | null | undefined): {
@@ -143,7 +144,7 @@ export const SessionsList = () => {
 
       {hasOtherSessions && (
         <Button
-          variant="outline"
+          variant="secondary"
           size="sm"
           className="self-start"
           onClick={() => revokeOtherSessions.mutate()}
