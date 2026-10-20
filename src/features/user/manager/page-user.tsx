@@ -71,6 +71,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { authClient } from '@/features/auth/client';
 import { WithPermissions } from '@/features/auth/with-permission';
 import { TIPO_DOCUMENTO_OPTIONS } from '@/features/personal-data/schema';
+import { UserPrivilegesCard } from '@/features/privilege/manager/user-privileges-card';
 import {
   PageLayout,
   PageLayoutContent,
@@ -320,6 +321,12 @@ export const PageUser = (props: { params: { id: string } }) => {
                 </WithPermissions>
                 <WithPermissions permissions={[{ session: ['list'] }]}>
                   <UserSessions userId={props.params.id} />
+                </WithPermissions>
+                <WithPermissions permissions={[{ privilege: ['read'] }]}>
+                  <UserPrivilegesCard
+                    userId={props.params.id}
+                    isCurrentUser={session.data?.user.id === props.params.id}
+                  />
                 </WithPermissions>
               </div>
             </div>

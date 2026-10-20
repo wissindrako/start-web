@@ -19,6 +19,8 @@ import { ConfirmResponsiveDrawer } from '@/components/ui/confirm-responsive-draw
 import { ResponsiveIconButton } from '@/components/ui/responsive-icon-button';
 import { Spinner } from '@/components/ui/spinner';
 
+import { WithPermissions } from '@/features/auth/with-permission';
+import { ExternalSystemOAuthCard } from '@/features/external-system/manager/external-system-oauth-card';
 import { FormExternalSystem } from '@/features/external-system/manager/form-external-system';
 import { zFormFieldsExternalSystem } from '@/features/external-system/schema';
 import {
@@ -275,6 +277,12 @@ export const PageExternalSystemUpdate = (props: { params: { id: string } }) => {
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {systemQuery.data && (
+              <WithPermissions permissions={[{ externalSystem: ['update'] }]}>
+                <ExternalSystemOAuthCard systemId={props.params.id} />
+              </WithPermissions>
             )}
           </PageLayoutContent>
         </PageLayout>

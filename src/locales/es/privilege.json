@@ -1,0 +1,50 @@
+{
+  "card": {
+    "title": "Permisos y privilegios",
+    "description": "Permisos efectivos: los de sus roles, más los otorgados y menos los denegados.",
+    "identityCenter": "Centro de identidad",
+    "roles": "Roles: {{roles}}",
+    "noRoles": "Sin roles en este sistema",
+    "noPermissions": "Sin permisos en este sistema",
+    "noPrivileges": "Sin privilegios: solo aplican sus roles",
+    "expired": "Vencido",
+    "expiresAt": "Vence {{date}}",
+    "noExpiry": "Sin vencimiento",
+    "grantedBy": "Otorgado por {{name}}"
+  },
+  "source": {
+    "role": "Por rol",
+    "grant": "Otorgado como privilegio",
+    "deny": "Denegado como privilegio"
+  },
+  "effect": {
+    "grant": "Otorgar",
+    "deny": "Denegar"
+  },
+  "fields": {
+    "permission": "Permiso",
+    "permissionPlaceholder": "Elegí un permiso",
+    "effect": "Efecto",
+    "reason": "Motivo",
+    "reasonPlaceholder": "Ej.: reemplazo por vacaciones",
+    "expiresAt": "Vence el"
+  },
+  "add": {
+    "button": "Agregar privilegio",
+    "title": "Agregar privilegio",
+    "description": "Otorga un permiso que sus roles no tienen o quita uno que sí tienen. Si ya existe un privilegio para ese permiso, se reemplaza.",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "success": "Privilegio guardado"
+  },
+  "remove": {
+    "button": "Quitar privilegio",
+    "confirmTitle": "¿Quitar el privilegio «{{name}}»?",
+    "confirmDescription": "El usuario vuelve a tener solo lo que dicen sus roles para este permiso.",
+    "success": "Privilegio quitado"
+  },
+  "errors": {
+    "forbidden": "No podés gestionar un permiso que no tenés, ni tus propios privilegios",
+    "generic": "No se pudo guardar el privilegio"
+  }
+}

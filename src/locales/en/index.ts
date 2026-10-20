@@ -12,6 +12,7 @@ import externalSystem from './external-system.json' with { type: 'json' };
 import genre from './genre.json' with { type: 'json' };
 import layout from './layout.json' with { type: 'json' };
 import personalData from './personal-data.json' with { type: 'json' };
+import privilege from './privilege.json' with { type: 'json' };
 import role from './role.json' with { type: 'json' };
 import systemConfig from './system-config.json' with { type: 'json' };
 import user from './user.json' with { type: 'json' };
@@ -29,6 +30,7 @@ export default {
   layout,
   'external-system': externalSystem,
   'personal-data': personalData,
+  privilege,
   role,
   'system-config': systemConfig,
   user,

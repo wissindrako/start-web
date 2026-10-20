@@ -37,8 +37,12 @@
       "modulesCount": "{{count}} module(s)"
     },
     "detail": {
-      "editButton": { "label": "Edit" },
-      "deleteButton": { "label": "Delete" },
+      "editButton": {
+        "label": "Edit"
+      },
+      "deleteButton": {
+        "label": "Delete"
+      },
       "deleted": "System deleted",
       "deleteError": "Failed to delete the system",
       "confirmDeleteTitle": "Delete \"{{name}}\"",
@@ -46,13 +50,17 @@
     },
     "new": {
       "title": "New External System",
-      "createButton": { "label": "Create" },
+      "createButton": {
+        "label": "Create"
+      },
       "createError": "Failed to create the system",
       "nameAlreadyUsed": "A system with this name already exists"
     },
     "update": {
       "title": "Edit External System",
-      "updateButton": { "label": "Save" },
+      "updateButton": {
+        "label": "Save"
+      },
       "updateError": "Failed to update the system",
       "nameAlreadyUsed": "A system with this name already exists"
     },
@@ -68,6 +76,41 @@
       "rotateHint": "Rotating the key invalidates the previous one. Update your external system with the new key.",
       "confirmRotateTitle": "Rotate API Key?",
       "confirmRotateDescription": "The previous key will stop working immediately. You will need to update your external system with the new key."
+    },
+    "oauth": {
+      "title": "OIDC connection (single sign-on)",
+      "description": "How this system signs users in with the identity center. Its access tokens are JWTs with its API URL as audience.",
+      "configured": "Configured",
+      "notConfigured": "Not configured",
+      "issuer": "Issuer",
+      "discoveryUrl": "Discovery (OpenID)",
+      "clientId": "Client ID",
+      "resourceIdentifier": {
+        "label": "System API URL",
+        "helper": "Sent as \"aud\" in the tokens: the system must check it matches."
+      },
+      "redirectUris": {
+        "label": "Redirect URLs",
+        "helper": "One per line. https in production; http only on localhost (development)."
+      },
+      "postLogoutRedirectUris": {
+        "label": "Post-logout URLs (optional)"
+      },
+      "clientType": {
+        "label": "Client type",
+        "public": "Public (browser or mobile, no secret)",
+        "confidential": "Confidential (server, with secret)",
+        "helper": "Public for browser apps; confidential when a server handles the login.",
+        "locked": "The type cannot change once the client exists."
+      },
+      "create": "Create connection",
+      "update": "Save changes",
+      "saved": "OIDC connection saved",
+      "saveError": "The OIDC connection could not be saved",
+      "resourceInUse": "Another system already uses this API URL",
+      "copied": "Copied",
+      "secretTitle": "Client secret",
+      "secretWarning": "Copy it now: it will not be shown again."
     }
   }
 }

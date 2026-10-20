@@ -40,7 +40,8 @@
     "session": "Sesiones",
     "personalData": "Datos Personales",
     "systemConfig": "Config. del Sistema",
-    "externalSystem": "Sistemas Externos"
+    "externalSystem": "Sistemas Externos",
+    "privilege": "Privilegios"
   },
   "actions": {
     "read": "Leer",
@@ -51,7 +52,8 @@
     "ban": "Banear",
     "app": "App",
     "manager": "Gestor",
-    "revoke": "Revocar"
+    "revoke": "Revocar",
+    "manage": "Gestionar"
   },
   "external": {
     "addModule": "Agregar módulo",
