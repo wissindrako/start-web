@@ -1,6 +1,5 @@
 import { ORPCError } from '@orpc/client';
 import { getRequestHeaders } from '@tanstack/react-start/server';
-import { APIError } from 'better-auth';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 
@@ -18,16 +17,29 @@ type Db = typeof db;
 
 const tags = ['external-systems'];
 
-// Better Auth rejects invalid OAuth settings (e.g. a non-https redirect URI)
-// with an APIError: return it as a 400 with its description, not a 500
+type AuthApiError = {
+  statusCode: number;
+  message: string;
+  body?: { error_description?: string; message?: string };
+};
+
+// Better Auth (and its HTTP layer, better-call, with its own error class)
+// rejects invalid OAuth settings with a 4xx API error
+const isAuthApiError = (error: unknown): error is AuthApiError =>
+  typeof error === 'object' &&
+  error !== null &&
+  typeof (error as AuthApiError).statusCode === 'number' &&
+  'body' in error;
+
+// Returns those errors as a 400 with their description, not a 500
 async function withOAuthErrors<T>(run: () => Promise<T>): Promise<T> {
   try {
     return await run();
   } catch (error) {
-    if (error instanceof APIError && error.statusCode < 500) {
-      const body = error.body as { error_description?: string } | undefined;
+    if (isAuthApiError(error) && error.statusCode < 500) {
       throw new ORPCError('BAD_REQUEST', {
-        message: body?.error_description ?? error.message,
+        message:
+          error.body?.error_description ?? error.body?.message ?? error.message,
       });
     }
     throw error;
@@ -255,7 +267,10 @@ export default {
         const settings = {
           client_name: name,
           redirect_uris: input.redirectUris,
-          post_logout_redirect_uris: input.postLogoutRedirectUris,
+          // An empty list is rejected: omit it instead
+          post_logout_redirect_uris: input.postLogoutRedirectUris?.length
+            ? input.postLogoutRedirectUris
+            : undefined,
           scope: OAUTH_SCOPES,
           // OIDC requires https for web clients; plain http is only allowed
           // on loopback (native) redirect URIs, i.e. local development
@@ -267,33 +282,51 @@ export default {
         let clientId = system.oauthClientId;
         let clientSecret: string | undefined;
 
-        if (clientId) {
-          await auth.api.adminUpdateOAuthClient({
+        try {
+          if (clientId) {
+            await auth.api.adminUpdateOAuthClient({
+              headers: getRequestHeaders(),
+              body: { client_id: clientId, update: settings },
+            });
+          } else {
+            const client = await auth.api.adminCreateOAuthClient({
+              headers: getRequestHeaders(),
+              body: {
+                ...settings,
+                skip_consent: true,
+                enable_end_session: true,
+                require_pkce: true,
+                grant_types: ['authorization_code', 'refresh_token'],
+                token_endpoint_auth_method:
+                  input.clientType === 'public'
+                    ? 'none'
+                    : 'client_secret_basic',
+                resources: [input.resourceIdentifier],
+              },
+            });
+            clientId = client.client_id;
+            clientSecret = client.client_secret;
+          }
+
+          await auth.api.adminLinkClientResource({
             headers: getRequestHeaders(),
-            body: { client_id: clientId, update: settings },
-          });
-        } else {
-          const client = await auth.api.adminCreateOAuthClient({
-            headers: getRequestHeaders(),
-            body: {
-              ...settings,
-              skip_consent: true,
-              enable_end_session: true,
-              require_pkce: true,
-              grant_types: ['authorization_code', 'refresh_token'],
-              token_endpoint_auth_method:
-                input.clientType === 'public' ? 'none' : 'client_secret_basic',
-              resources: [input.resourceIdentifier],
+            params: {
+              identifier: input.resourceIdentifier,
+              client_id: clientId,
             },
           });
-          clientId = client.client_id;
-          clientSecret = client.client_secret;
+        } catch (error) {
+          // Do not leave behind the resource this call just created
+          if (!resourceExists) {
+            await auth.api
+              .adminDeleteOAuthResource({
+                headers: getRequestHeaders(),
+                params: { identifier: input.resourceIdentifier },
+              })
+              .catch(() => undefined);
+          }
+          throw error;
         }
-
-        await auth.api.adminLinkClientResource({
-          headers: getRequestHeaders(),
-          params: { identifier: input.resourceIdentifier, client_id: clientId },
-        });
 
         if (
           system.resourceIdentifier &&
