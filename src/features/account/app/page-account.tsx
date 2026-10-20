@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { AccountAvatarUpload } from '@/features/account/account-avatar-upload';
 import { DisplayPreferences } from '@/features/account/display-preferences';
+import { SessionsList } from '@/features/account/sessions-list';
 import { UserCard } from '@/features/account/user-card';
 import { BuildInfoDrawer } from '@/features/build-info/build-info-drawer';
 import { BuildInfoVersion } from '@/features/build-info/build-info-version';
@@ -54,6 +55,14 @@ export const PageAccount = () => {
                   {t('account:personalData.editButton')}
                 </Button>
               </Link>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('account:sessions.title')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <SessionsList />
             </CardContent>
           </Card>
           <DisplayPreferences />

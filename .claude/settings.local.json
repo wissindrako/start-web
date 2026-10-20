@@ -8,7 +8,8 @@
       "Bash(pnpm db:push)",
       "Bash(pnpm db:seed)",
       "Bash(dotenv -- cross-env node -e \":*)",
-      "Bash(pnpm dotenv:*)"
+      "Bash(pnpm dotenv:*)",
+      "Bash(docker --version)"
     ]
   }
 }

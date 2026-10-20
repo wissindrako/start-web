@@ -79,7 +79,6 @@ export default {
         ? {
             name: {
               contains: input.searchTerm,
-              mode: 'insensitive' as const,
             },
           }
         : {};

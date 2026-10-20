@@ -13,8 +13,10 @@ import {
   AlertCircleIcon,
   BanIcon,
   ContactIcon,
+  MonitorIcon,
   PencilLineIcon,
   ShieldCheckIcon,
+  SmartphoneIcon,
   Trash2Icon,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -76,6 +78,30 @@ import {
   PageLayoutTopBarTitle,
 } from '@/layout/manager/page-layout';
 
+function parseUserAgent(ua: string | null | undefined): {
+  browser: string;
+  os: string;
+  isMobile: boolean;
+} {
+  if (!ua) return { browser: 'Unknown', os: 'Unknown', isMobile: false };
+  const isMobile = /Mobile|Android|iPhone|iPad/i.test(ua);
+  let browser = 'Unknown';
+  if (/Edg\//i.test(ua)) browser = 'Edge';
+  else if (/OPR\/|Opera\//i.test(ua)) browser = 'Opera';
+  else if (/Chrome\//i.test(ua)) browser = 'Chrome';
+  else if (/Firefox\//i.test(ua)) browser = 'Firefox';
+  else if (/Safari\//i.test(ua) && /Version\//i.test(ua)) browser = 'Safari';
+  let os = 'Unknown';
+  if (/Windows NT 10\.0/i.test(ua)) os = 'Windows 10/11';
+  else if (/Windows/i.test(ua)) os = 'Windows';
+  else if (/Mac OS X/i.test(ua)) os = 'macOS';
+  else if (/Android/i.test(ua)) os = 'Android';
+  else if (/iPhone/i.test(ua)) os = 'iPhone';
+  else if (/iPad/i.test(ua)) os = 'iPad';
+  else if (/Linux/i.test(ua)) os = 'Linux';
+  return { browser, os, isMobile };
+}
+
 export const PageUser = (props: { params: { id: string } }) => {
   const queryClient = useQueryClient();
   const { navigateBack } = useNavigateBack();
@@ -119,6 +145,12 @@ export const PageUser = (props: { params: { id: string } }) => {
       userQuery.error.code === 'NOT_FOUND'
     )
       return set('not-found');
+    if (
+      userQuery.status === 'error' &&
+      userQuery.error instanceof ORPCError &&
+      userQuery.error.code === 'FORBIDDEN'
+    )
+      return set('forbidden');
     if (userQuery.status === 'error') return set('error');
 
     return set('default', { user: userQuery.data });
@@ -171,7 +203,7 @@ export const PageUser = (props: { params: { id: string } }) => {
         <PageLayoutTopBarTitle>
           {ui
             .match('pending', () => <Skeleton className="h-4 w-48" />)
-            .match(['not-found', 'error'], () => (
+            .match(['not-found', 'error', 'forbidden'], () => (
               <AlertCircleIcon className="size-4 text-muted-foreground" />
             ))
             .match('default', ({ user }) => <>{user.name || user.email}</>)
@@ -182,6 +214,7 @@ export const PageUser = (props: { params: { id: string } }) => {
         {ui
           .match('pending', () => <Spinner full />)
           .match('not-found', () => <PageError type="404" />)
+          .match('forbidden', () => <PageError type="403" />)
           .match('error', () => <PageError type="unknown-server-error" />)
           .match('default', ({ user }) => (
             <div className="flex flex-col gap-4 xl:flex-row xl:items-start">
@@ -481,40 +514,59 @@ const UserSessions = (props: { userId: string }) => {
           ))
           .match('default', ({ items }) => (
             <>
-              {items.map((item) => (
-                <DataListRow
-                  key={item.id}
-                  className="max-md:flex-col max-md:py-2 max-md:[&>div]:py-1"
-                >
-                  <DataListCell>
-                    <DataListText>
-                      {t('user:manager.detail.session', { token: item.token })}
-                    </DataListText>
-                  </DataListCell>
-                  <DataListCell>
-                    <DataListText className="text-muted-foreground">
-                      {t('user:manager.detail.sessionUpdated', {
-                        time: dayjs(item.updatedAt).fromNow(),
-                      })}
-                    </DataListText>
-                  </DataListCell>
-                  <DataListCell>
-                    <DataListText className="text-muted-foreground">
-                      {t('user:manager.detail.sessionExpires', {
-                        time: dayjs().to(item.expiresAt),
-                      })}
-                    </DataListText>
-                  </DataListCell>
-                  <WithPermissions permissions={[{ session: ['revoke'] }]}>
-                    <DataListCell className="flex-none">
-                      <RevokeSessionButton
-                        userId={props.userId}
-                        sessionToken={item.token}
-                      />
+              {items.map((item) => {
+                const { browser, os, isMobile } = parseUserAgent(
+                  item.userAgent
+                );
+                return (
+                  <DataListRow
+                    key={item.id}
+                    className="max-md:flex-col max-md:py-2 max-md:[&>div]:py-1"
+                  >
+                    <DataListCell className="flex items-center gap-2">
+                      <span className="text-muted-foreground">
+                        {isMobile ? (
+                          <SmartphoneIcon className="size-4" />
+                        ) : (
+                          <MonitorIcon className="size-4" />
+                        )}
+                      </span>
+                      <div>
+                        <DataListText>
+                          {browser} · {os}
+                        </DataListText>
+                        {item.ipAddress && (
+                          <DataListText className="text-xs text-muted-foreground">
+                            {item.ipAddress}
+                          </DataListText>
+                        )}
+                      </div>
                     </DataListCell>
-                  </WithPermissions>
-                </DataListRow>
-              ))}
+                    <DataListCell>
+                      <DataListText className="text-muted-foreground">
+                        {t('user:manager.detail.sessionUpdated', {
+                          time: dayjs(item.updatedAt).fromNow(),
+                        })}
+                      </DataListText>
+                    </DataListCell>
+                    <DataListCell>
+                      <DataListText className="text-muted-foreground">
+                        {t('user:manager.detail.sessionExpires', {
+                          time: dayjs().to(item.expiresAt),
+                        })}
+                      </DataListText>
+                    </DataListCell>
+                    <WithPermissions permissions={[{ session: ['revoke'] }]}>
+                      <DataListCell className="flex-none">
+                        <RevokeSessionButton
+                          userId={props.userId}
+                          sessionToken={item.token}
+                        />
+                      </DataListCell>
+                    </WithPermissions>
+                  </DataListRow>
+                );
+              })}
               <DataListRow>
                 <DataListCell className="flex-none">
                   <Button
@@ -546,7 +598,6 @@ const UserSessions = (props: { userId: string }) => {
 
 const RevokeAllSessionsButton = (props: { userId: string }) => {
   const queryClient = useQueryClient();
-  const currentSession = authClient.useSession();
   const { t } = useTranslation(['user']);
   const revokeAllSessions = useMutation(
     orpc.user.revokeUserSessions.mutationOptions({
@@ -568,7 +619,6 @@ const RevokeAllSessionsButton = (props: { userId: string }) => {
     <Button
       size="xs"
       variant="secondary"
-      disabled={currentSession.data?.user.id === props.userId}
       loading={revokeAllSessions.isPending}
       onClick={() => {
         revokeAllSessions.mutate({

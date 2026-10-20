@@ -33,5 +33,15 @@
   "personalData": {
     "title": "Personal data",
     "editButton": "Edit personal data"
+  },
+  "sessions": {
+    "title": "Active Sessions",
+    "current": "This device",
+    "revokeAriaLabel": "Close session",
+    "revokeSuccess": "Session closed",
+    "revokeError": "Failed to close session",
+    "revokeOthers": "Close all other sessions",
+    "revokeOthersSuccess": "All other sessions closed",
+    "revokeOthersError": "Failed to close other sessions"
   }
 }

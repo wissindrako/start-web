@@ -47,6 +47,8 @@ export const zSession = () =>
     createdAt: z.date(),
     updatedAt: z.date(),
     expiresAt: z.date(),
+    userAgent: z.string().nullish(),
+    ipAddress: z.string().nullish(),
   });
 
 export type FormFieldsUser = z.infer<ReturnType<typeof zFormFieldsUser>>;

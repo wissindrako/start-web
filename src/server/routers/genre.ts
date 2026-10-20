@@ -39,7 +39,6 @@ export default {
       const where = {
         name: {
           contains: input.searchTerm,
-          mode: 'insensitive',
         },
       } satisfies Prisma.GenreWhereInput;
 

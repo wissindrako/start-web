@@ -33,5 +33,15 @@
   "personalData": {
     "title": "Datos personales",
     "editButton": "Editar datos personales"
+  },
+  "sessions": {
+    "title": "Sesiones activas",
+    "current": "Este dispositivo",
+    "revokeAriaLabel": "Cerrar sesión",
+    "revokeSuccess": "Sesión cerrada",
+    "revokeError": "Error al cerrar la sesión",
+    "revokeOthers": "Cerrar todas las demás sesiones",
+    "revokeOthersSuccess": "Todas las demás sesiones fueron cerradas",
+    "revokeOthersError": "Error al cerrar las demás sesiones"
   }
 }

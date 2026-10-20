@@ -44,33 +44,29 @@ export default {
           input.roleId ? { roles: { some: { roleId: input.roleId } } } : {},
           {
             OR: [
-              { name: { contains: input.searchTerm, mode: 'insensitive' } },
-              { email: { contains: input.searchTerm, mode: 'insensitive' } },
+              { name: { contains: input.searchTerm } },
+              { email: { contains: input.searchTerm } },
               {
                 personalData: {
                   OR: [
                     {
                       nombre: {
                         contains: input.searchTerm,
-                        mode: 'insensitive',
                       },
                     },
                     {
                       primerApellido: {
                         contains: input.searchTerm,
-                        mode: 'insensitive',
                       },
                     },
                     {
                       segundoApellido: {
                         contains: input.searchTerm,
-                        mode: 'insensitive',
                       },
                     },
                     {
                       numeroDocumento: {
                         contains: input.searchTerm,
-                        mode: 'insensitive',
                       },
                     },
                   ],
@@ -343,27 +339,13 @@ export default {
     )
     .output(z.void())
     .handler(async ({ context, input }) => {
-      if (context.user.id === input.id) {
-        context.logger.warn(
-          'Prevent to revoke all sesssions of the current connected user'
-        );
-        throw new ORPCError('BAD_REQUEST', {
-          message: 'You cannot revoke all your sessions',
-        });
-      }
-
-      context.logger.info('Revoke all user sessions');
-      const response = await auth.api.revokeUserSessions({
-        body: {
+      context.logger.info('Revoke all user sessions except current');
+      await context.db.session.deleteMany({
+        where: {
           userId: input.id,
+          token: { not: context.session.token },
         },
-        headers: getRequestHeaders(),
       });
-
-      if (!response.success) {
-        context.logger.error('Failed to revoke all the user sessions');
-        throw new ORPCError('INTERNAL_SERVER_ERROR');
-      }
     }),
 
   revokeUserSession: protectedProcedure({
@@ -394,17 +376,9 @@ export default {
       }
 
       context.logger.info('Revoke user session');
-      const response = await auth.api.revokeUserSession({
-        body: {
-          sessionToken: input.sessionToken,
-        },
-        headers: getRequestHeaders(),
+      await context.db.session.delete({
+        where: { token: input.sessionToken, userId: input.id },
       });
-
-      if (!response.success) {
-        context.logger.error('Failed to revoke the user session');
-        throw new ORPCError('INTERNAL_SERVER_ERROR');
-      }
     }),
   updateImage: protectedProcedure({
     permission: {

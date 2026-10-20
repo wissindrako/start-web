@@ -1,4 +1,5 @@
 import { getUiState } from '@bearstudio/ui-state';
+import { ORPCError } from '@orpc/client';
 import {
   useInfiniteQuery,
   useMutation,
@@ -13,6 +14,7 @@ import { toast } from 'sonner';
 
 import { orpc } from '@/lib/orpc/client';
 
+import { PageError } from '@/components/errors/page-error';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -91,6 +93,12 @@ export const PageUsers = (props: {
 
   const ui = getUiState((set) => {
     if (usersQuery.status === 'pending') return set('pending');
+    if (
+      usersQuery.status === 'error' &&
+      usersQuery.error instanceof ORPCError &&
+      usersQuery.error.code === 'FORBIDDEN'
+    )
+      return set('forbidden');
     if (usersQuery.status === 'error') return set('error');
     const searchTerm = props.search.searchTerm;
     const items = usersQuery.data?.pages.flatMap((p) => p.items) ?? [];
@@ -174,6 +182,7 @@ export const PageUsers = (props: {
       <PageLayoutContent className="pb-20">
         <DataList>
           {ui
+            .match('forbidden', () => <PageError type="403" />)
             .match('pending', () => <DataListLoadingState />)
             .match('error', () => (
               <DataListErrorState retry={() => usersQuery.refetch()} />
