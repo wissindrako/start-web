@@ -1,7 +1,8 @@
 import { expo } from '@better-auth/expo';
+import { oauthProvider } from '@better-auth/oauth-provider';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { admin, emailOTP, openAPI } from 'better-auth/plugins';
+import { admin, emailOTP, jwt, openAPI } from 'better-auth/plugins';
 import { match } from 'ts-pattern';
 
 import i18n from '@/lib/i18n';
@@ -21,13 +22,17 @@ import { getUserLanguage } from '@/server/utils';
 
 export type Auth = typeof auth;
 export const auth = betterAuth({
+  // Issuer of the identity center: tokens carry it and systems verify it
+  baseURL: envClient.VITE_BASE_URL,
+  // The OAuth provider issues tokens through /oauth2/token instead
+  disabledPaths: ['/token'],
   session: {
     expiresIn: envServer.AUTH_SESSION_EXPIRATION_IN_SECONDS,
     updateAge: envServer.AUTH_SESSION_UPDATE_AGE_IN_SECONDS,
   },
   trustedOrigins: envServer.AUTH_TRUSTED_ORIGINS,
   database: prismaAdapter(db, {
-    provider: 'postgresql',
+    provider: 'mysql',
   }),
   user: {
     additionalFields: {
@@ -50,6 +55,8 @@ export const auth = betterAuth({
   },
 
   plugins: [
+    // Signing keys (JWKS) for id tokens and JWT access tokens
+    jwt(),
     expo(), // Allows an Expo native app to use auth, can be delete if no needed
     openAPI({
       disableDefaultReference: true, // Use custom exposition in /routes/api/openapi folder
@@ -94,6 +101,13 @@ export const auth = betterAuth({
           })
           .exhaustive();
       },
+    }),
+    // Identity center: external systems sign users in through OAuth 2.1 /
+    // OpenID Connect and get JWT access tokens for their own API (resource)
+    oauthProvider({
+      loginPage: '/login',
+      consentPage: '/oauth/consent',
+      scopes: ['openid', 'profile', 'email', 'offline_access'],
     }),
   ],
   databaseHooks: {

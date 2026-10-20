@@ -16,7 +16,10 @@ importers:
         version: 1.1.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@better-auth/expo':
         specifier: 1.7.11
-        version: 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(better-auth@1.7.11(@prisma/client@6.19.2(prisma@6.19.2(typescript@5.9.3))(typescript@5.9.3))(@tanstack/react-start@1.157.16(crossws@0.4.4(srvx@0.11.7))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@7.3.1(@types/node@25.0.10)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)))(prisma@6.19.2(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(solid-js@1.9.11)(vitest@4.0.18))(expo-constants@18.0.13(expo@54.0.32(@babel/core@7.28.6)(graphql@16.12.0)(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.2.10)(react@19.2.4))(react@19.2.4))(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.2.10)(react@19.2.4)))(expo-network@8.0.8(expo@54.0.32(@babel/core@7.28.6)(graphql@16.12.0)(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.2.10)(react@19.2.4))(react@19.2.4))(react@19.2.4))
+        version: 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(better-auth@1.7.11(@prisma/client@6.19.2(prisma@6.19.2(typescript@5.9.3))(typescript@5.9.3))(@tanstack/react-start@1.157.16(crossws@0.4.4(srvx@0.11.7))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@7.3.1(@types/node@25.0.10)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)))(prisma@6.19.2(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(solid-js@1.9.11)(vitest@4.0.18))(expo-constants@18.0.13(expo@54.0.32(@babel/core@7.28.6)(graphql@16.12.0)(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.2.10)(react@19.2.4))(react@19.2.4))(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.2.10)(react@19.2.4)))(expo-network@8.0.8(expo@54.0.32(@babel/core@7.28.6)(graphql@16.12.0)(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.2.10)(react@19.2.4))(react@19.2.4))(react@19.2.4))
+      '@better-auth/oauth-provider':
+        specifier: 1.7.11
+        version: 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-auth@1.7.11(@prisma/client@6.19.2(prisma@6.19.2(typescript@5.9.3))(typescript@5.9.3))(@tanstack/react-start@1.157.16(crossws@0.4.4(srvx@0.11.7))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@7.3.1(@types/node@25.0.10)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)))(prisma@6.19.2(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(solid-js@1.9.11)(vitest@4.0.18))(better-call@1.4.2(zod@4.3.6))
       '@better-upload/client':
         specifier: 3.0.12
         version: 3.0.12(react@19.2.4)
@@ -932,6 +935,15 @@ packages:
     peerDependenciesMeta:
       mongodb:
         optional: true
+
+  '@better-auth/oauth-provider@1.7.11':
+    resolution: {integrity: sha512-4B40t14iKEicI1jvZ916T27guzOYZzuMQ5zq16RxQ9zcVpZLtKLMBh3HsND7/0xjLRHDQ0wkXRkK6vFGE8CNIA==}
+    peerDependencies:
+      '@better-auth/core': ^1.7.11
+      '@better-auth/utils': ^0.4.2 || ^0.5.0
+      '@better-fetch/fetch': 1.3.2
+      better-auth: ^1.7.11
+      better-call: 1.4.2
 
   '@better-auth/prisma-adapter@1.7.11':
     resolution: {integrity: sha512-kjjiyr7H42z25vrTyAPc/Y19eMUZOByw6jrd5mDoAGZssj1Qm3KPCHZFFxFzTjapW8Saq288xPdt5dARf1rQCA==}
@@ -7922,7 +7934,7 @@ snapshots:
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
 
-  '@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)':
+  '@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)':
     dependencies:
       '@better-auth/utils': 0.5.0
       '@better-fetch/fetch': 1.3.2
@@ -7933,14 +7945,14 @@ snapshots:
       nanostores: 1.5.5
       zod: 4.6.7
 
-  '@better-auth/drizzle-adapter@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)':
+  '@better-auth/drizzle-adapter@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)':
     dependencies:
-      '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
+      '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
       '@better-auth/utils': 0.5.0
 
-  '@better-auth/expo@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(better-auth@1.7.11(@prisma/client@6.19.2(prisma@6.19.2(typescript@5.9.3))(typescript@5.9.3))(@tanstack/react-start@1.157.16(crossws@0.4.4(srvx@0.11.7))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@7.3.1(@types/node@25.0.10)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)))(prisma@6.19.2(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(solid-js@1.9.11)(vitest@4.0.18))(expo-constants@18.0.13(expo@54.0.32(@babel/core@7.28.6)(graphql@16.12.0)(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.2.10)(react@19.2.4))(react@19.2.4))(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.2.10)(react@19.2.4)))(expo-network@8.0.8(expo@54.0.32(@babel/core@7.28.6)(graphql@16.12.0)(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.2.10)(react@19.2.4))(react@19.2.4))(react@19.2.4))':
+  '@better-auth/expo@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(better-auth@1.7.11(@prisma/client@6.19.2(prisma@6.19.2(typescript@5.9.3))(typescript@5.9.3))(@tanstack/react-start@1.157.16(crossws@0.4.4(srvx@0.11.7))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@7.3.1(@types/node@25.0.10)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)))(prisma@6.19.2(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(solid-js@1.9.11)(vitest@4.0.18))(expo-constants@18.0.13(expo@54.0.32(@babel/core@7.28.6)(graphql@16.12.0)(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.2.10)(react@19.2.4))(react@19.2.4))(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.2.10)(react@19.2.4)))(expo-network@8.0.8(expo@54.0.32(@babel/core@7.28.6)(graphql@16.12.0)(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.2.10)(react@19.2.4))(react@19.2.4))(react@19.2.4))':
     dependencies:
-      '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
+      '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
       '@better-fetch/fetch': 1.3.2
       better-auth: 1.7.11(@prisma/client@6.19.2(prisma@6.19.2(typescript@5.9.3))(typescript@5.9.3))(@tanstack/react-start@1.157.16(crossws@0.4.4(srvx@0.11.7))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@7.3.1(@types/node@25.0.10)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)))(prisma@6.19.2(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(solid-js@1.9.11)(vitest@4.0.18)
       better-call: 1.4.2(zod@4.6.7)
@@ -7949,34 +7961,44 @@ snapshots:
       expo-constants: 18.0.13(expo@54.0.32(@babel/core@7.28.6)(graphql@16.12.0)(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.2.10)(react@19.2.4))(react@19.2.4))(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.2.10)(react@19.2.4))
       expo-network: 8.0.8(expo@54.0.32(@babel/core@7.28.6)(graphql@16.12.0)(react-native@0.83.1(@babel/core@7.28.6)(@types/react@19.2.10)(react@19.2.4))(react@19.2.4))(react@19.2.4)
 
-  '@better-auth/kysely-adapter@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(kysely@0.29.7)':
+  '@better-auth/kysely-adapter@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(kysely@0.29.7)':
     dependencies:
-      '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
+      '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
       '@better-auth/utils': 0.5.0
     optionalDependencies:
       kysely: 0.29.7
 
-  '@better-auth/memory-adapter@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)':
+  '@better-auth/memory-adapter@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)':
     dependencies:
-      '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
+      '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
       '@better-auth/utils': 0.5.0
 
-  '@better-auth/mongo-adapter@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)':
+  '@better-auth/mongo-adapter@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)':
     dependencies:
-      '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
+      '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
       '@better-auth/utils': 0.5.0
 
-  '@better-auth/prisma-adapter@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(@prisma/client@6.19.2(prisma@6.19.2(typescript@5.9.3))(typescript@5.9.3))(prisma@6.19.2(typescript@5.9.3))':
+  '@better-auth/oauth-provider@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-auth@1.7.11(@prisma/client@6.19.2(prisma@6.19.2(typescript@5.9.3))(typescript@5.9.3))(@tanstack/react-start@1.157.16(crossws@0.4.4(srvx@0.11.7))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@7.3.1(@types/node@25.0.10)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)))(prisma@6.19.2(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(solid-js@1.9.11)(vitest@4.0.18))(better-call@1.4.2(zod@4.3.6))':
     dependencies:
-      '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
+      '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
+      '@better-auth/utils': 0.5.0
+      '@better-fetch/fetch': 1.3.2
+      better-auth: 1.7.11(@prisma/client@6.19.2(prisma@6.19.2(typescript@5.9.3))(typescript@5.9.3))(@tanstack/react-start@1.157.16(crossws@0.4.4(srvx@0.11.7))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@7.3.1(@types/node@25.0.10)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)))(prisma@6.19.2(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(solid-js@1.9.11)(vitest@4.0.18)
+      better-call: 1.4.2(zod@4.3.6)
+      jose: 6.2.13
+      zod: 4.6.7
+
+  '@better-auth/prisma-adapter@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(@prisma/client@6.19.2(prisma@6.19.2(typescript@5.9.3))(typescript@5.9.3))(prisma@6.19.2(typescript@5.9.3))':
+    dependencies:
+      '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
       '@better-auth/utils': 0.5.0
     optionalDependencies:
       '@prisma/client': 6.19.2(prisma@6.19.2(typescript@5.9.3))(typescript@5.9.3)
       prisma: 6.19.2(typescript@5.9.3)
 
-  '@better-auth/telemetry@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)':
+  '@better-auth/telemetry@1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)':
     dependencies:
-      '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
+      '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
       '@better-auth/utils': 0.5.0
       '@better-fetch/fetch': 1.3.2
 
@@ -10695,18 +10717,18 @@ snapshots:
 
   better-auth@1.7.11(@prisma/client@6.19.2(prisma@6.19.2(typescript@5.9.3))(typescript@5.9.3))(@tanstack/react-start@1.157.16(crossws@0.4.4(srvx@0.11.7))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(vite@7.3.1(@types/node@25.0.10)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)))(prisma@6.19.2(typescript@5.9.3))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(solid-js@1.9.11)(vitest@4.0.18):
     dependencies:
-      '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
-      '@better-auth/drizzle-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)
-      '@better-auth/kysely-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(kysely@0.29.7)
-      '@better-auth/memory-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)
-      '@better-auth/mongo-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)
-      '@better-auth/prisma-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(@prisma/client@6.19.2(prisma@6.19.2(typescript@5.9.3))(typescript@5.9.3))(prisma@6.19.2(typescript@5.9.3))
-      '@better-auth/telemetry': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.6.7))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)
+      '@better-auth/core': 1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5)
+      '@better-auth/drizzle-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)
+      '@better-auth/kysely-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(kysely@0.29.7)
+      '@better-auth/memory-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)
+      '@better-auth/mongo-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)
+      '@better-auth/prisma-adapter': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(@prisma/client@6.19.2(prisma@6.19.2(typescript@5.9.3))(typescript@5.9.3))(prisma@6.19.2(typescript@5.9.3))
+      '@better-auth/telemetry': 1.7.11(@better-auth/core@1.7.11(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)(better-call@1.4.2(zod@4.3.6))(jose@6.2.13)(kysely@0.29.7)(nanostores@1.5.5))(@better-auth/utils@0.5.0)(@better-fetch/fetch@1.3.2)
       '@better-auth/utils': 0.5.0
       '@better-fetch/fetch': 1.3.2
       '@noble/ciphers': 2.4.0
       '@noble/hashes': 2.4.0
-      better-call: 1.4.2(zod@4.3.6)
+      better-call: 1.4.2(zod@4.6.7)
       defu: 6.1.4
       jose: 6.2.13
       kysely: 0.29.7

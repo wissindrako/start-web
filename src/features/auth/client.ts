@@ -1,3 +1,4 @@
+import { oauthProviderClient } from '@better-auth/oauth-provider/client';
 import {
   adminClient,
   emailOTPClient,
@@ -21,5 +22,7 @@ export const authClient = createAuthClient({
       ...permissions,
     }),
     emailOTPClient(),
+    // Resumes the OAuth authorization flow after signing in on /login
+    oauthProviderClient(),
   ],
 });
