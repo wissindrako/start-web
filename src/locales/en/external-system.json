@@ -111,6 +111,19 @@
       "copied": "Copied",
       "secretTitle": "Client secret",
       "secretWarning": "Copy it now: it will not be shown again."
+    },
+    "service": {
+      "title": "Service credentials",
+      "description": "Lets the system's backend call the identity center's external API (permissions, catalog) with the standard OAuth client_credentials grant, instead of the API key.",
+      "tokenEndpoint": "Token endpoint",
+      "audience": "Resource (resource / aud)",
+      "scopes": "Scopes",
+      "create": "Create credentials",
+      "rotate": "Regenerate credentials",
+      "rotateConfirmTitle": "Regenerate the service credentials?",
+      "rotateConfirmDescription": "A new client ID and secret are created. The current ones stop working right away: update the system's backend.",
+      "issued": "Service credentials created",
+      "error": "The credentials could not be created"
     }
   }
 }

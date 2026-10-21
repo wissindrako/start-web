@@ -96,6 +96,9 @@ model ExternalSystem {
   oauthClientId       String?                  @unique
   oauthClient         OauthClient?             @relation(fields: [oauthClientId], references: [clientId], onDelete: SetNull)
   resourceIdentifier  String?                  @unique
+  // Confidential OAuth client the system's backend uses (client_credentials)
+  // to call the external API, instead of the API key
+  serviceClientId     String?                  @unique
   permissionOverrides UserPermissionOverride[]
   createdAt           DateTime                 @default(now())
   updatedAt           DateTime                 @updatedAt

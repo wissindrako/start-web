@@ -15,6 +15,12 @@ export const envServer = createEnv({
       .int()
       .prefault(2592000), // 30 days by default
     AUTH_SESSION_UPDATE_AGE_IN_SECONDS: z.coerce.number().int().prefault(86400), // 1 day by default
+    // OAuth access tokens carry the user's permissions: a short lifetime
+    // makes permission changes reach systems that read them from the token
+    AUTH_OAUTH_ACCESS_TOKEN_EXPIRATION_IN_SECONDS: z.coerce
+      .number()
+      .int()
+      .prefault(900), // 15 minutes by default
     AUTH_TRUSTED_ORIGINS: z
       .string()
       .optional()

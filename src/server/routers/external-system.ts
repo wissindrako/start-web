@@ -11,6 +11,11 @@ import {
 } from '@/features/external-system/schema';
 import { auth } from '@/server/auth';
 import { db } from '@/server/db';
+import {
+  CENTER_API_RESOURCE,
+  ISSUER,
+  SERVICE_SCOPES,
+} from '@/server/identity-tokens';
 import { protectedProcedure } from '@/server/orpc';
 
 type Db = typeof db;
@@ -62,6 +67,14 @@ const zOAuthConfig = () =>
     redirectUris: z.array(z.string()),
     postLogoutRedirectUris: z.array(z.string()),
     resourceIdentifier: z.string().nullish(),
+  });
+
+const zServiceClient = () =>
+  z.object({
+    clientId: z.string().nullish(),
+    tokenEndpoint: z.string(),
+    audience: z.string(),
+    scopes: z.array(z.string()),
   });
 
 export default {
@@ -359,6 +372,108 @@ export default {
       });
     }),
 
+  // Service credentials: what the system's backend uses to call the
+  // external API with the standard OAuth client_credentials grant
+  getServiceClient: protectedProcedure({
+    permission: { externalSystem: ['read'] },
+  })
+    .route({
+      method: 'GET',
+      path: '/external-systems/{id}/service-client',
+      tags,
+    })
+    .input(z.object({ id: z.string() }))
+    .output(zServiceClient())
+    .handler(async ({ context, input }) => {
+      const system = await context.db.externalSystem.findUnique({
+        where: { id: input.id },
+        select: { serviceClientId: true },
+      });
+      if (!system) throw new ORPCError('NOT_FOUND');
+      return toServiceClient(system.serviceClientId);
+    }),
+
+  // Creates the credentials, or replaces them (new id and secret: the old
+  // ones stop working). The secret is only returned here, once.
+  createServiceClient: protectedProcedure({
+    permission: { externalSystem: ['update'] },
+  })
+    .route({
+      method: 'POST',
+      path: '/external-systems/{id}/service-client',
+      tags,
+    })
+    .input(z.object({ id: z.string() }))
+    .output(zServiceClient().extend({ clientSecret: z.string() }))
+    .handler(async ({ context, input }) => {
+      return withOAuthErrors(async () => {
+        const system = await context.db.externalSystem.findUnique({
+          where: { id: input.id },
+        });
+        if (!system) throw new ORPCError('NOT_FOUND');
+
+        const centerResource = await context.db.oauthResource.findUnique({
+          where: { identifier: CENTER_API_RESOURCE },
+          select: { id: true },
+        });
+        if (!centerResource) {
+          await auth.api.adminCreateOAuthResource({
+            headers: getRequestHeaders(),
+            body: {
+              identifier: CENTER_API_RESOURCE,
+              name: 'Identity center API',
+            },
+          });
+        }
+
+        const client = await auth.api.adminCreateOAuthClient({
+          headers: getRequestHeaders(),
+          body: {
+            client_name: `${system.label ?? system.name} (service)`,
+            grant_types: ['client_credentials'],
+            token_endpoint_auth_method: 'client_secret_basic',
+            client_credentials_scopes: [...SERVICE_SCOPES],
+            resources: [CENTER_API_RESOURCE],
+          },
+        });
+        if (!client.client_secret) {
+          throw new ORPCError('INTERNAL_SERVER_ERROR', {
+            message: 'No client secret was issued',
+          });
+        }
+
+        await auth.api.adminLinkClientResource({
+          headers: getRequestHeaders(),
+          params: {
+            identifier: CENTER_API_RESOURCE,
+            client_id: client.client_id,
+          },
+        });
+
+        await context.db.externalSystem.update({
+          where: { id: input.id },
+          data: { serviceClientId: client.client_id },
+        });
+
+        // Replaced credentials stop working right away
+        if (system.serviceClientId) {
+          await context.db.oauthClient.deleteMany({
+            where: { clientId: system.serviceClientId },
+          });
+        }
+
+        context.logger.info(
+          { systemId: input.id, clientId: client.client_id },
+          'External system service credentials issued'
+        );
+
+        return {
+          ...toServiceClient(client.client_id),
+          clientSecret: client.client_secret,
+        };
+      });
+    }),
+
   deleteById: protectedProcedure({
     permission: { externalSystem: ['delete'] },
   })
@@ -370,10 +485,14 @@ export default {
         where: { id: input.id },
       });
 
-      // Its OAuth client (and every token it was issued) and resource go too
-      if (system.oauthClientId) {
-        await context.db.oauthClient.delete({
-          where: { clientId: system.oauthClientId },
+      // Its OAuth clients (and every token they were issued) and resource
+      // go too
+      const clientIds = [system.oauthClientId, system.serviceClientId].filter(
+        (clientId): clientId is string => !!clientId
+      );
+      if (clientIds.length) {
+        await context.db.oauthClient.deleteMany({
+          where: { clientId: { in: clientIds } },
         });
       }
       if (system.resourceIdentifier) {
@@ -419,7 +538,7 @@ function toOAuthConfig(
   } | null,
   resourceIdentifier: string | null
 ) {
-  const issuer = `${envClient.VITE_BASE_URL}/api/auth`;
+  const issuer = ISSUER;
   return {
     configured: !!client && !!resourceIdentifier,
     issuer,
@@ -429,6 +548,15 @@ function toOAuthConfig(
     redirectUris: parseList(client?.redirectUris),
     postLogoutRedirectUris: parseList(client?.postLogoutRedirectUris),
     resourceIdentifier,
+  };
+}
+
+function toServiceClient(clientId: string | null) {
+  return {
+    clientId,
+    tokenEndpoint: `${ISSUER}/oauth2/token`,
+    audience: CENTER_API_RESOURCE,
+    scopes: [...SERVICE_SCOPES],
   };
 }
 

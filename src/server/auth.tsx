@@ -18,6 +18,7 @@ import {
 import { permissions } from '@/features/auth/permissions';
 import { db } from '@/server/db';
 import { sendEmail } from '@/server/email';
+import { SERVICE_SCOPES } from '@/server/identity-tokens';
 import { getEffectivePermissions, hasPermissions } from '@/server/permissions';
 import { getUserLanguage } from '@/server/utils';
 
@@ -30,6 +31,30 @@ async function canManageExternalSystems(userId: string | undefined) {
   return hasPermissions(permissions, [
     { subject: 'externalSystem', action: 'update' },
   ]);
+}
+
+// Roles and permissions of the user in the system whose API (resource) the
+// token is for, so any backend can authorize with the JWT alone. Format:
+// "subject:action". Systems that need instant changes ask the external API.
+async function systemAccessClaims(
+  userId: string,
+  resources: string[] | undefined
+) {
+  if (!resources?.length) return {};
+  const system = await db.externalSystem.findFirst({
+    where: { resourceIdentifier: { in: resources } },
+    select: { id: true },
+  });
+  if (!system) return {};
+
+  const { roles, permissions } = await getEffectivePermissions(db, {
+    userId,
+    systemId: system.id,
+  });
+  return {
+    roles: roles.map((role) => role.name),
+    permissions: permissions.map((p) => `${p.subject}:${p.action}`),
+  };
 }
 
 export type Auth = typeof auth;
@@ -119,7 +144,17 @@ export const auth = betterAuth({
     oauthProvider({
       loginPage: '/login',
       consentPage: '/oauth/consent',
-      scopes: ['openid', 'profile', 'email', 'offline_access'],
+      scopes: [
+        'openid',
+        'profile',
+        'email',
+        'offline_access',
+        ...SERVICE_SCOPES,
+      ],
+      accessTokenExpiresIn:
+        envServer.AUTH_OAUTH_ACCESS_TOKEN_EXPIRATION_IN_SECONDS,
+      customAccessTokenClaims: ({ user, resources }) =>
+        user ? systemAccessClaims(user.id, resources) : {},
       // OAuth clients and resources belong to external systems: only those
       // who manage external systems can create or change them
       clientPrivileges: ({ user }) => canManageExternalSystems(user?.id),

@@ -21,6 +21,7 @@ import { Spinner } from '@/components/ui/spinner';
 
 import { WithPermissions } from '@/features/auth/with-permission';
 import { ExternalSystemOAuthCard } from '@/features/external-system/manager/external-system-oauth-card';
+import { ExternalSystemServiceClientCard } from '@/features/external-system/manager/external-system-service-client-card';
 import { FormExternalSystem } from '@/features/external-system/manager/form-external-system';
 import { zFormFieldsExternalSystem } from '@/features/external-system/schema';
 import {
@@ -282,6 +283,7 @@ export const PageExternalSystemUpdate = (props: { params: { id: string } }) => {
             {systemQuery.data && (
               <WithPermissions permissions={[{ externalSystem: ['update'] }]}>
                 <ExternalSystemOAuthCard systemId={props.params.id} />
+                <ExternalSystemServiceClientCard systemId={props.params.id} />
               </WithPermissions>
             )}
           </PageLayoutContent>

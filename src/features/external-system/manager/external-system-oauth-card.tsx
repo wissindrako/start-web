@@ -259,7 +259,7 @@ export const ExternalSystemOAuthCard = (props: { systemId: string }) => {
   );
 };
 
-const CopyableValue = (props: {
+export const CopyableValue = (props: {
   label?: string;
   value: string;
   onCopy: (value: string) => void;

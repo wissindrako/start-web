@@ -111,6 +111,19 @@
       "copied": "Copiado",
       "secretTitle": "Secreto del cliente",
       "secretWarning": "Copialo ahora: no se vuelve a mostrar."
+    },
+    "service": {
+      "title": "Credenciales de servicio",
+      "description": "Para que el backend del sistema llame a la API externa del centro (permisos, catálogo) con el estándar OAuth client_credentials, en lugar de la API key.",
+      "tokenEndpoint": "Endpoint de tokens",
+      "audience": "Recurso (resource / aud)",
+      "scopes": "Scopes",
+      "create": "Crear credenciales",
+      "rotate": "Regenerar credenciales",
+      "rotateConfirmTitle": "¿Regenerar las credenciales de servicio?",
+      "rotateConfirmDescription": "Se crea un client ID y un secreto nuevos. Los actuales dejan de funcionar en el momento: actualizá el backend del sistema.",
+      "issued": "Credenciales de servicio creadas",
+      "error": "No se pudieron crear las credenciales"
     }
   }
 }
