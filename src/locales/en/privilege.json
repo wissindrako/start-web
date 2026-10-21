@@ -10,7 +10,8 @@
     "expired": "Expired",
     "expiresAt": "Expires {{date}}",
     "noExpiry": "No expiry",
-    "grantedBy": "Granted by {{name}}"
+    "grantedBy": "Granted by {{name}}",
+    "adminNote": "Admins hold every permission of the identity center: privileges apply only in external systems"
   },
   "source": {
     "role": "From a role",
@@ -45,6 +46,7 @@
   },
   "errors": {
     "forbidden": "You cannot manage a permission you do not hold, nor your own privileges",
+    "adminTarget": "Admins hold every permission of the identity center: they cannot receive privileges here",
     "generic": "The privilege could not be saved"
   }
 }

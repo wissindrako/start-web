@@ -121,6 +121,10 @@ export default {
         permission,
       });
 
+      // Admins hold the whole identity center: a privilege there could only
+      // lock them out (removing old ones stays allowed)
+      if (!systemId) await assertNotAdmin(context.db, input.userId);
+
       if (input.expiresAt && input.expiresAt <= new Date()) {
         throw new ORPCError('BAD_REQUEST', {
           message: 'expiresAt must be in the future',
@@ -202,6 +206,19 @@ async function assertUserExists(prisma: Db, userId: string) {
     select: { id: true },
   });
   if (!user) throw new ORPCError('NOT_FOUND', { message: 'User not found' });
+}
+
+async function assertNotAdmin(prisma: Db, userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true },
+  });
+  if (user?.role === 'admin') {
+    throw new ORPCError('BAD_REQUEST', {
+      message: 'Admins already hold every permission of the identity center',
+      data: { reason: 'adminTarget' },
+    });
+  }
 }
 
 async function assertCanChangePrivileges(

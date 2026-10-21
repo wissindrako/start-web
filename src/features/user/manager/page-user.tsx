@@ -326,6 +326,7 @@ export const PageUser = (props: { params: { id: string } }) => {
                   <UserPrivilegesCard
                     userId={props.params.id}
                     isCurrentUser={session.data?.user.id === props.params.id}
+                    isAdmin={user.role === 'admin'}
                   />
                 </WithPermissions>
               </div>

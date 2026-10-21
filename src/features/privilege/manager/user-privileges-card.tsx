@@ -67,6 +67,7 @@ const LOCAL_CATALOG: CatalogEntry[] = AVAILABLE_PERMISSIONS.flatMap((p) =>
 export const UserPrivilegesCard = (props: {
   userId: string;
   isCurrentUser: boolean;
+  isAdmin: boolean;
 }) => {
   const { t } = useTranslation(['privilege', 'role']);
   const [systemId, setSystemId] = useState(LOCAL_SYSTEM);
@@ -116,6 +117,11 @@ export const UserPrivilegesCard = (props: {
           <DataListText className="text-xs text-muted-foreground">
             {t('privilege:card.description')}
           </DataListText>
+          {props.isAdmin && !systemId && (
+            <DataListText className="text-xs text-warning-600 dark:text-warning-400">
+              {t('privilege:card.adminNote')}
+            </DataListText>
+          )}
         </DataListCell>
         <DataListCell className="flex flex-none flex-row items-center gap-2">
           <Select
@@ -140,7 +146,7 @@ export const UserPrivilegesCard = (props: {
               ))}
             </SelectContent>
           </Select>
-          {!props.isCurrentUser && (
+          {!props.isCurrentUser && !(props.isAdmin && !systemId) && (
             <WithPermissions permissions={[{ privilege: ['manage'] }]}>
               <AddPrivilegeButton
                 userId={props.userId}
@@ -294,11 +300,19 @@ const useInvalidatePrivileges = (userId: string) => {
 
 const errorMessage = (
   error: unknown,
-  t: (key: 'privilege:errors.forbidden' | 'privilege:errors.generic') => string
-) =>
-  error instanceof ORPCError && error.code === 'FORBIDDEN'
-    ? t('privilege:errors.forbidden')
-    : t('privilege:errors.generic');
+  t: (
+    key:
+      | 'privilege:errors.forbidden'
+      | 'privilege:errors.adminTarget'
+      | 'privilege:errors.generic'
+  ) => string
+) => {
+  if (!(error instanceof ORPCError)) return t('privilege:errors.generic');
+  if (error.code === 'FORBIDDEN') return t('privilege:errors.forbidden');
+  if (error.data?.reason === 'adminTarget')
+    return t('privilege:errors.adminTarget');
+  return t('privilege:errors.generic');
+};
 
 const AddPrivilegeButton = (props: {
   userId: string;

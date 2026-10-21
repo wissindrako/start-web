@@ -10,7 +10,8 @@
     "expired": "Vencido",
     "expiresAt": "Vence {{date}}",
     "noExpiry": "Sin vencimiento",
-    "grantedBy": "Otorgado por {{name}}"
+    "grantedBy": "Otorgado por {{name}}",
+    "adminNote": "Los administradores tienen todos los permisos del centro de identidad: los privilegios solo aplican en sistemas externos"
   },
   "source": {
     "role": "Por rol",
@@ -45,6 +46,7 @@
   },
   "errors": {
     "forbidden": "No podés gestionar un permiso que no tenés, ni tus propios privilegios",
+    "adminTarget": "Los administradores tienen todos los permisos del centro de identidad: no reciben privilegios acá",
     "generic": "No se pudo guardar el privilegio"
   }
 }
