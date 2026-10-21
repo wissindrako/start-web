@@ -295,6 +295,17 @@ export const PageUser = (props: { params: { id: string } }) => {
                         {t('user:manager.detail.bannedBadge')}
                       </Badge>
                     )}
+                    {user.twoFactorEnabled && (
+                      <Badge variant="positive">
+                        {t('user:manager.detail.twoFactorBadge')}
+                      </Badge>
+                    )}
+                    {user.twoFactorEnabled &&
+                      session.data?.user.id !== user.id && (
+                        <WithPermissions permissions={[{ user: ['update'] }]}>
+                          <ResetTwoFactorButton userId={user.id} />
+                        </WithPermissions>
+                      )}
                     <p className="text-sm text-muted-foreground">
                       {user.verifiedAt ? (
                         <>
@@ -836,5 +847,35 @@ const BanUserButton = (props: {
         </ResponsiveDrawerContent>
       </ResponsiveDrawer>
     </>
+  );
+};
+
+const ResetTwoFactorButton = (props: { userId: string }) => {
+  const { t } = useTranslation(['user']);
+  const queryClient = useQueryClient();
+  const reset = useMutation(
+    orpc.user.resetTwoFactor.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: orpc.user.getById.key({ input: { id: props.userId } }),
+        });
+        toast.success(t('user:manager.detail.twoFactorReset.success'));
+      },
+      onError: () => toast.error(t('user:manager.detail.twoFactorReset.error')),
+    })
+  );
+
+  return (
+    <ConfirmResponsiveDrawer
+      onConfirm={() => reset.mutate({ id: props.userId })}
+      title={t('user:manager.detail.twoFactorReset.confirmTitle')}
+      description={t('user:manager.detail.twoFactorReset.confirmDescription')}
+      confirmText={t('user:manager.detail.twoFactorReset.button')}
+      confirmVariant="destructive"
+    >
+      <Button size="xs" variant="ghost" loading={reset.isPending}>
+        {t('user:manager.detail.twoFactorReset.button')}
+      </Button>
+    </ConfirmResponsiveDrawer>
   );
 };

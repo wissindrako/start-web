@@ -28,6 +28,7 @@ export const zUser = () =>
     banned: z.boolean().nullish(),
     banReason: z.string().nullish(),
     banExpires: z.date().nullish(),
+    twoFactorEnabled: z.boolean().nullish(),
     personalData: z
       .object({
         nombre: z.string().nullish(),

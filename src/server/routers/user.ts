@@ -454,6 +454,43 @@ export default {
       });
     }),
 
+  // For a user who lost their authenticator app and backup codes: turns
+  // two-factor authentication off so they can sign in and set it up again
+  resetTwoFactor: protectedProcedure({
+    permission: {
+      user: ['update'],
+    },
+  })
+    .route({
+      method: 'POST',
+      path: '/users/{id}/two-factor/reset',
+      tags,
+    })
+    .input(z.object({ id: z.string() }))
+    .output(zUser())
+    .handler(async ({ context, input }) => {
+      if (context.user.id === input.id) {
+        throw new ORPCError('BAD_REQUEST', {
+          message:
+            'Turn off your own two-factor authentication from your account',
+        });
+      }
+      const user = await context.db.user.findUnique({
+        where: { id: input.id },
+      });
+      if (!user) throw new ORPCError('NOT_FOUND');
+
+      context.logger.info({ userId: input.id }, 'Resetting two-factor');
+      const [, updated] = await context.db.$transaction([
+        context.db.twoFactor.deleteMany({ where: { userId: input.id } }),
+        context.db.user.update({
+          where: { id: input.id },
+          data: { twoFactorEnabled: false },
+        }),
+      ]);
+      return updated;
+    }),
+
   banUser: protectedProcedure({
     permission: {
       user: ['update'],

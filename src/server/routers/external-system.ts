@@ -3,7 +3,6 @@ import { getRequestHeaders } from '@tanstack/react-start/server';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 
-import { envClient } from '@/env/client';
 import {
   zExternalSystem,
   zExternalSystemWithKey,

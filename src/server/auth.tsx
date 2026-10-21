@@ -2,7 +2,7 @@ import { expo } from '@better-auth/expo';
 import { oauthProvider } from '@better-auth/oauth-provider';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { admin, emailOTP, jwt, openAPI } from 'better-auth/plugins';
+import { admin, emailOTP, jwt, openAPI, twoFactor } from 'better-auth/plugins';
 import { match } from 'ts-pattern';
 
 import i18n from '@/lib/i18n';
@@ -56,6 +56,28 @@ async function systemAccessClaims(
     permissions: permissions.map((p) => `${p.subject}:${p.action}`),
   };
 }
+
+// Two-factor authentication with an authenticator app (TOTP) and backup
+// codes. Users have no password (they sign in with an email code), so
+// enabling it does not ask for one.
+const twoFactorPlugin = twoFactor({
+  issuer: envServer.AUTH_TWO_FACTOR_ISSUER,
+  allowPasswordless: true,
+});
+
+// The plugin only challenges password sign-ins; signing in with an email
+// code must ask for the second factor too
+const twoFactorWithEmailOtp: typeof twoFactorPlugin = {
+  ...twoFactorPlugin,
+  hooks: {
+    ...twoFactorPlugin.hooks,
+    after: twoFactorPlugin.hooks.after.map((hook) => ({
+      ...hook,
+      matcher: (context) =>
+        hook.matcher(context) || context.path === '/sign-in/email-otp',
+    })),
+  },
+};
 
 export type Auth = typeof auth;
 export const auth = betterAuth({
@@ -139,6 +161,7 @@ export const auth = betterAuth({
           .exhaustive();
       },
     }),
+    twoFactorWithEmailOtp,
     // Identity center: external systems sign users in through OAuth 2.1 /
     // OpenID Connect and get JWT access tokens for their own API (resource)
     oauthProvider({

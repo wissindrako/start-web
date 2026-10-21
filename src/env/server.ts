@@ -26,6 +26,9 @@ export const envServer = createEnv({
       .optional()
       .transform((stringValue) => stringValue?.split(',').map((v) => v.trim())),
 
+    // Name shown in authenticator apps next to the user's email
+    AUTH_TWO_FACTOR_ISSUER: z.string().prefault('Nucleo'),
+
     GITHUB_CLIENT_ID: zOptionalWithReplaceMe(),
     GITHUB_CLIENT_SECRET: zOptionalWithReplaceMe(),
 

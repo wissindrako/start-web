@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AccountAvatarUpload } from '@/features/account/account-avatar-upload';
 import { DisplayPreferences } from '@/features/account/display-preferences';
 import { SessionsList } from '@/features/account/sessions-list';
+import { TwoFactorCard } from '@/features/account/two-factor-card';
 import { UserCard } from '@/features/account/user-card';
 import { BuildInfoDrawer } from '@/features/build-info/build-info-drawer';
 import { BuildInfoVersion } from '@/features/build-info/build-info-version';
@@ -65,6 +66,7 @@ export const PageAccount = () => {
               <SessionsList />
             </CardContent>
           </Card>
+          <TwoFactorCard />
           <DisplayPreferences />
           <BuildInfoDrawer>
             <Button variant="ghost" size="xs" className="opacity-60">

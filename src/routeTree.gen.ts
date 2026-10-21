@@ -26,6 +26,7 @@ import { Route as ManagerDashboardIndexRouteImport } from './routes/manager/dash
 import { Route as ManagerBooksIndexRouteImport } from './routes/manager/books/index'
 import { Route as ManagerAccountIndexRouteImport } from './routes/manager/account.index'
 import { Route as LoginVerifyIndexRouteImport } from './routes/login/verify.index'
+import { Route as LoginTwoFactorIndexRouteImport } from './routes/login/two-factor.index'
 import { Route as LoginErrorIndexRouteImport } from './routes/login/error.index'
 import { Route as AppBooksIndexRouteImport } from './routes/app/books/index'
 import { Route as AppAccountIndexRouteImport } from './routes/app/account.index'
@@ -136,6 +137,11 @@ const ManagerAccountIndexRoute = ManagerAccountIndexRouteImport.update({
 const LoginVerifyIndexRoute = LoginVerifyIndexRouteImport.update({
   id: '/verify/',
   path: '/verify/',
+  getParentRoute: () => LoginRouteRoute,
+} as any)
+const LoginTwoFactorIndexRoute = LoginTwoFactorIndexRouteImport.update({
+  id: '/two-factor/',
+  path: '/two-factor/',
   getParentRoute: () => LoginRouteRoute,
 } as any)
 const LoginErrorIndexRoute = LoginErrorIndexRouteImport.update({
@@ -289,6 +295,7 @@ export interface FileRoutesByFullPath {
   '/app/account/': typeof AppAccountIndexRoute
   '/app/books/': typeof AppBooksIndexRoute
   '/login/error/': typeof LoginErrorIndexRoute
+  '/login/two-factor/': typeof LoginTwoFactorIndexRoute
   '/login/verify/': typeof LoginVerifyIndexRoute
   '/manager/account/': typeof ManagerAccountIndexRoute
   '/manager/books/': typeof ManagerBooksIndexRoute
@@ -330,6 +337,7 @@ export interface FileRoutesByTo {
   '/app/account': typeof AppAccountIndexRoute
   '/app/books': typeof AppBooksIndexRoute
   '/login/error': typeof LoginErrorIndexRoute
+  '/login/two-factor': typeof LoginTwoFactorIndexRoute
   '/login/verify': typeof LoginVerifyIndexRoute
   '/manager/account': typeof ManagerAccountIndexRoute
   '/manager/books': typeof ManagerBooksIndexRoute
@@ -375,6 +383,7 @@ export interface FileRoutesById {
   '/app/account/': typeof AppAccountIndexRoute
   '/app/books/': typeof AppBooksIndexRoute
   '/login/error/': typeof LoginErrorIndexRoute
+  '/login/two-factor/': typeof LoginTwoFactorIndexRoute
   '/login/verify/': typeof LoginVerifyIndexRoute
   '/manager/account/': typeof ManagerAccountIndexRoute
   '/manager/books/': typeof ManagerBooksIndexRoute
@@ -421,6 +430,7 @@ export interface FileRouteTypes {
     | '/app/account/'
     | '/app/books/'
     | '/login/error/'
+    | '/login/two-factor/'
     | '/login/verify/'
     | '/manager/account/'
     | '/manager/books/'
@@ -462,6 +472,7 @@ export interface FileRouteTypes {
     | '/app/account'
     | '/app/books'
     | '/login/error'
+    | '/login/two-factor'
     | '/login/verify'
     | '/manager/account'
     | '/manager/books'
@@ -506,6 +517,7 @@ export interface FileRouteTypes {
     | '/app/account/'
     | '/app/books/'
     | '/login/error/'
+    | '/login/two-factor/'
     | '/login/verify/'
     | '/manager/account/'
     | '/manager/books/'
@@ -667,6 +679,13 @@ declare module '@tanstack/react-router' {
       path: '/verify'
       fullPath: '/login/verify/'
       preLoaderRoute: typeof LoginVerifyIndexRouteImport
+      parentRoute: typeof LoginRouteRoute
+    }
+    '/login/two-factor/': {
+      id: '/login/two-factor/'
+      path: '/two-factor'
+      fullPath: '/login/two-factor/'
+      preLoaderRoute: typeof LoginTwoFactorIndexRouteImport
       parentRoute: typeof LoginRouteRoute
     }
     '/login/error/': {
@@ -870,12 +889,14 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
 interface LoginRouteRouteChildren {
   LoginIndexRoute: typeof LoginIndexRoute
   LoginErrorIndexRoute: typeof LoginErrorIndexRoute
+  LoginTwoFactorIndexRoute: typeof LoginTwoFactorIndexRoute
   LoginVerifyIndexRoute: typeof LoginVerifyIndexRoute
 }
 
 const LoginRouteRouteChildren: LoginRouteRouteChildren = {
   LoginIndexRoute: LoginIndexRoute,
   LoginErrorIndexRoute: LoginErrorIndexRoute,
+  LoginTwoFactorIndexRoute: LoginTwoFactorIndexRoute,
   LoginVerifyIndexRoute: LoginVerifyIndexRoute,
 }
 

@@ -4,6 +4,7 @@ import {
   adminClient,
   emailOTPClient,
   inferAdditionalFields,
+  twoFactorClient,
 } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/react';
 
@@ -76,9 +77,18 @@ const signedOAuthQueryClient = () =>
             ctx.body = JSON.stringify({ ...body, oauth_query: signed });
           },
           async onSuccess(ctx) {
-            // Signed in: the authorization flow resumes from here
+            // Signed in: the authorization flow resumes from here. Not yet
+            // while the second factor is pending (/login/two-factor).
             if (typeof window === 'undefined') return;
-            if (ctx.request.url.toString().includes('/sign-in/')) {
+            const url = ctx.request.url.toString();
+            const pendingSecondFactor = !!(
+              ctx.data as { twoFactorRedirect?: boolean } | null
+            )?.twoFactorRedirect;
+            if (
+              (url.includes('/sign-in/') ||
+                url.includes('/two-factor/verify')) &&
+              !pendingSecondFactor
+            ) {
               sessionStorage.removeItem(PENDING_OAUTH_QUERY);
             }
           },
@@ -98,6 +108,7 @@ export const authClient = createAuthClient({
       ...permissions,
     }),
     emailOTPClient(),
+    twoFactorClient(),
     signedOAuthQueryClient(),
     // Resumes the OAuth authorization flow after signing in on /login
     oauthProviderClient(),

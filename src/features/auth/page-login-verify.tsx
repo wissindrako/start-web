@@ -53,7 +53,7 @@ export default function PageLoginVerify({
   const submitHandler: SubmitHandler<FormFieldsLoginVerify> = async ({
     otp,
   }) => {
-    const { error } = await authClient.signIn.emailOtp({
+    const { data, error } = await authClient.signIn.emailOtp({
       email: search.email,
       otp,
     });
@@ -74,6 +74,16 @@ export default function PageLoginVerify({
 
       form.setError('otp', {
         message: t('auth:common.otp.invalid'),
+      });
+      return;
+    }
+
+    // Two-factor authentication enabled: the code from the app is next
+    if (data && 'twoFactorRedirect' in data && data.twoFactorRedirect) {
+      router.navigate({
+        to: '/login/two-factor',
+        replace: true,
+        search: { redirect: search.redirect },
       });
       return;
     }
