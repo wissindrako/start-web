@@ -6,6 +6,7 @@ import configRouter from './routers/config';
 import externalApiRouter from './routers/external-api';
 import externalSystemRouter from './routers/external-system';
 import genreRouter from './routers/genre';
+import invitationRouter from './routers/invitation';
 import personalDataRouter from './routers/personal-data';
 import privilegeRouter from './routers/privilege';
 import roleRouter from './routers/role';
@@ -21,6 +22,7 @@ export const router = {
   externalApi: externalApiRouter,
   externalSystem: externalSystemRouter,
   genre: genreRouter,
+  invitation: invitationRouter,
   personalData: personalDataRouter,
   privilege: privilegeRouter,
   role: roleRouter,

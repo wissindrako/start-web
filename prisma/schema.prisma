@@ -50,6 +50,8 @@ model User {
   permissionOverrides        UserPermissionOverride[] @relation("overrideUser")
   grantedPermissionOverrides UserPermissionOverride[] @relation("overrideGrantedBy")
 
+  invitationsSent Invitation[] @relation("invitationsSent")
+
   oauthclients       OauthClient[]
   oauthrefreshtokens OauthRefreshToken[]
   oauthaccesstokens  OauthAccessToken[]
@@ -86,6 +88,23 @@ model PersonalData {
 enum RoleScope {
   local
   external
+}
+
+// Invitation to join while public sign-up is closed: the invited email can
+// create its account (signing in with the email code) and gets these roles
+model Invitation {
+  id          String    @id @default(cuid())
+  email       String
+  roles       Role[]
+  invitedById String?
+  invitedBy   User?     @relation("invitationsSent", fields: [invitedById], references: [id], onDelete: SetNull)
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([email])
+  @@map("invitation")
 }
 
 model TwoFactor {
@@ -147,6 +166,8 @@ model Role {
   externalSystem  ExternalSystem?      @relation(fields: [systemId], references: [id], onDelete: SetNull)
   permissions     RolePermission[]
   userAssignments UserRoleAssignment[]
+
+  invitations     Invitation[]
 
   @@map("role")
 }

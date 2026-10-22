@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { useRouter } from '@tanstack/react-router';
+import { useRouter, useSearch } from '@tanstack/react-router';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -31,6 +31,8 @@ export default function PageLogin({
 }) {
   const { t } = useTranslation(['auth', 'common']);
   const router = useRouter();
+  // Invitation links come with the invited email
+  const { email: invitedEmail } = useSearch({ strict: false });
   const social = useMutation({
     mutationFn: async (
       provider: Parameters<typeof authClient.signIn.social>[0]['provider']
@@ -63,7 +65,7 @@ export default function PageLogin({
     mode: 'onSubmit',
     resolver: zodResolver(zFormFieldsLogin()),
     defaultValues: {
-      email: '',
+      email: typeof invitedEmail === 'string' ? invitedEmail : '',
     },
   });
 

@@ -1,6 +1,7 @@
 import { expo } from '@better-auth/expo';
 import { oauthProvider } from '@better-auth/oauth-provider';
 import { betterAuth } from 'better-auth';
+import { APIError } from 'better-auth/api';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { admin, emailOTP, jwt, openAPI, twoFactor } from 'better-auth/plugins';
 import { match } from 'ts-pattern';
@@ -19,8 +20,20 @@ import { permissions } from '@/features/auth/permissions';
 import { db } from '@/server/db';
 import { sendEmail } from '@/server/email';
 import { SERVICE_SCOPES } from '@/server/identity-tokens';
+import { acceptInvitation, findPendingInvitation } from '@/server/invitations';
 import { getEffectivePermissions, hasPermissions } from '@/server/permissions';
 import { getUserLanguage } from '@/server/utils';
+
+// Sign-up closed: only existing users and invited emails get a login code
+// (others get nothing, the same answer as for any email)
+async function canSignIn(email: string) {
+  if (AUTH_SIGNUP_ENABLED) return true;
+  const user = await db.user.findUnique({
+    where: { email: email.toLowerCase() },
+    select: { id: true },
+  });
+  return !!user || !!(await findPendingInvitation(db, email));
+}
 
 async function canManageExternalSystems(userId: string | undefined) {
   if (!userId) return false;
@@ -124,7 +137,10 @@ export const auth = betterAuth({
       ...permissions,
     }),
     emailOTP({
-      disableSignUp: !AUTH_SIGNUP_ENABLED,
+      // With sign-up closed, invited emails can still create their account:
+      // who may join is checked when the code is sent and when the user is
+      // created (databaseHooks below)
+      disableSignUp: false,
       expiresIn: AUTH_EMAIL_OTP_EXPIRATION_IN_MINUTES * 60,
       // Use predictable mocked code in dev and demo
       ...(import.meta.env.DEV || envClient.VITE_IS_DEMO
@@ -133,6 +149,7 @@ export const auth = betterAuth({
       async sendVerificationOTP({ email, otp, type }) {
         await match(type)
           .with('sign-in', async () => {
+            if (!(await canSignIn(email))) return;
             await sendEmail({
               to: email,
               subject: i18n.t('emails:loginCode.subject', {
@@ -187,11 +204,23 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       create: {
-        before: async (user) => {
+        before: async (user, context) => {
           if (envClient.VITE_IS_DEMO) throw new Error('DEMO MODE');
+          // Sign-up closed: an account can only be created by an admin or
+          // from an invitation
+          if (
+            !AUTH_SIGNUP_ENABLED &&
+            context?.path !== '/admin/create-user' &&
+            !(await findPendingInvitation(db, user.email))
+          ) {
+            throw new APIError('FORBIDDEN', {
+              message: 'Sign up is by invitation only',
+            });
+          }
           return { data: user };
         },
         after: async (user) => {
+          await acceptInvitation(db, user);
           const roleName = (user.role as string) ?? 'user';
           const dynamicRole = await db.role.findUnique({
             where: { name: roleName },

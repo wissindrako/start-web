@@ -6,5 +6,15 @@
     "intro": "Para verificar tu identidad, ingresa el siguiente código:",
     "validityTime": "Este código solo será válido por los próximos {{expiration}} minutos.",
     "ignoreHelper": "Si no intentaste iniciar sesión, puedes ignorar este correo electrónico."
+  },
+  "invitation": {
+    "subject": "Te invitaron a unirte",
+    "preview": "Tenés una invitación",
+    "title": "Te invitaron a unirte",
+    "intro": "Te invitaron a crear tu cuenta.",
+    "introBy": "{{name}} te invitó a crear tu cuenta.",
+    "action": "Aceptar la invitación",
+    "validity": "La invitación vence el {{date}}. Para entrar, ingresá tu email y el código que te enviamos.",
+    "ignoreHelper": "Si no esperabas esta invitación, podés ignorar este correo."
   }
 }

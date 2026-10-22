@@ -34,7 +34,8 @@
       "confirmVerifyTitle": "Verify {{user}}",
       "confirmVerifyDescription": "Are you sure you want to verify this user?",
       "confirmUnverifyTitle": "Remove verification from {{user}}",
-      "confirmUnverifyDescription": "Are you sure you want to remove verification from this user?"
+      "confirmUnverifyDescription": "Are you sure you want to remove verification from this user?",
+      "invitationsButton": "Invitations"
     },
     "detail": {
       "editButton": {

@@ -8,7 +8,12 @@ import {
 } from '@tanstack/react-query';
 import { Link, useRouter } from '@tanstack/react-router';
 import dayjs from 'dayjs';
-import { BadgeCheckIcon, PlusIcon, RefreshCwIcon } from 'lucide-react';
+import {
+  BadgeCheckIcon,
+  MailIcon,
+  PlusIcon,
+  RefreshCwIcon,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
@@ -127,6 +132,14 @@ export const PageUsers = (props: {
             >
               <RefreshCwIcon />
             </ResponsiveIconButton>
+            <ResponsiveIconButtonLink
+              label={t('user:manager.list.invitationsButton')}
+              variant="ghost"
+              size="sm"
+              to="/manager/users/invitations"
+            >
+              <MailIcon />
+            </ResponsiveIconButtonLink>
             <ResponsiveIconButtonLink
               label={t('user:manager.list.newButton')}
               variant="secondary"

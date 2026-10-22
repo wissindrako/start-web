@@ -1,0 +1,40 @@
+{
+  "list": {
+    "title": "Invitations",
+    "refresh": "Refresh",
+    "empty": "No invitations yet",
+    "invitedBy": "Invited by {{name}} on {{date}}",
+    "expiresAt": "Expires on {{date}}",
+    "signupOpen": "Public sign-up is open: anyone can create an account. Invitations assign roles in advance.",
+    "signupClosed": "Public sign-up is closed: only existing users and invited people can get in."
+  },
+  "status": {
+    "pending": "Pending",
+    "accepted": "Accepted",
+    "expired": "Expired"
+  },
+  "invite": {
+    "button": "Invite",
+    "title": "Invite someone",
+    "description": "They get an email to sign in with their address and a code. The invitation expires in {{days}} days.",
+    "email": "Email",
+    "roles": "Roles",
+    "rolesHelper": "They get them when they sign in for the first time.",
+    "submit": "Send invitation",
+    "success": "Invitation sent",
+    "userExists": "A user with this email already exists",
+    "pendingInvitation": "This email already has a pending invitation: resend it from the list",
+    "forbidden": "You cannot give roles with permissions you do not hold",
+    "error": "The operation could not be completed"
+  },
+  "resend": {
+    "button": "Resend",
+    "success": "Invitation resent (expires in 7 days)"
+  },
+  "revoke": {
+    "button": "Revoke",
+    "confirmTitle": "Revoke the invitation for {{email}}?",
+    "confirmDescription": "The link no longer works to create the account.",
+    "success": "Invitation revoked"
+  }
+}
