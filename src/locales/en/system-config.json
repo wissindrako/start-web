@@ -12,6 +12,50 @@
       "logoHint": "PNG, JPG or WebP · max 5 MB",
       "logoUploadButton": "Upload logo",
       "logoUploadError": "Failed to upload logo"
+    },
+    "mail": {
+      "title": "Email",
+      "description": "Server the center sends login codes and invitations with.",
+      "source": {
+        "database": "Using the settings saved here",
+        "env": "Using the environment variables (EMAIL_SERVER and EMAIL_FROM)",
+        "none": "Not configured: the center cannot send emails"
+      },
+      "mailer": "Delivery",
+      "mailers": {
+        "smtp": "SMTP",
+        "log": "Log (writes emails to the server log, sends nothing)"
+      },
+      "host": "Host",
+      "port": "Port",
+      "encryption": "Encryption",
+      "encryptions": {
+        "auto": "Automatic (from the port)",
+        "starttls": "STARTTLS",
+        "tls": "TLS (port 465)"
+      },
+      "username": "Username",
+      "password": "Password",
+      "passwordKeep": "•••••••• (leave blank to keep it)",
+      "passwordHelper": "Stored encrypted.",
+      "fromAddress": "From address",
+      "fromName": "From name",
+      "required": "Required",
+      "invalidEmail": "Invalid email",
+      "save": "Save email",
+      "saveSuccess": "Email settings saved",
+      "saveError": "The email settings could not be saved",
+      "reset": "Use the environment variables",
+      "resetConfirm": "The saved settings are deleted and the center goes back to EMAIL_SERVER and EMAIL_FROM.",
+      "resetSuccess": "The environment variables are used now",
+      "test": {
+        "title": "Send a test email",
+        "description": "Uses the saved settings. Save your changes first.",
+        "to": "Send to",
+        "submit": "Send test",
+        "success": "Test email sent to {{to}}",
+        "error": "Could not send: {{detail}}"
+      }
     }
   }
 }

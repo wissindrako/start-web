@@ -276,6 +276,27 @@ model SystemConfig {
   @@map("system_config")
 }
 
+// Mail settings saved from the manager; while there are none, the center
+// sends with EMAIL_SERVER and EMAIL_FROM from the environment
+model MailSettings {
+  id          String   @id @default("singleton")
+  // smtp sends; log writes the messages to the server log instead
+  mailer      String   @default("smtp")
+  host        String?
+  port        Int?
+  // auto (TLS on port 465, STARTTLS when the server offers it), starttls or tls
+  encryption  String   @default("auto")
+  username    String?
+  // Encrypted with a key derived from AUTH_SECRET (src/server/secrets.ts)
+  password    String?  @db.Text
+  fromAddress String
+  fromName    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("mail_settings")
+}
+
 model Book {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())

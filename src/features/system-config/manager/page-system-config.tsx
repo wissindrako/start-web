@@ -20,6 +20,7 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import { envClient } from '@/env/client';
+import { MailSettingsCard } from '@/features/mail-settings/manager/mail-settings-card';
 import { FormFieldsSystemConfig } from '@/features/system-config/schema';
 import {
   PageLayout,
@@ -55,23 +56,24 @@ export const PageSystemConfig = () => {
     })
   );
 
+  const save = form.handleSubmit((values) => {
+    update.mutate({
+      systemName: values.systemName || null,
+      logoUrl: configQuery.data?.logoUrl ?? null,
+    });
+  });
+
+  // No <form> here: the mail card below has its own
   return (
-    <Form
-      {...form}
-      onSubmit={(values) => {
-        update.mutate({
-          systemName: values.systemName || null,
-          logoUrl: configQuery.data?.logoUrl ?? null,
-        });
-      }}
-    >
+    <Form {...form} noHtmlForm>
       <PageLayout>
         <PageLayoutTopBar
           endActions={
             <Button
               size="sm"
-              type="submit"
+              type="button"
               className="min-w-20"
+              onClick={save}
               loading={update.isPending}
             >
               {t('system-config:manager.update.saveButton')}
@@ -99,6 +101,9 @@ export const PageSystemConfig = () => {
                     type="text"
                     control={form.control}
                     name="systemName"
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') save();
+                    }}
                     placeholder={t(
                       'system-config:manager.update.systemNamePlaceholder'
                     )}
@@ -120,6 +125,7 @@ export const PageSystemConfig = () => {
                 )}
               </CardContent>
             </Card>
+            <MailSettingsCard />
           </div>
         </PageLayoutContent>
       </PageLayout>

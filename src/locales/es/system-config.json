@@ -12,6 +12,50 @@
       "logoHint": "PNG, JPG o WebP · máx. 5 MB",
       "logoUploadButton": "Subir logo",
       "logoUploadError": "Error al subir el logo"
+    },
+    "mail": {
+      "title": "Correo",
+      "description": "Servidor con el que el centro envía los códigos de acceso y las invitaciones.",
+      "source": {
+        "database": "Usando la configuración guardada aquí",
+        "env": "Usando las variables de entorno (EMAIL_SERVER y EMAIL_FROM)",
+        "none": "Sin configurar: el centro no puede enviar correos"
+      },
+      "mailer": "Envío",
+      "mailers": {
+        "smtp": "SMTP",
+        "log": "Log (escribe los correos en el log del servidor, no envía nada)"
+      },
+      "host": "Servidor",
+      "port": "Puerto",
+      "encryption": "Cifrado",
+      "encryptions": {
+        "auto": "Automático (según el puerto)",
+        "starttls": "STARTTLS",
+        "tls": "TLS (puerto 465)"
+      },
+      "username": "Usuario",
+      "password": "Contraseña",
+      "passwordKeep": "•••••••• (déjala vacía para no cambiarla)",
+      "passwordHelper": "Se guarda cifrada.",
+      "fromAddress": "Correo del remitente",
+      "fromName": "Nombre del remitente",
+      "required": "Requerido",
+      "invalidEmail": "Correo inválido",
+      "save": "Guardar correo",
+      "saveSuccess": "Configuración de correo guardada",
+      "saveError": "No se pudo guardar la configuración de correo",
+      "reset": "Usar las variables de entorno",
+      "resetConfirm": "Se borra la configuración guardada y el centro vuelve a usar EMAIL_SERVER y EMAIL_FROM.",
+      "resetSuccess": "Ahora se usan las variables de entorno",
+      "test": {
+        "title": "Enviar un correo de prueba",
+        "description": "Usa la configuración guardada. Guarda antes los cambios.",
+        "to": "Enviar a",
+        "submit": "Enviar prueba",
+        "success": "Correo de prueba enviado a {{to}}",
+        "error": "No se pudo enviar: {{detail}}"
+      }
     }
   }
 }

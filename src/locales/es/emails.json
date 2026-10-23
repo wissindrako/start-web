@@ -20,5 +20,11 @@
     "titleSystem": "Te invitaron a {{system}}",
     "introSystem": "Te invitaron a usar {{system}}.",
     "introSystemBy": "{{name}} te invitó a usar {{system}}."
+  },
+  "mailTest": {
+    "subject": "Correo de prueba",
+    "preview": "La configuración de correo funciona",
+    "title": "Correo de prueba",
+    "intro": "Si recibiste este correo, la configuración de correo del centro de identidad funciona."
   }
 }

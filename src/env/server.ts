@@ -32,8 +32,9 @@ export const envServer = createEnv({
     GITHUB_CLIENT_ID: zOptionalWithReplaceMe(),
     GITHUB_CLIENT_SECRET: zOptionalWithReplaceMe(),
 
-    EMAIL_SERVER: z.url(),
-    EMAIL_FROM: z.string(),
+    // Defaults for the mail settings, which can also be set from the manager
+    EMAIL_SERVER: z.url().optional(),
+    EMAIL_FROM: z.string().optional(),
 
     LOGGER_LEVEL: z
       .enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal'])

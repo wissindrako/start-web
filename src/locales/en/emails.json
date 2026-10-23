@@ -20,5 +20,11 @@
     "titleSystem": "You have been invited to {{system}}",
     "introSystem": "You have been invited to use {{system}}.",
     "introSystemBy": "{{name}} invited you to use {{system}}."
+  },
+  "mailTest": {
+    "subject": "Test email",
+    "preview": "The mail settings work",
+    "title": "Test email",
+    "intro": "If you received this email, the identity center's mail settings work."
   }
 }
