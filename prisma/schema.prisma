@@ -93,17 +93,21 @@ enum RoleScope {
 // Invitation to join while public sign-up is closed: the invited email can
 // create its account (signing in with the email code) and gets these roles
 model Invitation {
-  id          String    @id @default(cuid())
+  id          String          @id @default(cuid())
   email       String
   roles       Role[]
+  // System the person is invited to (its roles only); null = this center
+  systemId    String?
+  system      ExternalSystem? @relation(fields: [systemId], references: [id], onDelete: Cascade)
   invitedById String?
-  invitedBy   User?     @relation("invitationsSent", fields: [invitedById], references: [id], onDelete: SetNull)
+  invitedBy   User?           @relation("invitationsSent", fields: [invitedById], references: [id], onDelete: SetNull)
   expiresAt   DateTime
   acceptedAt  DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
   @@index([email])
+  @@index([systemId])
   @@map("invitation")
 }
 
@@ -137,6 +141,7 @@ model ExternalSystem {
   // to call the external API, instead of the API key
   serviceClientId     String?                  @unique
   permissionOverrides UserPermissionOverride[]
+  invitations         Invitation[]
   createdAt           DateTime                 @default(now())
   updatedAt           DateTime                 @updatedAt
 
@@ -167,7 +172,7 @@ model Role {
   permissions     RolePermission[]
   userAssignments UserRoleAssignment[]
 
-  invitations     Invitation[]
+  invitations Invitation[]
 
   @@map("role")
 }

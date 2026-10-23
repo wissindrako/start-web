@@ -16,6 +16,7 @@ import {
   SERVICE_SCOPES,
 } from '@/server/identity-tokens';
 import { protectedProcedure } from '@/server/orpc';
+import { parseUriList as parseList } from '@/server/utils';
 
 type Db = typeof db;
 
@@ -507,20 +508,6 @@ const LOOPBACK_HOSTS = ['localhost', '127.0.0.1', '[::1]'];
 const isHttpLoopback = (uri: string) => {
   const url = new URL(uri);
   return url.protocol === 'http:' && LOOPBACK_HOSTS.includes(url.hostname);
-};
-
-// Better Auth stores URI lists as JSON text on MySQL
-const parseList = (value: string | null | undefined): string[] => {
-  if (!value) return [];
-  try {
-    const parsed: unknown = JSON.parse(value);
-    return Array.isArray(parsed) ? parsed.map(String) : [value];
-  } catch {
-    return value
-      .split(',')
-      .map((v) => v.trim())
-      .filter(Boolean);
-  }
 };
 
 const getClientType = (tokenEndpointAuthMethod: string | null) =>

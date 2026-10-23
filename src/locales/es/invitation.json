@@ -25,11 +25,20 @@
     "userExists": "Ya existe un usuario con este email",
     "pendingInvitation": "Este email ya tiene una invitación pendiente: reenviala desde la lista",
     "forbidden": "No podés dar roles con permisos que no tenés",
-    "error": "No se pudo completar la operación"
+    "error": "No se pudo completar la operación",
+    "system": "Sistema",
+    "localSystem": "Nucleo Admin (este centro)",
+    "systemLocalHelper": "Para administrar el centro de identidad. Los roles son opcionales.",
+    "systemExternalHelper": "La persona entra desde ese sistema. Elegí al menos uno de sus roles.",
+    "systemRoleRequired": "Elegí al menos un rol del sistema",
+    "userExistsSystem": "Ya tiene cuenta: para darle acceso a este sistema, asignale el rol desde su ficha",
+    "openUser": "Abrir su ficha",
+    "emailFailed": "No se pudo enviar el correo (¿está corriendo el servidor de correo?). La invitación no se guardó."
   },
   "resend": {
     "button": "Reenviar",
-    "success": "Invitación reenviada (vence en 7 días)"
+    "success": "Invitación reenviada (vence en 7 días)",
+    "emailFailed": "No se pudo enviar el correo: la invitación sigue como estaba"
   },
   "revoke": {
     "button": "Revocar",

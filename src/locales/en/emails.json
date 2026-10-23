@@ -15,6 +15,10 @@
     "introBy": "{{name}} invited you to create your account.",
     "action": "Accept the invitation",
     "validity": "The invitation expires on {{date}}. To get in, enter your email and the code we send you.",
-    "ignoreHelper": "If you weren't expecting this invitation, you can ignore this email."
+    "ignoreHelper": "If you weren't expecting this invitation, you can ignore this email.",
+    "subjectSystem": "You have been invited to {{system}}",
+    "titleSystem": "You have been invited to {{system}}",
+    "introSystem": "You have been invited to use {{system}}.",
+    "introSystemBy": "{{name}} invited you to use {{system}}."
   }
 }

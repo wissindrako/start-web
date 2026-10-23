@@ -15,6 +15,10 @@
     "introBy": "{{name}} te invitó a crear tu cuenta.",
     "action": "Aceptar la invitación",
     "validity": "La invitación vence el {{date}}. Para entrar, ingresá tu email y el código que te enviamos.",
-    "ignoreHelper": "Si no esperabas esta invitación, podés ignorar este correo."
+    "ignoreHelper": "Si no esperabas esta invitación, podés ignorar este correo.",
+    "subjectSystem": "Te invitaron a {{system}}",
+    "titleSystem": "Te invitaron a {{system}}",
+    "introSystem": "Te invitaron a usar {{system}}.",
+    "introSystemBy": "{{name}} te invitó a usar {{system}}."
   }
 }

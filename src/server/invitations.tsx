@@ -4,7 +4,7 @@ import { TemplateInvitation } from '@/emails/templates/invitation';
 import { envClient } from '@/env/client';
 import { db } from '@/server/db';
 import { sendEmail } from '@/server/email';
-import { getUserLanguage } from '@/server/utils';
+import { getUserLanguage, parseUriList } from '@/server/utils';
 
 type Db = typeof db;
 
@@ -47,27 +47,80 @@ export async function acceptInvitation(
   ]);
 }
 
-export async function sendInvitationEmail(invitation: {
-  email: string;
-  expiresAt: Date;
-  invitedByName?: string | null;
-}) {
-  const language = getUserLanguage();
-  const url = new URL('/login', envClient.VITE_BASE_URL);
-  url.searchParams.set('email', invitation.email);
+// Where the invited person goes: the system's app (the origin of its first
+// web redirect URI, which starts the sign-in here) or this center's login
+async function invitationTarget(
+  prisma: Db,
+  email: string,
+  systemId: string | null
+) {
+  const system = systemId
+    ? await prisma.externalSystem.findUnique({
+        where: { id: systemId },
+        include: { oauthClient: { select: { redirectUris: true } } },
+      })
+    : null;
 
-  await sendEmail({
-    to: invitation.email,
-    subject: i18n.t('emails:invitation.subject', { lng: language }),
-    template: (
-      <TemplateInvitation
-        language={language}
-        url={url.toString()}
-        invitedByName={invitation.invitedByName ?? ''}
-        expiresAt={invitation.expiresAt.toISOString()}
-      />
-    ),
-  });
+  const appUrl = parseUriList(system?.oauthClient?.redirectUris).find((uri) =>
+    /^https?:\/\//.test(uri)
+  );
+  if (system && appUrl) {
+    return {
+      systemName: system.label ?? system.name,
+      url: new URL(appUrl).origin,
+    };
+  }
+
+  const url = new URL('/login', envClient.VITE_BASE_URL);
+  url.searchParams.set('email', email);
+  return {
+    systemName: system ? (system.label ?? system.name) : null,
+    url: url.toString(),
+  };
+}
+
+export class InvitationEmailError extends Error {}
+
+export async function sendInvitationEmail(
+  prisma: Db,
+  invitation: {
+    email: string;
+    expiresAt: Date;
+    systemId: string | null;
+    invitedByName?: string | null;
+  }
+) {
+  const language = getUserLanguage();
+  const { systemName, url } = await invitationTarget(
+    prisma,
+    invitation.email,
+    invitation.systemId
+  );
+
+  try {
+    await sendEmail({
+      to: invitation.email,
+      subject: systemName
+        ? i18n.t('emails:invitation.subjectSystem', {
+            lng: language,
+            system: systemName,
+          })
+        : i18n.t('emails:invitation.subject', { lng: language }),
+      template: (
+        <TemplateInvitation
+          language={language}
+          url={url}
+          systemName={systemName ?? ''}
+          invitedByName={invitation.invitedByName ?? ''}
+          expiresAt={invitation.expiresAt.toISOString()}
+        />
+      ),
+    });
+  } catch (error) {
+    throw new InvitationEmailError('The invitation email could not be sent', {
+      cause: error,
+    });
+  }
 }
 
 export { normalize as normalizeEmail };

@@ -4,7 +4,11 @@ import { z } from 'zod';
 
 import { INVITATION_EXPIRATION_IN_DAYS } from '@/features/auth/config';
 import { db } from '@/server/db';
-import { normalizeEmail, sendInvitationEmail } from '@/server/invitations';
+import {
+  InvitationEmailError,
+  normalizeEmail,
+  sendInvitationEmail,
+} from '@/server/invitations';
 import { protectedProcedure } from '@/server/orpc';
 import { assertRequesterHolds } from '@/server/permissions';
 
@@ -23,6 +27,10 @@ const zInvitation = () =>
     acceptedAt: z.date().nullish(),
     createdAt: z.date(),
     invitedBy: z.object({ id: z.string(), name: z.string() }).nullish(),
+    // null = invited to this center
+    system: z
+      .object({ id: z.string(), name: z.string(), label: z.string().nullish() })
+      .nullish(),
     roles: z.array(
       z.object({
         id: z.string(),
@@ -45,7 +53,16 @@ const include = {
     },
   },
   invitedBy: { select: { id: true, name: true } },
+  system: { select: { id: true, name: true, label: true } },
 };
+
+// The email could not be sent (e.g. the mail server is down)
+const emailFailed = (error: unknown) =>
+  new ORPCError('BAD_GATEWAY', {
+    message: 'The invitation email could not be sent',
+    data: { reason: 'emailFailed' },
+    cause: error,
+  });
 
 const statusOf = (invitation: { acceptedAt: Date | null; expiresAt: Date }) => {
   if (invitation.acceptedAt) return 'accepted' as const;
@@ -86,6 +103,8 @@ export default {
     .input(
       z.object({
         email: z.email(),
+        // System the person is invited to; null = this center
+        systemId: z.string().nullish(),
         roleIds: z.array(z.string()).prefault([]),
       })
     )
@@ -93,10 +112,12 @@ export default {
     .handler(async ({ context, input }) => {
       const email = normalizeEmail(input.email);
 
-      if (await context.db.user.findUnique({ where: { email } })) {
+      const existing = await context.db.user.findUnique({ where: { email } });
+      if (existing) {
+        // An existing account joins a system by getting one of its roles
         throw new ORPCError('CONFLICT', {
           message: 'A user with this email already exists',
-          data: { reason: 'userExists' },
+          data: { reason: 'userExists', userId: existing.id },
         });
       }
 
@@ -110,11 +131,14 @@ export default {
         });
       }
 
+      const systemId = input.systemId ?? null;
+      await assertRolesOfSystem(context.db, systemId, input.roleIds);
       await assertCanGiveRoles(context.db, context.user.id, input.roleIds);
 
       const invitation = await context.db.invitation.create({
         data: {
           email,
+          systemId,
           expiresAt: newExpiration(),
           invitedById: context.user.id,
           roles: { connect: input.roleIds.map((id) => ({ id })) },
@@ -122,11 +146,20 @@ export default {
         include,
       });
 
-      await sendInvitationEmail({
-        email,
-        expiresAt: invitation.expiresAt,
-        invitedByName: context.user.name,
-      });
+      try {
+        await sendInvitationEmail(context.db, {
+          email,
+          systemId,
+          expiresAt: invitation.expiresAt,
+          invitedByName: context.user.name,
+        });
+      } catch (error) {
+        // Without the email nobody knows about it, and it would block
+        // inviting the same address again
+        await context.db.invitation.delete({ where: { id: invitation.id } });
+        if (error instanceof InvitationEmailError) throw emailFailed(error);
+        throw error;
+      }
       context.logger.info({ invitationId: invitation.id }, 'User invited');
 
       return toInvitation(invitation);
@@ -153,11 +186,22 @@ export default {
         data: { expiresAt: newExpiration() },
         include,
       });
-      await sendInvitationEmail({
-        email: invitation.email,
-        expiresAt: invitation.expiresAt,
-        invitedByName: context.user.name,
-      });
+      try {
+        await sendInvitationEmail(context.db, {
+          email: invitation.email,
+          systemId: invitation.systemId,
+          expiresAt: invitation.expiresAt,
+          invitedByName: context.user.name,
+        });
+      } catch (error) {
+        // Keeps the previous expiration: nothing was sent
+        await context.db.invitation.update({
+          where: { id: invitation.id },
+          data: { expiresAt: current.expiresAt },
+        });
+        if (error instanceof InvitationEmailError) throw emailFailed(error);
+        throw error;
+      }
 
       return toInvitation(invitation);
     }),
@@ -180,6 +224,47 @@ export default {
       await context.db.invitation.delete({ where: { id: input.id } });
     }),
 };
+
+// An invitation is to one place: this center (its own roles) or one
+// external system (its roles, at least one, or the person gets no access)
+async function assertRolesOfSystem(
+  prisma: Db,
+  systemId: string | null,
+  roleIds: string[]
+) {
+  if (systemId) {
+    const system = await prisma.externalSystem.findUnique({
+      where: { id: systemId },
+    });
+    if (!system) {
+      throw new ORPCError('BAD_REQUEST', {
+        message: 'Unknown system',
+        data: { reason: 'unknownSystem' },
+      });
+    }
+    if (!roleIds.length) {
+      throw new ORPCError('BAD_REQUEST', {
+        message: 'Pick at least one role of the system',
+        data: { reason: 'systemRoleRequired' },
+      });
+    }
+  }
+
+  const outside = await prisma.role.count({
+    where: {
+      id: { in: roleIds },
+      OR: systemId
+        ? [{ systemId: { not: systemId } }, { systemId: null }]
+        : [{ systemId: { not: null } }],
+    },
+  });
+  if (outside) {
+    throw new ORPCError('BAD_REQUEST', {
+      message: 'Every role must belong to the invitation system',
+      data: { reason: 'roleOutsideSystem' },
+    });
+  }
+}
 
 // Same rule as assigning roles to a user: identity-center roles require
 // holding all their permissions (external-system roles are not restricted)

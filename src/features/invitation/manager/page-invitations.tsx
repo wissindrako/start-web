@@ -2,7 +2,9 @@ import { getUiState } from '@bearstudio/ui-state';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ORPCError } from '@orpc/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
 import dayjs from 'dayjs';
+import { t } from 'i18next';
 import {
   MailPlusIcon,
   RefreshCwIcon,
@@ -10,7 +12,7 @@ import {
   Trash2Icon,
 } from 'lucide-react';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -47,11 +49,11 @@ import {
 } from '@/components/ui/responsive-drawer';
 import { ResponsiveIconButton } from '@/components/ui/responsive-icon-button';
 
-import { WithPermissions } from '@/features/auth/with-permission';
 import {
   AUTH_SIGNUP_ENABLED,
   INVITATION_EXPIRATION_IN_DAYS,
 } from '@/features/auth/config';
+import { WithPermissions } from '@/features/auth/with-permission';
 import {
   PageLayout,
   PageLayoutContent,
@@ -145,11 +147,16 @@ export const PageInvitations = () => {
                     </DataListText>
                   </DataListCell>
                   <DataListCell className="flex-row flex-wrap items-center justify-start gap-1 max-md:hidden">
+                    <Badge
+                      variant={invitation.system ? 'default' : 'secondary'}
+                    >
+                      {invitation.system
+                        ? (invitation.system.label ?? invitation.system.name)
+                        : t('invitation:invite.localSystem')}
+                    </Badge>
                     {invitation.roles.map((role) => (
                       <Badge key={role.id} variant="secondary">
-                        {role.externalSystem
-                          ? `${role.name} · ${role.externalSystem.label ?? role.externalSystem.name}`
-                          : role.name}
+                        {role.name}
                       </Badge>
                     ))}
                   </DataListCell>
@@ -188,11 +195,23 @@ export const PageInvitations = () => {
   );
 };
 
+// The select needs a value for "this center"
+const LOCAL_SYSTEM = 'local';
+
 const zFormFieldsInvitation = () =>
-  z.object({
-    email: z.email(),
-    roleIds: z.array(z.string()),
-  });
+  z
+    .object({
+      email: z.email(),
+      systemId: z.string(),
+      roleIds: z.array(z.string()),
+    })
+    .refine(
+      (values) => values.systemId === LOCAL_SYSTEM || values.roleIds.length,
+      {
+        path: ['roleIds'],
+        message: t('invitation:invite.systemRoleRequired'),
+      }
+    );
 
 type FormFieldsInvitation = z.infer<ReturnType<typeof zFormFieldsInvitation>>;
 
@@ -206,8 +225,10 @@ const InviteButton = () => {
 
   const form = useForm<FormFieldsInvitation>({
     resolver: zodResolver(zFormFieldsInvitation()),
-    defaultValues: { email: '', roleIds: [] },
+    defaultValues: { email: '', systemId: LOCAL_SYSTEM, roleIds: [] },
   });
+  const systemId = useWatch({ control: form.control, name: 'systemId' });
+  const [existingUserId, setExistingUserId] = useState<string | null>(null);
 
   const invite = useMutation(
     orpc.invitation.create.mutationOptions({
@@ -215,15 +236,36 @@ const InviteButton = () => {
         await invalidate();
         toast.success(t('invitation:invite.success'));
         setIsOpen(false);
+        setExistingUserId(null);
         form.reset();
       },
       onError: (error) => {
-        const reason =
+        const data =
           error instanceof ORPCError
-            ? (error.data as { reason?: string } | undefined)?.reason
+            ? (error.data as { reason?: string; userId?: string } | undefined)
             : undefined;
+        const reason = data?.reason;
         if (reason === 'userExists' || reason === 'pendingInvitation') {
-          form.setError('email', { message: t(`invitation:invite.${reason}`) });
+          setExistingUserId(
+            reason === 'userExists' ? (data?.userId ?? null) : null
+          );
+          form.setError('email', {
+            message: t(
+              reason === 'userExists' && systemId !== LOCAL_SYSTEM
+                ? 'invitation:invite.userExistsSystem'
+                : `invitation:invite.${reason}`
+            ),
+          });
+          return;
+        }
+        if (reason === 'emailFailed') {
+          toast.error(t('invitation:invite.emailFailed'));
+          return;
+        }
+        if (reason === 'systemRoleRequired') {
+          form.setError('roleIds', {
+            message: t('invitation:invite.systemRoleRequired'),
+          });
           return;
         }
         toast.error(
@@ -235,12 +277,27 @@ const InviteButton = () => {
     })
   );
 
-  const roleOptions = (rolesQuery.data?.items ?? []).map((role) => ({
-    value: role.id,
-    label: role.externalSystem
-      ? `${role.name} · ${role.externalSystem.label ?? role.externalSystem.name}`
-      : role.name,
-  }));
+  const roles = rolesQuery.data?.items ?? [];
+  // Systems that have roles to give; this center comes first
+  const systems = [
+    ...new Map(
+      roles
+        .filter((role) => role.externalSystem)
+        .map((role) => [role.externalSystem!.id, role.externalSystem!])
+    ).values(),
+  ];
+  const systemOptions = [
+    { value: LOCAL_SYSTEM, label: t('invitation:invite.localSystem') },
+    ...systems.map((system) => ({
+      value: system.id,
+      label: system.label ?? system.name,
+    })),
+  ];
+  const roleOptions = roles
+    .filter((role) =>
+      systemId === LOCAL_SYSTEM ? !role.systemId : role.systemId === systemId
+    )
+    .map((role) => ({ value: role.id, label: role.name }));
 
   return (
     <>
@@ -262,7 +319,13 @@ const InviteButton = () => {
           </ResponsiveDrawerHeader>
           <Form
             {...form}
-            onSubmit={(values) => invite.mutate(values)}
+            onSubmit={(values) =>
+              invite.mutate({
+                ...values,
+                systemId:
+                  values.systemId === LOCAL_SYSTEM ? null : values.systemId,
+              })
+            }
             className="flex flex-col gap-4 px-4 pb-2 sm:px-6"
           >
             <FormField>
@@ -274,6 +337,32 @@ const InviteButton = () => {
                 placeholder="nombre@empresa.com"
                 autoFocus
               />
+              {existingUserId && (
+                <FormFieldHelper>
+                  <Link
+                    to="/manager/users/$id/update"
+                    params={{ id: existingUserId }}
+                    className="font-medium underline underline-offset-4"
+                  >
+                    {t('invitation:invite.openUser')}
+                  </Link>
+                </FormFieldHelper>
+              )}
+            </FormField>
+            <FormField>
+              <FormFieldLabel>{t('invitation:invite.system')}</FormFieldLabel>
+              <FormFieldController
+                type="select"
+                control={form.control}
+                name="systemId"
+                items={systemOptions}
+                onValueChange={() => form.setValue('roleIds', [])}
+              />
+              <FormFieldHelper>
+                {systemId === LOCAL_SYSTEM
+                  ? t('invitation:invite.systemLocalHelper')
+                  : t('invitation:invite.systemExternalHelper')}
+              </FormFieldHelper>
             </FormField>
             <FormField>
               <FormFieldLabel>{t('invitation:invite.roles')}</FormFieldLabel>
@@ -308,7 +397,14 @@ const ResendButton = (props: { id: string }) => {
         await invalidate();
         toast.success(t('invitation:resend.success'));
       },
-      onError: () => toast.error(t('invitation:invite.error')),
+      onError: (error) =>
+        toast.error(
+          error instanceof ORPCError &&
+            (error.data as { reason?: string } | undefined)?.reason ===
+              'emailFailed'
+            ? t('invitation:resend.emailFailed')
+            : t('invitation:invite.error')
+        ),
     })
   );
   return (

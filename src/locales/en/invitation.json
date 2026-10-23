@@ -25,11 +25,20 @@
     "userExists": "A user with this email already exists",
     "pendingInvitation": "This email already has a pending invitation: resend it from the list",
     "forbidden": "You cannot give roles with permissions you do not hold",
-    "error": "The operation could not be completed"
+    "error": "The operation could not be completed",
+    "system": "System",
+    "localSystem": "Nucleo Admin (this center)",
+    "systemLocalHelper": "To manage the identity center. Roles are optional.",
+    "systemExternalHelper": "The person signs in from that system. Pick at least one of its roles.",
+    "systemRoleRequired": "Pick at least one role of the system",
+    "userExistsSystem": "They already have an account: to give them access to this system, assign the role on their profile",
+    "openUser": "Open their profile",
+    "emailFailed": "The email could not be sent (is the mail server running?). The invitation was not saved."
   },
   "resend": {
     "button": "Resend",
-    "success": "Invitation resent (expires in 7 days)"
+    "success": "Invitation resent (expires in 7 days)",
+    "emailFailed": "The email could not be sent: the invitation is unchanged"
   },
   "revoke": {
     "button": "Revoke",

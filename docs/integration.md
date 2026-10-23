@@ -31,6 +31,13 @@ In **Manager → External systems → New**, then on the system's page:
    (the secret is shown once) into the system's backend configuration.
 3. Give users roles or privileges for the system (Manager → Roles / Users).
 
+People without an account join through **Manager → Users → Invitations**:
+pick the system and at least one of its roles. The email links to the
+system's app (the origin of its first web redirect URI, so list the
+frontend's callback first); the person signs in there with the invited
+email and gets the roles. People who already have an account get access by
+assigning them a role of the system on their profile.
+
 ## 2. Sign users in (frontend)
 
 Authorization Code + PKCE against the URLs in the discovery document:

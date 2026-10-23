@@ -1,8 +1,8 @@
 import { expo } from '@better-auth/expo';
 import { oauthProvider } from '@better-auth/oauth-provider';
 import { betterAuth } from 'better-auth';
-import { APIError } from 'better-auth/api';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { APIError } from 'better-auth/api';
 import { admin, emailOTP, jwt, openAPI, twoFactor } from 'better-auth/plugins';
 import { match } from 'ts-pattern';
 

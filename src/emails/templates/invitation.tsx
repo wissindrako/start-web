@@ -16,25 +16,33 @@ import { styles } from '@/emails/styles';
 export const TemplateInvitation = (props: {
   language: string;
   url: string;
+  // Empty when the invitation is to this center
+  systemName?: string;
   invitedByName: string;
   expiresAt: string;
 }) => {
   i18n.changeLanguage(props.language);
+  const system = props.systemName ? { system: props.systemName } : null;
+  const introKey = system ? 'introSystem' : 'intro';
+  const intro = props.invitedByName
+    ? i18n.t(`emails:invitation.${introKey}By`, {
+        name: props.invitedByName,
+        ...system,
+      })
+    : i18n.t(`emails:invitation.${introKey}`, { ...system });
   return (
     <EmailLayout
       preview={i18n.t('emails:invitation.preview')}
       language={props.language}
     >
       <Container style={styles.container}>
-        <Heading style={styles.h1}>{i18n.t('emails:invitation.title')}</Heading>
+        <Heading style={styles.h1}>
+          {system
+            ? i18n.t('emails:invitation.titleSystem', system)
+            : i18n.t('emails:invitation.title')}
+        </Heading>
         <Section style={styles.section}>
-          <Text style={styles.text}>
-            {props.invitedByName
-              ? i18n.t('emails:invitation.introBy', {
-                  name: props.invitedByName,
-                })
-              : i18n.t('emails:invitation.intro')}
-          </Text>
+          <Text style={styles.text}>{intro}</Text>
           <Button style={styles.button} href={props.url}>
             {i18n.t('emails:invitation.action')}
           </Button>
