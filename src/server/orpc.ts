@@ -7,6 +7,7 @@ import { match } from 'ts-pattern';
 
 import { envClient } from '@/env/client';
 import { Permission } from '@/features/auth/permissions';
+import { requiresTwoFactor } from '@/server/access-settings';
 import { auth } from '@/server/auth';
 import { db } from '@/server/db';
 import { Prisma } from '@/server/db/generated/client';
@@ -214,6 +215,18 @@ export const protectedProcedure = ({
     // and needs at least ONE matching action per subject
     if (!satisfiesPermission(userPermissions, permission)) {
       throw new ORPCError('FORBIDDEN');
+    }
+
+    // The access settings require two-factor authentication: nothing but
+    // the account itself until it is set up
+    if (
+      !user.twoFactorEnabled &&
+      (await requiresTwoFactor(user.id, userPermissions))
+    ) {
+      throw new ORPCError('FORBIDDEN', {
+        message: 'Two-factor authentication must be set up first',
+        data: { reason: 'twoFactorRequired' },
+      });
     }
 
     return await next({ context: { user, session } });

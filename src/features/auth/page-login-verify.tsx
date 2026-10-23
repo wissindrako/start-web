@@ -15,21 +15,14 @@ import {
 import { Button } from '@/components/ui/button';
 import { ButtonLink } from '@/components/ui/button-link';
 
+import { useAccessSettings } from '@/features/access-settings/use-access-settings';
 import { authClient } from '@/features/auth/client';
-import {
-  AUTH_EMAIL_OTP_EXPIRATION_IN_MINUTES,
-  AUTH_SIGNUP_ENABLED,
-} from '@/features/auth/config';
 import { useMascot } from '@/features/auth/mascot';
 import {
   FormFieldsLoginVerify,
   zFormFieldsLoginVerify,
 } from '@/features/auth/schema';
 import { LoginEmailOtpHint } from '@/features/devtools/login-hint';
-
-const I18N_KEY_PAGE_PREFIX = AUTH_SIGNUP_ENABLED
-  ? ('auth:pageLoginVerifyWithSignUp' as const)
-  : ('auth:pageLoginVerify' as const);
 
 export default function PageLoginVerify({
   search,
@@ -39,6 +32,10 @@ export default function PageLoginVerify({
   const { t } = useTranslation(['auth', 'common']);
   const session = authClient.useSession();
   const router = useRouter();
+  const { settings } = useAccessSettings();
+  const I18N_KEY_PAGE_PREFIX = settings.signupEnabled
+    ? ('auth:pageLoginVerifyWithSignUp' as const)
+    : ('auth:pageLoginVerify' as const);
 
   const form = useForm({
     mode: 'onSubmit',
@@ -133,7 +130,7 @@ export default function PageLoginVerify({
           />
           <FormFieldHelper className="text-xs">
             {t(`${I18N_KEY_PAGE_PREFIX}.expireHint`, {
-              expiration: AUTH_EMAIL_OTP_EXPIRATION_IN_MINUTES,
+              expiration: settings.loginCodeMinutes,
             })}
           </FormFieldHelper>
         </FormField>

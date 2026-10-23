@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TwoFactorSetupRouteImport } from './routes/two-factor-setup'
 import { Route as LogoutRouteImport } from './routes/logout'
 import { Route as ManagerRouteRouteImport } from './routes/manager/route'
 import { Route as LoginRouteRouteImport } from './routes/login/route'
@@ -54,6 +55,11 @@ import { Route as ManagerRolesIdUpdateIndexRouteImport } from './routes/manager/
 import { Route as ManagerExternalSystemsIdUpdateIndexRouteImport } from './routes/manager/external-systems/$id.update.index'
 import { Route as ManagerBooksIdUpdateIndexRouteImport } from './routes/manager/books/$id.update.index'
 
+const TwoFactorSetupRoute = TwoFactorSetupRouteImport.update({
+  id: '/two-factor-setup',
+  path: '/two-factor-setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LogoutRoute = LogoutRouteImport.update({
   id: '/logout',
   path: '/logout',
@@ -290,6 +296,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRouteRouteWithChildren
   '/manager': typeof ManagerRouteRouteWithChildren
   '/logout': typeof LogoutRoute
+  '/two-factor-setup': typeof TwoFactorSetupRoute
   '/api/upload': typeof ApiUploadRoute
   '/app/': typeof AppIndexRoute
   '/login/': typeof LoginIndexRoute
@@ -333,6 +340,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/logout': typeof LogoutRoute
+  '/two-factor-setup': typeof TwoFactorSetupRoute
   '/api/upload': typeof ApiUploadRoute
   '/app': typeof AppIndexRoute
   '/login': typeof LoginIndexRoute
@@ -380,6 +388,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRouteRouteWithChildren
   '/manager': typeof ManagerRouteRouteWithChildren
   '/logout': typeof LogoutRoute
+  '/two-factor-setup': typeof TwoFactorSetupRoute
   '/api/upload': typeof ApiUploadRoute
   '/app/': typeof AppIndexRoute
   '/login/': typeof LoginIndexRoute
@@ -428,6 +437,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/manager'
     | '/logout'
+    | '/two-factor-setup'
     | '/api/upload'
     | '/app/'
     | '/login/'
@@ -471,6 +481,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/logout'
+    | '/two-factor-setup'
     | '/api/upload'
     | '/app'
     | '/login'
@@ -517,6 +528,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/manager'
     | '/logout'
+    | '/two-factor-setup'
     | '/api/upload'
     | '/app/'
     | '/login/'
@@ -564,6 +576,7 @@ export interface RootRouteChildren {
   LoginRouteRoute: typeof LoginRouteRouteWithChildren
   ManagerRouteRoute: typeof ManagerRouteRouteWithChildren
   LogoutRoute: typeof LogoutRoute
+  TwoFactorSetupRoute: typeof TwoFactorSetupRoute
   ApiUploadRoute: typeof ApiUploadRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiOpenapiAppRoute: typeof ApiOpenapiAppRouteWithChildren
@@ -575,6 +588,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/two-factor-setup': {
+      id: '/two-factor-setup'
+      path: '/two-factor-setup'
+      fullPath: '/two-factor-setup'
+      preLoaderRoute: typeof TwoFactorSetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/logout': {
       id: '/logout'
       path: '/logout'
@@ -1007,6 +1027,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRouteRoute: LoginRouteRouteWithChildren,
   ManagerRouteRoute: ManagerRouteRouteWithChildren,
   LogoutRoute: LogoutRoute,
+  TwoFactorSetupRoute: TwoFactorSetupRoute,
   ApiUploadRoute: ApiUploadRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiOpenapiAppRoute: ApiOpenapiAppRouteWithChildren,

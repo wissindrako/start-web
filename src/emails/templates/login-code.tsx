@@ -5,11 +5,11 @@ import i18n from '@/lib/i18n';
 import { EmailFooter } from '@/emails/components/email-footer';
 import { EmailLayout } from '@/emails/components/email-layout';
 import { styles } from '@/emails/styles';
-import { AUTH_EMAIL_OTP_EXPIRATION_IN_MINUTES } from '@/features/auth/config';
 
 export const TemplateLoginCode = (props: {
   language: string;
   code: string;
+  expirationInMinutes: number | string;
 }) => {
   i18n.changeLanguage(props.language);
   return (
@@ -24,7 +24,7 @@ export const TemplateLoginCode = (props: {
           <Text style={styles.code}>{props.code}</Text>
           <Text style={styles.textMuted}>
             {i18n.t('emails:loginCode.validityTime', {
-              expiration: AUTH_EMAIL_OTP_EXPIRATION_IN_MINUTES,
+              expiration: props.expirationInMinutes,
             })}
             <br />
             {i18n.t('emails:loginCode.ignoreHelper')}

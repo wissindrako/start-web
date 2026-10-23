@@ -276,6 +276,24 @@ model SystemConfig {
   @@map("system_config")
 }
 
+// Who can get in and how: set from the manager; while there is no row the
+// defaults in src/server/access-settings.ts apply
+model AccessSettings {
+  id                String   @id @default("singleton")
+  // false: accounts only by invitation or created by an admin
+  signupEnabled     Boolean
+  // Email domains new accounts and invitations may use; empty: any
+  allowedDomains    Json
+  loginCodeMinutes  Int
+  invitationDays    Int
+  // off, managers (who can open the manager) or everyone
+  twoFactorRequired String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("access_settings")
+}
+
 // Mail settings saved from the manager; while there are none, the center
 // sends with EMAIL_SERVER and EMAIL_FROM from the environment
 model MailSettings {

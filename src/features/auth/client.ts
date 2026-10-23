@@ -57,6 +57,28 @@ const getSignedQuery = () => {
   return pending && exp * 1000 > Date.now() ? pending : null;
 };
 
+/**
+ * For pages outside /login that resume the authorization flow themselves
+ * (/two-factor-setup): takes the signed query off the URL, so requests made
+ * on the page do not resume it before the page is done.
+ */
+const TAKEN_OAUTH_QUERY = 'taken-oauth-query';
+
+export const takeSignedOAuthQuery = () => {
+  const search = new URLSearchParams(window.location.search);
+  if (search.has('sig')) {
+    sessionStorage.setItem(
+      TAKEN_OAUTH_QUERY,
+      restoreSignedQuery(search).toString()
+    );
+    window.history.replaceState(null, '', window.location.pathname);
+  }
+  // Also after a reload, until the signed query expires
+  const taken = sessionStorage.getItem(TAKEN_OAUTH_QUERY);
+  const exp = Number(new URLSearchParams(taken ?? '').get('exp'));
+  return taken && exp * 1000 > Date.now() ? taken : null;
+};
+
 const signedOAuthQueryClient = () =>
   ({
     id: 'signed-oauth-query',

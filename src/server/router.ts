@@ -1,5 +1,6 @@
 import { InferRouterInputs, InferRouterOutputs } from '@orpc/server';
 
+import accessSettingsRouter from './routers/access-settings';
 import accountRouter from './routers/account';
 import bookRouter from './routers/book';
 import configRouter from './routers/config';
@@ -18,6 +19,7 @@ export type Router = typeof router;
 export type Inputs = InferRouterInputs<typeof router>;
 export type Outputs = InferRouterOutputs<typeof router>;
 export const router = {
+  accessSettings: accessSettingsRouter,
   account: accountRouter,
   book: bookRouter,
   externalApi: externalApiRouter,

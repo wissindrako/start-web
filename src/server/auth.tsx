@@ -2,7 +2,11 @@ import { expo } from '@better-auth/expo';
 import { oauthProvider } from '@better-auth/oauth-provider';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { APIError } from 'better-auth/api';
+import {
+  APIError,
+  createAuthMiddleware,
+  getSessionFromCtx,
+} from 'better-auth/api';
 import { admin, emailOTP, jwt, openAPI, twoFactor } from 'better-auth/plugins';
 import { match } from 'ts-pattern';
 
@@ -11,12 +15,15 @@ import i18n from '@/lib/i18n';
 import TemplateLoginCode from '@/emails/templates/login-code';
 import { envClient } from '@/env/client';
 import { envServer } from '@/env/server';
-import {
-  AUTH_EMAIL_OTP_EXPIRATION_IN_MINUTES,
-  AUTH_EMAIL_OTP_MOCKED,
-  AUTH_SIGNUP_ENABLED,
-} from '@/features/auth/config';
+import { isEmailDomainAllowed } from '@/features/access-settings/domains';
+import { AUTH_EMAIL_OTP_MOCKED } from '@/features/auth/config';
 import { permissions } from '@/features/auth/permissions';
+import {
+  ACCESS_DEFAULTS,
+  getAccessSettings,
+  mustSetUpTwoFactor,
+  requiresTwoFactor,
+} from '@/server/access-settings';
 import { db } from '@/server/db';
 import { sendEmail } from '@/server/email';
 import { SERVICE_SCOPES } from '@/server/identity-tokens';
@@ -24,15 +31,39 @@ import { acceptInvitation, findPendingInvitation } from '@/server/invitations';
 import { getEffectivePermissions, hasPermissions } from '@/server/permissions';
 import { getUserLanguage } from '@/server/utils';
 
-// Sign-up closed: only existing users and invited emails get a login code
-// (others get nothing, the same answer as for any email)
+// Existing users always get a login code. A new email only when it could
+// create its account: sign-up open or invited, and from an allowed domain.
+// Others get nothing, the same answer as for any email.
 async function canSignIn(email: string) {
-  if (AUTH_SIGNUP_ENABLED) return true;
   const user = await db.user.findUnique({
     where: { email: email.toLowerCase() },
     select: { id: true },
   });
-  return !!user || !!(await findPendingInvitation(db, email));
+  if (user) return true;
+  return await canCreateAccount(email);
+}
+
+async function canCreateAccount(email: string) {
+  const { signupEnabled, allowedDomains } = await getAccessSettings();
+  if (!isEmailDomainAllowed(email, allowedDomains)) return false;
+  return signupEnabled || !!(await findPendingInvitation(db, email));
+}
+
+// Fresh login codes (attempt count 0) last what the access settings say;
+// a failed attempt rewrites the code with its original expiration
+const SIGN_IN_CODE = /^sign-in-otp-/;
+async function loginCodeExpiration(verification: {
+  identifier: string;
+  value: string;
+}) {
+  if (
+    !SIGN_IN_CODE.test(verification.identifier) ||
+    !verification.value.endsWith(':0')
+  ) {
+    return undefined;
+  }
+  const { loginCodeMinutes } = await getAccessSettings();
+  return new Date(Date.now() + loginCodeMinutes * 60_000);
 }
 
 async function canManageExternalSystems(userId: string | undefined) {
@@ -103,6 +134,18 @@ export const auth = betterAuth({
     updateAge: envServer.AUTH_SESSION_UPDATE_AGE_IN_SECONDS,
   },
   trustedOrigins: envServer.AUTH_TRUSTED_ORIGINS,
+  hooks: {
+    // Required by the access settings: it cannot be turned off
+    before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path !== '/two-factor/disable') return;
+      const session = await getSessionFromCtx(ctx);
+      if (session && (await requiresTwoFactor(session.user.id))) {
+        throw new APIError('FORBIDDEN', {
+          message: 'Two-factor authentication is required for this account',
+        });
+      }
+    }),
+  },
   database: prismaAdapter(db, {
     provider: 'mysql',
   }),
@@ -122,7 +165,8 @@ export const auth = betterAuth({
       enabled: !!(envServer.GITHUB_CLIENT_ID && envServer.GITHUB_CLIENT_SECRET),
       clientId: envServer.GITHUB_CLIENT_ID!,
       clientSecret: envServer.GITHUB_CLIENT_SECRET!,
-      disableImplicitSignUp: !AUTH_SIGNUP_ENABLED,
+      // Who may create an account is checked in databaseHooks below
+      disableImplicitSignUp: false,
     },
   },
 
@@ -141,7 +185,8 @@ export const auth = betterAuth({
       // who may join is checked when the code is sent and when the user is
       // created (databaseHooks below)
       disableSignUp: false,
-      expiresIn: AUTH_EMAIL_OTP_EXPIRATION_IN_MINUTES * 60,
+      // Overridden per code with the access settings (databaseHooks below)
+      expiresIn: ACCESS_DEFAULTS.loginCodeMinutes * 60,
       // Use predictable mocked code in dev and demo
       ...(import.meta.env.DEV || envClient.VITE_IS_DEMO
         ? { generateOTP: () => AUTH_EMAIL_OTP_MOCKED }
@@ -150,13 +195,18 @@ export const auth = betterAuth({
         await match(type)
           .with('sign-in', async () => {
             if (!(await canSignIn(email))) return;
+            const { loginCodeMinutes } = await getAccessSettings();
             await sendEmail({
               to: email,
               subject: i18n.t('emails:loginCode.subject', {
                 lng: getUserLanguage(),
               }),
               template: (
-                <TemplateLoginCode language={getUserLanguage()} code={otp} />
+                <TemplateLoginCode
+                  language={getUserLanguage()}
+                  code={otp}
+                  expirationInMinutes={loginCodeMinutes}
+                />
               ),
             });
           })
@@ -199,6 +249,13 @@ export const auth = betterAuth({
       // who manage external systems can create or change them
       clientPrivileges: ({ user }) => canManageExternalSystems(user?.id),
       resourcePrivileges: ({ user }) => canManageExternalSystems(user?.id),
+      // Two-factor authentication required by the access settings and not
+      // set up yet: the user sets it up before going back to the system
+      postLogin: {
+        page: '/two-factor-setup',
+        consentReferenceId: () => undefined,
+        shouldRedirect: ({ user }) => mustSetUpTwoFactor(user.id),
+      },
     }),
   ],
   databaseHooks: {
@@ -206,10 +263,16 @@ export const auth = betterAuth({
       create: {
         before: async (user, context) => {
           if (envClient.VITE_IS_DEMO) throw new Error('DEMO MODE');
+          const { signupEnabled, allowedDomains } = await getAccessSettings();
+          if (!isEmailDomainAllowed(user.email, allowedDomains)) {
+            throw new APIError('FORBIDDEN', {
+              message: 'This email domain is not allowed',
+            });
+          }
           // Sign-up closed: an account can only be created by an admin or
           // from an invitation
           if (
-            !AUTH_SIGNUP_ENABLED &&
+            !signupEnabled &&
             context?.path !== '/admin/create-user' &&
             !(await findPendingInvitation(db, user.email))
           ) {
@@ -240,6 +303,16 @@ export const auth = betterAuth({
         before: async (user) => {
           if (envClient.VITE_IS_DEMO) throw new Error('DEMO MODE');
           return { data: user };
+        },
+      },
+    },
+    verification: {
+      create: {
+        before: async (verification) => {
+          const expiresAt = await loginCodeExpiration(verification);
+          return expiresAt
+            ? { data: { ...verification, expiresAt } }
+            : { data: verification };
         },
       },
     },

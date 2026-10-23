@@ -92,7 +92,8 @@
       }
     },
     "form": {
-      "emailAlreadyExist": "Email already used"
+      "emailAlreadyExist": "Email already used",
+      "domainNotAllowed": "Only emails from {{domains}} are allowed"
     },
     "new": {
       "title": "New User",

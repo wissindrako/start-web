@@ -20,6 +20,7 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import { envClient } from '@/env/client';
+import { AccessSettingsCard } from '@/features/access-settings/manager/access-settings-card';
 import { MailSettingsCard } from '@/features/mail-settings/manager/mail-settings-card';
 import { FormFieldsSystemConfig } from '@/features/system-config/schema';
 import {
@@ -125,6 +126,7 @@ export const PageSystemConfig = () => {
                 )}
               </CardContent>
             </Card>
+            <AccessSettingsCard />
             <MailSettingsCard />
           </div>
         </PageLayoutContent>

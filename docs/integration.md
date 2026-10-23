@@ -83,6 +83,13 @@ openid-client, Laravel Socialite drivers, Spring Security...). A minimal
 browser implementation without dependencies is `src/services/auth/oidc.ts`
 in the reference frontend.
 
+The center applies its access settings (Manager → System Settings →
+Security and access) during this flow, so systems need nothing for them:
+who may create an account (sign-up, allowed email domains), how long the
+login code lasts, and required two-factor authentication. A user who must
+set it up and has not is sent to the center's `/two-factor-setup` before the
+authorization goes on to the system's callback.
+
 ## 3. Validate tokens (backend)
 
 Each request carries a JWT. Validate, with any JOSE/JWT library:

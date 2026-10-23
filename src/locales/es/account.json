@@ -67,6 +67,7 @@
     "disabled": "Verificación en dos pasos desactivada",
     "disableConfirmTitle": "¿Desactivar la verificación en dos pasos?",
     "disableConfirmDescription": "Para iniciar sesión alcanzará con el código por email.",
-    "error": "No se pudo completar la operación"
+    "error": "No se pudo completar la operación",
+    "required": "Es obligatoria para tu cuenta: no se puede desactivar."
   }
 }

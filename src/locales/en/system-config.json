@@ -56,6 +56,33 @@
         "success": "Test email sent to {{to}}",
         "error": "Could not send: {{detail}}"
       }
+    },
+    "access": {
+      "title": "Security and access",
+      "description": "Who can have an account and how they sign in, in the center and in the connected systems.",
+      "signup": "Sign-up",
+      "signupModes": {
+        "invitation": "By invitation only (or created by an admin)",
+        "open": "Open: anyone can create an account"
+      },
+      "allowedDomains": "Allowed email domains",
+      "allowedDomainsHelper": "One per line or comma separated. Empty: any domain. Applies to new accounts and invitations; existing accounts do not change.",
+      "invalidDomains": "There is an invalid domain (valid example: company.com)",
+      "loginCodeMinutes": "Login code validity (minutes)",
+      "invitationDays": "Invitation validity (days)",
+      "range": "Between {{min}} and {{max}}.",
+      "required": "Required",
+      "twoFactorRequired": "Required two-factor authentication",
+      "twoFactorPolicies": {
+        "off": "No, each user decides",
+        "managers": "For those who manage (manager access)",
+        "everyone": "For everyone"
+      },
+      "twoFactorHelper": "Whoever does not have it will set it up when signing in, also from the connected systems.",
+      "twoFactorAppliesToMe": "You do not have it: after saving you will have to set it up to go on.",
+      "save": "Save security",
+      "saveSuccess": "Security and access saved",
+      "saveError": "Could not save"
     }
   }
 }

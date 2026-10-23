@@ -67,6 +67,7 @@
     "disabled": "Two-step verification turned off",
     "disableConfirmTitle": "Turn off two-step verification?",
     "disableConfirmDescription": "The email code will be enough to sign in.",
-    "error": "The operation could not be completed"
+    "error": "The operation could not be completed",
+    "required": "It is required for your account: it cannot be turned off."
   }
 }

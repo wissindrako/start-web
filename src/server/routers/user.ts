@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { zRole } from '@/features/role/schema';
 import { zSession, zUser } from '@/features/user/schema';
+import { assertEmailDomainAllowed } from '@/server/access-settings';
 import { auth } from '@/server/auth';
 import { Prisma } from '@/server/db/generated/client';
 import { protectedProcedure } from '@/server/orpc';
@@ -185,6 +186,10 @@ export default {
         throw new ORPCError('NOT_FOUND');
       }
 
+      if (currentUser.email !== input.email) {
+        await assertEmailDomainAllowed(input.email);
+      }
+
       context.logger.info('Update user');
       return await context.db.user.update({
         where: { id: input.id },
@@ -225,6 +230,8 @@ export default {
           message: 'Only admins can create admin users',
         });
       }
+
+      await assertEmailDomainAllowed(input.email);
 
       return await context.db.user.create({
         data: {

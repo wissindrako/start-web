@@ -14,15 +14,11 @@ import {
 import { Button } from '@/components/ui/button';
 
 import { envClient } from '@/env/client';
+import { useAccessSettings } from '@/features/access-settings/use-access-settings';
 import { authClient } from '@/features/auth/client';
-import { AUTH_SIGNUP_ENABLED } from '@/features/auth/config';
 import { useMascot } from '@/features/auth/mascot';
 import { FormFieldsLogin, zFormFieldsLogin } from '@/features/auth/schema';
 import { LoginEmailHint } from '@/features/devtools/login-hint';
-
-const I18N_KEY_PAGE_PREFIX = AUTH_SIGNUP_ENABLED
-  ? ('auth:pageLoginWithSignUp' as const)
-  : ('auth:pageLogin' as const);
 
 export default function PageLogin({
   search,
@@ -31,6 +27,10 @@ export default function PageLogin({
 }) {
   const { t } = useTranslation(['auth', 'common']);
   const router = useRouter();
+  const { settings } = useAccessSettings();
+  const I18N_KEY_PAGE_PREFIX = settings.signupEnabled
+    ? ('auth:pageLoginWithSignUp' as const)
+    : ('auth:pageLogin' as const);
   // Invitation links come with the invited email
   const { email: invitedEmail } = useSearch({ strict: false });
   const social = useMutation({

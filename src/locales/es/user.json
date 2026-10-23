@@ -92,7 +92,8 @@
       }
     },
     "form": {
-      "emailAlreadyExist": "Correo electrónico ya utilizado"
+      "emailAlreadyExist": "Correo electrónico ya utilizado",
+      "domainNotAllowed": "Solo se permiten correos de {{domains}}"
     },
     "new": {
       "title": "Nuevo Usuario",

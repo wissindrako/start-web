@@ -2,7 +2,10 @@ import { ORPCError } from '@orpc/client';
 import dayjs from 'dayjs';
 import { z } from 'zod';
 
-import { INVITATION_EXPIRATION_IN_DAYS } from '@/features/auth/config';
+import {
+  assertEmailDomainAllowed,
+  getAccessSettings,
+} from '@/server/access-settings';
 import { db } from '@/server/db';
 import {
   InvitationEmailError,
@@ -75,8 +78,10 @@ const toInvitation = <T extends { acceptedAt: Date | null; expiresAt: Date }>(
   invitation: T
 ) => ({ ...invitation, status: statusOf(invitation) });
 
-const newExpiration = () =>
-  dayjs().add(INVITATION_EXPIRATION_IN_DAYS, 'day').toDate();
+const newExpiration = async () => {
+  const { invitationDays } = await getAccessSettings();
+  return dayjs().add(invitationDays, 'day').toDate();
+};
 
 export default {
   getAll: protectedProcedure({ permission: { user: ['list'] } })
@@ -111,6 +116,7 @@ export default {
     .output(zInvitation())
     .handler(async ({ context, input }) => {
       const email = normalizeEmail(input.email);
+      await assertEmailDomainAllowed(email);
 
       const existing = await context.db.user.findUnique({ where: { email } });
       if (existing) {
@@ -139,7 +145,7 @@ export default {
         data: {
           email,
           systemId,
-          expiresAt: newExpiration(),
+          expiresAt: await newExpiration(),
           invitedById: context.user.id,
           roles: { connect: input.roleIds.map((id) => ({ id })) },
         },
@@ -180,10 +186,11 @@ export default {
           message: 'The invitation was already accepted',
         });
       }
+      await assertEmailDomainAllowed(current.email);
 
       const invitation = await context.db.invitation.update({
         where: { id: input.id },
-        data: { expiresAt: newExpiration() },
+        data: { expiresAt: await newExpiration() },
         include,
       });
       try {

@@ -49,10 +49,7 @@ import {
 } from '@/components/ui/responsive-drawer';
 import { ResponsiveIconButton } from '@/components/ui/responsive-icon-button';
 
-import {
-  AUTH_SIGNUP_ENABLED,
-  INVITATION_EXPIRATION_IN_DAYS,
-} from '@/features/auth/config';
+import { useAccessSettings } from '@/features/access-settings/use-access-settings';
 import { WithPermissions } from '@/features/auth/with-permission';
 import {
   PageLayout,
@@ -75,9 +72,13 @@ const useInvalidateInvitations = () => {
 
 // Invitations to join while public sign-up is closed: who was invited,
 // with which roles, and whether they already joined
+const formatDomains = (domains: string[]) =>
+  domains.map((domain) => `@${domain}`).join(', ');
+
 export const PageInvitations = () => {
   const { t } = useTranslation(['invitation']);
   const invitationsQuery = useQuery(orpc.invitation.getAll.queryOptions());
+  const { settings } = useAccessSettings();
 
   const ui = getUiState((set) => {
     if (invitationsQuery.status === 'pending') return set('pending');
@@ -113,7 +114,7 @@ export const PageInvitations = () => {
       </PageLayoutTopBar>
       <PageLayoutContent className="flex flex-col gap-4">
         <p className="text-sm text-muted-foreground">
-          {AUTH_SIGNUP_ENABLED
+          {settings.signupEnabled
             ? t('invitation:list.signupOpen')
             : t('invitation:list.signupClosed')}
         </p>
@@ -217,6 +218,7 @@ type FormFieldsInvitation = z.infer<ReturnType<typeof zFormFieldsInvitation>>;
 
 const InviteButton = () => {
   const { t } = useTranslation(['invitation']);
+  const { settings } = useAccessSettings();
   const [isOpen, setIsOpen] = useState(false);
   const invalidate = useInvalidateInvitations();
   const rolesQuery = useQuery(
@@ -260,6 +262,14 @@ const InviteButton = () => {
         }
         if (reason === 'emailFailed') {
           toast.error(t('invitation:invite.emailFailed'));
+          return;
+        }
+        if (reason === 'domainNotAllowed') {
+          form.setError('email', {
+            message: t('invitation:invite.domainNotAllowed', {
+              domains: formatDomains(settings.allowedDomains),
+            }),
+          });
           return;
         }
         if (reason === 'systemRoleRequired') {
@@ -313,7 +323,7 @@ const InviteButton = () => {
             </ResponsiveDrawerTitle>
             <ResponsiveDrawerDescription>
               {t('invitation:invite.description', {
-                days: INVITATION_EXPIRATION_IN_DAYS,
+                days: settings.invitationDays,
               })}
             </ResponsiveDrawerDescription>
           </ResponsiveDrawerHeader>
@@ -337,6 +347,13 @@ const InviteButton = () => {
                 placeholder="nombre@empresa.com"
                 autoFocus
               />
+              {!!settings.allowedDomains.length && !existingUserId && (
+                <FormFieldHelper>
+                  {t('invitation:invite.allowedDomains', {
+                    domains: formatDomains(settings.allowedDomains),
+                  })}
+                </FormFieldHelper>
+              )}
               {existingUserId && (
                 <FormFieldHelper>
                   <Link
@@ -397,14 +414,19 @@ const ResendButton = (props: { id: string }) => {
         await invalidate();
         toast.success(t('invitation:resend.success'));
       },
-      onError: (error) =>
-        toast.error(
-          error instanceof ORPCError &&
-            (error.data as { reason?: string } | undefined)?.reason ===
-              'emailFailed'
-            ? t('invitation:resend.emailFailed')
-            : t('invitation:invite.error')
-        ),
+      onError: (error) => {
+        const reason =
+          error instanceof ORPCError
+            ? (error.data as { reason?: string } | undefined)?.reason
+            : undefined;
+        if (reason === 'emailFailed') {
+          toast.error(t('invitation:resend.emailFailed'));
+        } else if (reason === 'domainNotAllowed') {
+          toast.error(t('invitation:resend.domainNotAllowed'));
+        } else {
+          toast.error(t('invitation:invite.error'));
+        }
+      },
     })
   );
   return (

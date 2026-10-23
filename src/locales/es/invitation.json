@@ -33,12 +33,15 @@
     "systemRoleRequired": "Elegí al menos un rol del sistema",
     "userExistsSystem": "Ya tiene cuenta: para darle acceso a este sistema, asignale el rol desde su ficha",
     "openUser": "Abrir su ficha",
-    "emailFailed": "No se pudo enviar el correo (¿está corriendo el servidor de correo?). La invitación no se guardó."
+    "emailFailed": "No se pudo enviar el correo (¿está corriendo el servidor de correo?). La invitación no se guardó.",
+    "domainNotAllowed": "Solo se puede invitar a correos de {{domains}}",
+    "allowedDomains": "Solo correos de {{domains}}"
   },
   "resend": {
     "button": "Reenviar",
     "success": "Invitación reenviada (vence en 7 días)",
-    "emailFailed": "No se pudo enviar el correo: la invitación sigue como estaba"
+    "emailFailed": "No se pudo enviar el correo: la invitación sigue como estaba",
+    "domainNotAllowed": "Este correo ya no está entre los dominios permitidos"
   },
   "revoke": {
     "button": "Revocar",

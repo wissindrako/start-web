@@ -25,6 +25,7 @@ import {
   ResponsiveDrawerTitle,
 } from '@/components/ui/responsive-drawer';
 
+import { useTwoFactorRequired } from '@/features/access-settings/use-access-settings';
 import { authClient } from '@/features/auth/client';
 
 type Setup = { qrCode: string; secret: string; backupCodes: string[] };
@@ -35,6 +36,7 @@ export const TwoFactorCard = () => {
   const { t } = useTranslation(['account']);
   const session = authClient.useSession();
   const isEnabled = !!session.data?.user.twoFactorEnabled;
+  const { required } = useTwoFactorRequired();
   const [setup, setSetup] = useState<Setup | null>(null);
   const [backupCodes, setBackupCodes] = useState<string[] | null>(null);
 
@@ -136,17 +138,23 @@ export const TwoFactorCard = () => {
               >
                 {t('account:twoFactor.regenerate')}
               </Button>
-              <ConfirmResponsiveDrawer
-                onConfirm={() => disable.mutate()}
-                title={t('account:twoFactor.disableConfirmTitle')}
-                description={t('account:twoFactor.disableConfirmDescription')}
-                confirmText={t('account:twoFactor.disable')}
-                confirmVariant="destructive"
-              >
-                <Button size="sm" variant="ghost" loading={disable.isPending}>
-                  {t('account:twoFactor.disable')}
-                </Button>
-              </ConfirmResponsiveDrawer>
+              {required ? (
+                <p className="w-full text-sm text-muted-foreground">
+                  {t('account:twoFactor.required')}
+                </p>
+              ) : (
+                <ConfirmResponsiveDrawer
+                  onConfirm={() => disable.mutate()}
+                  title={t('account:twoFactor.disableConfirmTitle')}
+                  description={t('account:twoFactor.disableConfirmDescription')}
+                  confirmText={t('account:twoFactor.disable')}
+                  confirmVariant="destructive"
+                >
+                  <Button size="sm" variant="ghost" loading={disable.isPending}>
+                    {t('account:twoFactor.disable')}
+                  </Button>
+                </ConfirmResponsiveDrawer>
+              )}
             </>
           ) : (
             <Button

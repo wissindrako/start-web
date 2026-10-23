@@ -56,6 +56,33 @@
         "success": "Correo de prueba enviado a {{to}}",
         "error": "No se pudo enviar: {{detail}}"
       }
+    },
+    "access": {
+      "title": "Seguridad y acceso",
+      "description": "Quién puede tener cuenta y cómo inicia sesión, en el centro y en los sistemas conectados.",
+      "signup": "Registro",
+      "signupModes": {
+        "invitation": "Solo por invitación (o creadas por un administrador)",
+        "open": "Abierto: cualquiera puede crear su cuenta"
+      },
+      "allowedDomains": "Dominios de correo permitidos",
+      "allowedDomainsHelper": "Uno por línea o separados por comas. Vacío: cualquier dominio. Se aplica a las cuentas nuevas y a las invitaciones; las cuentas que ya existen no cambian.",
+      "invalidDomains": "Hay un dominio inválido (ejemplo válido: empresa.com)",
+      "loginCodeMinutes": "Validez del código de acceso (minutos)",
+      "invitationDays": "Validez de las invitaciones (días)",
+      "range": "Entre {{min}} y {{max}}.",
+      "required": "Requerido",
+      "twoFactorRequired": "Verificación en dos pasos obligatoria",
+      "twoFactorPolicies": {
+        "off": "No, cada usuario decide",
+        "managers": "Para quienes administran (acceso al manager)",
+        "everyone": "Para todos"
+      },
+      "twoFactorHelper": "Quien no la tenga deberá configurarla al entrar, también desde los sistemas conectados.",
+      "twoFactorAppliesToMe": "Tú no la tienes activa: al guardar tendrás que configurarla para seguir.",
+      "save": "Guardar seguridad",
+      "saveSuccess": "Seguridad y acceso guardados",
+      "saveError": "No se pudo guardar"
     }
   }
 }
