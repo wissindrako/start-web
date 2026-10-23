@@ -24,6 +24,13 @@
     },
     "users": {
       "label": "Users"
+    },
+    "undeclared": {
+      "title": "Permissions the system no longer has",
+      "description": "The role keeps them but they grant nothing: the system stopped declaring them in its catalog. They apply again if the system declares them again.",
+      "remove": "Remove them from the role",
+      "badge": "The system no longer has this permission",
+      "short": "Permissions without effect"
     }
   },
   "scopes": {

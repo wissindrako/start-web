@@ -143,6 +143,10 @@ export default {
             name: { notIn: [...names, ACCOUNT_MODULE] },
           },
         });
+        await tx.externalSystem.update({
+          where: { id: systemId },
+          data: { catalogSyncedAt: new Date() },
+        });
 
         return tx.externalModule.findMany({
           where: { systemId },

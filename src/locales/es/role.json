@@ -24,6 +24,13 @@
     },
     "users": {
       "label": "Usuarios"
+    },
+    "undeclared": {
+      "title": "Permisos que el sistema ya no tiene",
+      "description": "El rol los conserva, pero no habilitan nada: el sistema dejó de declararlos en su catálogo. Vuelven a valer si el sistema los declara otra vez.",
+      "remove": "Quitarlos del rol",
+      "badge": "El sistema ya no tiene este permiso",
+      "short": "Permisos sin efecto"
     }
   },
   "scopes": {

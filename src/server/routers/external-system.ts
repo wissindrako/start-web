@@ -6,6 +6,7 @@ import { z } from 'zod';
 import {
   zExternalSystem,
   zExternalSystemWithKey,
+  zFormFieldsExternalModule,
   zFormFieldsExternalSystem,
 } from '@/features/external-system/schema';
 import { auth } from '@/server/auth';
@@ -178,28 +179,46 @@ export default {
     permission: { externalSystem: ['update'] },
   })
     .route({ method: 'POST', path: '/external-systems/{id}', tags })
-    .input(zFormFieldsExternalSystem().extend({ id: z.string() }))
+    .input(
+      zFormFieldsExternalSystem().extend({
+        id: z.string(),
+        // Omitted: the modules stay as they are
+        modules: z.array(zFormFieldsExternalModule()).optional(),
+      })
+    )
     .output(zExternalSystem())
     .handler(async ({ context, input }) => {
-      await assertExists(context.db, input.id);
+      const system = await assertExists(context.db, input.id);
 
-      // Replace all modules
-      await context.db.externalModule.deleteMany({
-        where: { systemId: input.id },
-      });
+      if (input.modules && system.catalogSyncedAt) {
+        throw new ORPCError('CONFLICT', {
+          message:
+            'The system publishes its own modules: change them in its code',
+          data: { reason: 'catalogManagedBySystem' },
+        });
+      }
+
+      if (input.modules) {
+        // Replace all modules
+        await context.db.externalModule.deleteMany({
+          where: { systemId: input.id },
+        });
+      }
 
       return context.db.externalSystem.update({
         where: { id: input.id },
         data: {
           name: input.name.trim().toLowerCase(),
           label: input.label ?? null,
-          modules: {
-            create: input.modules.map((m, i) => ({
-              name: m.name.trim().toLowerCase(),
-              actions: m.actions,
-              order: m.order ?? i,
-            })),
-          },
+          ...(input.modules && {
+            modules: {
+              create: input.modules.map((m, i) => ({
+                name: m.name.trim().toLowerCase(),
+                actions: m.actions,
+                order: m.order ?? i,
+              })),
+            },
+          }),
         },
         include: includeModules,
       });
@@ -549,6 +568,7 @@ function toServiceClient(clientId: string | null) {
 async function assertExists(prisma: Db, id: string) {
   const system = await prisma.externalSystem.findUnique({ where: { id } });
   if (!system) throw new ORPCError('NOT_FOUND');
+  return system;
 }
 
 function withDefaultAccountModule(

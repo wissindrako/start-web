@@ -153,7 +153,13 @@ export const PageExternalSystemUpdate = (props: { params: { id: string } }) => {
       <Form
         {...form}
         onSubmit={(values) => {
-          update.mutate({ id: props.params.id, ...values });
+          // Published by the system: its modules are not ours to send
+          const { modules, ...rest } = values;
+          update.mutate({
+            id: props.params.id,
+            ...rest,
+            ...(!systemQuery.data?.catalogSyncedAt && { modules }),
+          });
         }}
       >
         <PageLayout>
@@ -208,7 +214,9 @@ export const PageExternalSystemUpdate = (props: { params: { id: string } }) => {
           <PageLayoutContent>
             <Card>
               <CardContent>
-                <FormExternalSystem />
+                <FormExternalSystem
+                  catalogSyncedAt={systemQuery.data?.catalogSyncedAt}
+                />
               </CardContent>
             </Card>
 

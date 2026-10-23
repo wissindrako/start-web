@@ -20,6 +20,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Spinner } from '@/components/ui/spinner';
 
 import { WithPermissions } from '@/features/auth/with-permission';
+import { isDeclaredPermission } from '@/features/external-system/declared-permissions';
 import {
   PageLayout,
   PageLayoutContent,
@@ -220,16 +221,7 @@ export const PageRole = (props: { params: { id: string } }) => {
                         {role.permissions.length === 0 ? (
                           <span className="text-muted-foreground">—</span>
                         ) : (
-                          <div className="flex flex-wrap gap-2">
-                            {role.permissions.map((rp) => (
-                              <span
-                                key={rp.permissionId}
-                                className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium capitalize"
-                              >
-                                {rp.permission.subject}:{rp.permission.action}
-                              </span>
-                            ))}
-                          </div>
+                          <RolePermissionList role={role} />
                         )}
                       </dd>
                     </div>
@@ -242,5 +234,56 @@ export const PageRole = (props: { params: { id: string } }) => {
           .exhaustive()}
       </PageLayoutContent>
     </PageLayout>
+  );
+};
+
+// Permissions the system no longer declares are struck through: the role
+// keeps them but they grant nothing
+const RolePermissionList = (props: {
+  role: {
+    externalSystem?: { modules: { name: string; actions: string[] }[] } | null;
+    permissions: {
+      permissionId: string;
+      permission: { subject: string; action: string };
+    }[];
+  };
+}) => {
+  const { t } = useTranslation(['role']);
+  const modules = props.role.externalSystem?.modules;
+  const isUndeclared = (p: { subject: string; action: string }) =>
+    !!modules && !isDeclaredPermission(modules, p);
+  const hasUndeclared = props.role.permissions.some((rp) =>
+    isUndeclared(rp.permission)
+  );
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap gap-2">
+        {props.role.permissions.map((rp) =>
+          isUndeclared(rp.permission) ? (
+            <span
+              key={rp.permissionId}
+              data-undeclared
+              title={t('role:common.undeclared.badge')}
+              className="rounded-md bg-warning-100 px-2 py-0.5 text-xs font-medium text-warning-800 line-through dark:bg-warning-500/25 dark:text-warning-100"
+            >
+              {rp.permission.subject}:{rp.permission.action}
+            </span>
+          ) : (
+            <span
+              key={rp.permissionId}
+              className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium capitalize"
+            >
+              {rp.permission.subject}:{rp.permission.action}
+            </span>
+          )
+        )}
+      </div>
+      {hasUndeclared && (
+        <p className="text-xs text-warning-700 dark:text-warning-300">
+          {t('role:common.undeclared.description')}
+        </p>
+      )}
+    </div>
   );
 };

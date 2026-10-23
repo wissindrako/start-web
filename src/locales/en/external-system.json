@@ -22,7 +22,8 @@
       "placeholder": "e.g. approve, export"
     },
     "add": "Add module",
-    "remove": "Remove module"
+    "remove": "Remove module",
+    "published": "The system publishes its modules from its code (last time: {{date}}). To add or remove modules or actions, change them in the system: anything edited here would be lost on its next publication."
   },
   "actions": {
     "read": "Read",

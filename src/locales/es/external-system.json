@@ -22,7 +22,8 @@
       "placeholder": "ej. aprobar, exportar"
     },
     "add": "Agregar módulo",
-    "remove": "Eliminar módulo"
+    "remove": "Eliminar módulo",
+    "published": "El sistema publica sus módulos desde su código (última vez: {{date}}). Para agregar o quitar módulos o acciones, cambialos en el sistema: lo que se edite acá se perdería en su próxima publicación."
   },
   "actions": {
     "read": "Leer",

@@ -46,6 +46,7 @@ import {
 } from '@/components/ui/select';
 
 import { WithPermissions } from '@/features/auth/with-permission';
+import { isDeclaredPermission } from '@/features/external-system/declared-permissions';
 import {
   FormFieldsPrivilege,
   parsePermissionKey,
@@ -181,15 +182,32 @@ export const UserPrivilegesCard = (props: {
                     : t('privilege:card.noRoles')}
                 </DataListText>
                 <div className="flex flex-wrap gap-1.5">
-                  {effective.permissions.map((p) => (
-                    <Badge
-                      key={permissionKey(p)}
-                      variant={p.source === 'grant' ? 'positive' : 'secondary'}
-                      title={t(`privilege:source.${p.source}`)}
-                    >
-                      {label(p)}
-                    </Badge>
-                  ))}
+                  {effective.permissions.map((p) =>
+                    selectedSystem &&
+                    !isDeclaredPermission(selectedSystem.modules, p) ? (
+                      // Given by a role or privilege, but the system no
+                      // longer declares it: it grants nothing
+                      <Badge
+                        key={permissionKey(p)}
+                        variant="warning"
+                        className="line-through"
+                        data-undeclared
+                        title={t('role:common.undeclared.badge')}
+                      >
+                        {label(p)}
+                      </Badge>
+                    ) : (
+                      <Badge
+                        key={permissionKey(p)}
+                        variant={
+                          p.source === 'grant' ? 'positive' : 'secondary'
+                        }
+                        title={t(`privilege:source.${p.source}`)}
+                      >
+                        {label(p)}
+                      </Badge>
+                    )
+                  )}
                   {effective.denied.map((p) => (
                     <Badge
                       key={`denied-${permissionKey(p)}`}

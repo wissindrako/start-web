@@ -31,6 +31,11 @@ In **Manager → External systems → New**, then on the system's page:
    (the secret is shown once) into the system's backend configuration.
 3. Give users roles or privileges for the system (Manager → Roles / Users).
 
+Once the system publishes its catalog (`PUT /external/modules`, see
+below) its modules are read-only in the center: they are changed in the
+system's code. Roles keep permissions the catalog dropped, marked as
+without effect, and they apply again if the system declares them again.
+
 People without an account join through **Manager → Users → Invitations**:
 pick the system and at least one of its roles. The email links to the
 system's app (the origin of its first web redirect URI, so list the

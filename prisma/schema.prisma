@@ -140,6 +140,10 @@ model ExternalSystem {
   // Confidential OAuth client the system's backend uses (client_credentials)
   // to call the external API, instead of the API key
   serviceClientId     String?                  @unique
+  // Last time the system published its own module catalog (PUT
+  // /external/modules). From then on its modules are edited in its code,
+  // not here: the next publication would undo the changes.
+  catalogSyncedAt     DateTime?
   permissionOverrides UserPermissionOverride[]
   invitations         Invitation[]
   createdAt           DateTime                 @default(now())
