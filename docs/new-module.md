@@ -74,9 +74,9 @@ model MiModelo {
 }
 ```
 
-Aplicar la migración:
+Crear y aplicar la migración (revisa el SQL generado; ver [database.md](database.md)):
 ```bash
-pnpm db:push
+pnpm db:migrate --name agregar_<modulo>
 ```
 
 ---
@@ -484,7 +484,7 @@ Agregar la clave de traducción en **`src/locales/en/layout.json`** y **`src/loc
 ## Checklist rápido
 
 - [ ] `prisma/schema.prisma` — modelo + relación
-- [ ] `pnpm db:push` — migrar DB
+- [ ] `pnpm db:migrate --name agregar_<modulo>` — migración (commitear la carpeta)
 - [ ] `src/features/<modulo>/schema.ts` — schemas Zod
 - [ ] `src/features/auth/permissions.ts` — statement + roles
 - [ ] `src/features/role/schema.ts` — AVAILABLE_PERMISSIONS

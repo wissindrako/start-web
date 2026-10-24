@@ -131,7 +131,7 @@ jobs:
         run: pnpm exec playwright install --with-deps
 
       - name: Migrate database
-        run: pnpm db:push
+        run: pnpm db:deploy
 
       - name: Add default data into database
         run: pnpm db:seed

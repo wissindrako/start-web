@@ -46,13 +46,13 @@ cp .zed/settings.example.json .zed/settings.json
 cp .env.example .env  # Setup your env variables
 pnpm install          # Install dependencies
 pnpm dk:init          # Start Docker containers (PostgreSQL, MinIO, Maildev)
-pnpm db:init          # Push the Prisma schema and seed the database
+pnpm db:init          # Apply the migrations and seed the database
 ```
 
 > [!NOTE]
 > **Don't want to use docker?**
 >
-> Setup a PostgreSQL database (locally or online) and replace the **DATABASE_URL** environment variable. Then you can run `pnpm db:push` to update your database schema and then run `pnpm db:seed` to seed your database.
+> Setup a PostgreSQL database (locally or online) and replace the **DATABASE_URL** environment variable. Then you can run `pnpm db:init` to apply the migrations and seed your database. Schema changes and migrations: see [docs/database.md](docs/database.md).
 
 ## Run
 
@@ -95,7 +95,7 @@ pnpm install
 ```bash
 pnpm dk:init   # Descarga y levanta los contenedores Docker (Postgres, MinIO, Maildev)
                # También crea el bucket de MinIO en el primer arranque
-pnpm db:init   # Aplica el schema de Prisma a la BD y ejecuta el seed inicial
+pnpm db:init   # Aplica las migraciones y ejecuta el seed inicial (ver docs/database.md)
 ```
 
 **5. Configurar el IDE**
