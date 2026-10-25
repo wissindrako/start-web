@@ -1,2 +1,13 @@
-# Migrations are checksummed by Prisma: keep their bytes the same on every OS
-prisma/migrations/** text eol=lf
+# LF everywhere, on every OS, whatever core.autocrlf says (Git for Windows
+# defaults it to true). Prisma checksums each applied migration, so their
+# bytes must be the same on every machine too.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
