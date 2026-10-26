@@ -136,24 +136,24 @@ The maildev UI is available at [localhost:1080](http://localhost:1080) (port con
 
 Emails templates are built with `react-email` components in the `src/emails` folder.
 
-You can preview an email template at `http://localhost:3000/api/dev/email/{template}` where `{template}` is the name of the template file in the `src/emails/templates` folder.
+You can preview an email template at `http://localhost:3004/api/dev/email/{template}` where `{template}` is the name of the template file in the `src/emails/templates` folder.
 
-Example: [Login Code](http://localhost:3000/api/dev/email/login-code)
+Example: [Login Code](http://localhost:3004/api/dev/email/login-code)
 
 ##### Email translation preview
 
-Add the language in the preview url like `http://localhost:3000/api/dev/email/{template}?language={language}` where `{language}` is the language key (`en`, `fr`, ...)
+Add the language in the preview url like `http://localhost:3004/api/dev/email/{template}?language={language}` where `{language}` is the language key (`en`, `fr`, ...)
 
 #### Email props preview
 
 You can add search params to the preview url to pass as props to the template.
-`http://localhost:3000/api/dev/email/{template}/?{propsName}={propsValue}`
+`http://localhost:3004/api/dev/email/{template}/?{propsName}={propsValue}`
 
 ### OpenAPI Documentation for the API
 
 You can access the API documentation via the OpenAPI interface at:
 
-`http://localhost:3000/api/openapi/app`
+`http://localhost:3004/api/openapi/app`
 
 This interface allows you to:
 
