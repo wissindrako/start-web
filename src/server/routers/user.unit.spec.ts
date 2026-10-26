@@ -13,12 +13,9 @@ import {
 } from '@/server/routers/test-utils';
 import userRouter from '@/server/routers/user';
 
-const { mockRemoveUser, mockRevokeUserSessions, mockRevokeUserSession } =
-  vi.hoisted(() => ({
-    mockRemoveUser: vi.fn(),
-    mockRevokeUserSessions: vi.fn(),
-    mockRevokeUserSession: vi.fn(),
-  }));
+const { mockRemoveUser } = vi.hoisted(() => ({
+  mockRemoveUser: vi.fn(),
+}));
 
 vi.mock('@/server/auth', () => ({
   auth: {
@@ -26,9 +23,6 @@ vi.mock('@/server/auth', () => ({
       getSession: (...args: unknown[]) => mockGetSession(...args),
       userHasPermission: (...args: unknown[]) => mockUserHasPermission(...args),
       removeUser: (...args: unknown[]) => mockRemoveUser(...args),
-      revokeUserSessions: (...args: unknown[]) =>
-        mockRevokeUserSessions(...args),
-      revokeUserSession: (...args: unknown[]) => mockRevokeUserSession(...args),
     },
   },
 }));
@@ -57,22 +51,37 @@ const mockSessionFromDb = {
 
 describe('user router', () => {
   describe('getAll', () => {
+    // The list includes the assigned roles, as { role } assignments
+    const listedUserFromDb = { ...mockUserFromDb, roles: [] };
+
     it('should return paginated users with total count', async () => {
       mockDb.user.count.mockResolvedValue(1);
-      mockDb.user.findMany.mockResolvedValue([mockUserFromDb]);
+      mockDb.user.findMany.mockResolvedValue([listedUserFromDb]);
 
       const result = await call(userRouter.getAll, {});
 
       expect(result).toEqual({
-        items: [mockUserFromDb],
+        items: [listedUserFromDb],
         nextCursor: undefined,
         total: 1,
       });
     });
 
+    it('should flatten the role assignments into roles', async () => {
+      const role = { id: 'role-1', name: 'Editor' };
+      mockDb.user.count.mockResolvedValue(1);
+      mockDb.user.findMany.mockResolvedValue([
+        { ...mockUserFromDb, roles: [{ role }] },
+      ]);
+
+      const result = await call(userRouter.getAll, {});
+
+      expect(result.items[0]).toMatchObject({ roles: [role] });
+    });
+
     it('should return nextCursor when there are more items than limit', async () => {
       const usersFromDb = Array.from({ length: 4 }, (_, i) => ({
-        ...mockUserFromDb,
+        ...listedUserFromDb,
         id: `user-${i + 1}`,
       }));
       mockDb.user.count.mockResolvedValue(10);
@@ -87,7 +96,7 @@ describe('user router', () => {
 
     it('should not return nextCursor when items fit within limit', async () => {
       mockDb.user.count.mockResolvedValue(1);
-      mockDb.user.findMany.mockResolvedValue([mockUserFromDb]);
+      mockDb.user.findMany.mockResolvedValue([listedUserFromDb]);
 
       const result = await call(userRouter.getAll, { limit: 5 });
 
@@ -338,7 +347,7 @@ describe('user router', () => {
       });
     });
 
-    it('should require user set-role permission', async () => {
+    it('should require user update permission', async () => {
       mockDb.user.findUnique.mockResolvedValue({
         email: 'target@example.com',
       });
@@ -350,7 +359,7 @@ describe('user router', () => {
       await call(userRouter.updateById, updateInput);
 
       expect(mockSatisfiesPermission).toHaveBeenCalledWith(expect.any(Array), {
-        user: ['set-role'],
+        user: ['update'],
       });
     });
 
@@ -490,24 +499,25 @@ describe('user router', () => {
   });
 
   describe('revokeUserSessions', () => {
-    it('should revoke all sessions for a user', async () => {
-      mockRevokeUserSessions.mockResolvedValue({ success: true });
+    it('should revoke all sessions for a user but the current one', async () => {
+      mockGetSession.mockResolvedValue({
+        user: mockUser,
+        session: { ...mockSession, token: 'my-token' },
+      });
+      mockDb.session.deleteMany.mockResolvedValue({ count: 2 });
 
       await expect(
         call(userRouter.revokeUserSessions, { id: 'target-user-1' })
       ).resolves.toBeUndefined();
-    });
-
-    it('should prevent revoking own sessions', async () => {
-      await expect(
-        call(userRouter.revokeUserSessions, { id: mockUser.id })
-      ).rejects.toMatchObject({
-        code: 'BAD_REQUEST',
+      expect(mockDb.session.deleteMany).toHaveBeenCalledWith({
+        where: { userId: 'target-user-1', token: { not: 'my-token' } },
       });
     });
 
     it('should throw INTERNAL_SERVER_ERROR when revoke fails', async () => {
-      mockRevokeUserSessions.mockResolvedValue({ success: false });
+      mockDb.session.deleteMany.mockRejectedValue(
+        new Error('DB connection lost')
+      );
 
       await expect(
         call(userRouter.revokeUserSessions, { id: 'target-user-1' })
@@ -527,7 +537,7 @@ describe('user router', () => {
     });
 
     it('should require session revoke permission', async () => {
-      mockRevokeUserSessions.mockResolvedValue({ success: true });
+      mockDb.session.deleteMany.mockResolvedValue({ count: 0 });
 
       await call(userRouter.revokeUserSessions, { id: 'target-user-1' });
 
@@ -549,7 +559,7 @@ describe('user router', () => {
 
   describe('revokeUserSession', () => {
     it('should revoke a specific session', async () => {
-      mockRevokeUserSession.mockResolvedValue({ success: true });
+      mockDb.session.delete.mockResolvedValue(mockSessionFromDb);
 
       await expect(
         call(userRouter.revokeUserSession, {
@@ -557,6 +567,9 @@ describe('user router', () => {
           sessionToken: 'other-token',
         })
       ).resolves.toBeUndefined();
+      expect(mockDb.session.delete).toHaveBeenCalledWith({
+        where: { token: 'other-token', userId: 'target-user-1' },
+      });
     });
 
     it('should prevent revoking own current session', async () => {
@@ -576,7 +589,7 @@ describe('user router', () => {
     });
 
     it('should throw INTERNAL_SERVER_ERROR when revoke fails', async () => {
-      mockRevokeUserSession.mockResolvedValue({ success: false });
+      mockDb.session.delete.mockRejectedValue(new Error('DB connection lost'));
 
       await expect(
         call(userRouter.revokeUserSession, {
@@ -602,7 +615,7 @@ describe('user router', () => {
     });
 
     it('should require session revoke permission', async () => {
-      mockRevokeUserSession.mockResolvedValue({ success: true });
+      mockDb.session.delete.mockResolvedValue(mockSessionFromDb);
 
       await call(userRouter.revokeUserSession, {
         id: 'target-user-1',

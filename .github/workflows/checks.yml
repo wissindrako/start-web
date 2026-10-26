@@ -1,0 +1,77 @@
+name: Checks
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      # Only for the migrations check: Prisma replays them in this database
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: shadow
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -proot"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # The example settings, without the placeholders production refuses
+      # ("REPLACE ME") and with a throwaway secret
+      - name: Set up env
+        run: |
+          grep -v 'REPLACE ME' .env.example > .env
+          echo "AUTH_SECRET=$(openssl rand -base64 32)" >> .env
+
+      - name: Lint
+        run: pnpm exec eslint ./src --max-warnings 0
+
+      - name: Type check
+        run: pnpm run lint:ts
+
+      - name: Install Chromium (browser tests)
+        run: pnpm exec playwright install chromium --with-deps
+
+      - name: Tests
+        run: pnpm run test:ci
+        env:
+          SKIP_ENV_VALIDATION: true
+
+      - name: Build
+        run: pnpm run build
+
+      # schema.prisma must be what the migrations produce: after changing
+      # it, pnpm db:migrate creates the migration
+      - name: Migrations match the schema
+        run: >-
+          pnpm exec prisma migrate diff
+          --from-migrations prisma/migrations
+          --to-schema-datamodel prisma/schema.prisma
+          --shadow-database-url mysql://root:root@localhost:3306/shadow
+          --exit-code

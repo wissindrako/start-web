@@ -119,7 +119,7 @@ export const FormExternalSystem = (props: {
               {modules.map((mod, index) => {
                 const extras = customActionsFor(index);
                 return (
-                  <div key={index} className="flex flex-col gap-3 px-4 py-3">
+                  <div key={mod.name} className="flex flex-col gap-3 px-4 py-3">
                     {/* Module header */}
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-semibold capitalize">
