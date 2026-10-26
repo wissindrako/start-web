@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TwoFactorSetupRouteImport } from './routes/two-factor-setup'
 import { Route as LogoutRouteImport } from './routes/logout'
 import { Route as ManagerRouteRouteImport } from './routes/manager/route'
 import { Route as LoginRouteRouteImport } from './routes/login/route'
@@ -26,6 +27,7 @@ import { Route as ManagerDashboardIndexRouteImport } from './routes/manager/dash
 import { Route as ManagerBooksIndexRouteImport } from './routes/manager/books/index'
 import { Route as ManagerAccountIndexRouteImport } from './routes/manager/account.index'
 import { Route as LoginVerifyIndexRouteImport } from './routes/login/verify.index'
+import { Route as LoginTwoFactorIndexRouteImport } from './routes/login/two-factor.index'
 import { Route as LoginErrorIndexRouteImport } from './routes/login/error.index'
 import { Route as AppBooksIndexRouteImport } from './routes/app/books/index'
 import { Route as AppAccountIndexRouteImport } from './routes/app/account.index'
@@ -35,6 +37,7 @@ import { Route as ApiOpenapiAuthRouteImport } from './routes/api/openapi/auth'
 import { Route as ApiOpenapiAppRouteImport } from './routes/api/openapi/app'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
 import { Route as ManagerUsersNewIndexRouteImport } from './routes/manager/users/new.index'
+import { Route as ManagerUsersInvitationsIndexRouteImport } from './routes/manager/users/invitations.index'
 import { Route as ManagerUsersIdIndexRouteImport } from './routes/manager/users/$id.index'
 import { Route as ManagerRolesNewIndexRouteImport } from './routes/manager/roles/new.index'
 import { Route as ManagerRolesIdIndexRouteImport } from './routes/manager/roles/$id.index'
@@ -52,6 +55,11 @@ import { Route as ManagerRolesIdUpdateIndexRouteImport } from './routes/manager/
 import { Route as ManagerExternalSystemsIdUpdateIndexRouteImport } from './routes/manager/external-systems/$id.update.index'
 import { Route as ManagerBooksIdUpdateIndexRouteImport } from './routes/manager/books/$id.update.index'
 
+const TwoFactorSetupRoute = TwoFactorSetupRouteImport.update({
+  id: '/two-factor-setup',
+  path: '/two-factor-setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LogoutRoute = LogoutRouteImport.update({
   id: '/logout',
   path: '/logout',
@@ -138,6 +146,11 @@ const LoginVerifyIndexRoute = LoginVerifyIndexRouteImport.update({
   path: '/verify/',
   getParentRoute: () => LoginRouteRoute,
 } as any)
+const LoginTwoFactorIndexRoute = LoginTwoFactorIndexRouteImport.update({
+  id: '/two-factor/',
+  path: '/two-factor/',
+  getParentRoute: () => LoginRouteRoute,
+} as any)
 const LoginErrorIndexRoute = LoginErrorIndexRouteImport.update({
   id: '/error/',
   path: '/error/',
@@ -183,6 +196,12 @@ const ManagerUsersNewIndexRoute = ManagerUsersNewIndexRouteImport.update({
   path: '/users/new/',
   getParentRoute: () => ManagerRouteRoute,
 } as any)
+const ManagerUsersInvitationsIndexRoute =
+  ManagerUsersInvitationsIndexRouteImport.update({
+    id: '/users/invitations/',
+    path: '/users/invitations/',
+    getParentRoute: () => ManagerRouteRoute,
+  } as any)
 const ManagerUsersIdIndexRoute = ManagerUsersIdIndexRouteImport.update({
   id: '/users/$id/',
   path: '/users/$id/',
@@ -277,6 +296,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRouteRouteWithChildren
   '/manager': typeof ManagerRouteRouteWithChildren
   '/logout': typeof LogoutRoute
+  '/two-factor-setup': typeof TwoFactorSetupRoute
   '/api/upload': typeof ApiUploadRoute
   '/app/': typeof AppIndexRoute
   '/login/': typeof LoginIndexRoute
@@ -289,6 +309,7 @@ export interface FileRoutesByFullPath {
   '/app/account/': typeof AppAccountIndexRoute
   '/app/books/': typeof AppBooksIndexRoute
   '/login/error/': typeof LoginErrorIndexRoute
+  '/login/two-factor/': typeof LoginTwoFactorIndexRoute
   '/login/verify/': typeof LoginVerifyIndexRoute
   '/manager/account/': typeof ManagerAccountIndexRoute
   '/manager/books/': typeof ManagerBooksIndexRoute
@@ -308,6 +329,7 @@ export interface FileRoutesByFullPath {
   '/manager/roles/$id/': typeof ManagerRolesIdIndexRoute
   '/manager/roles/new/': typeof ManagerRolesNewIndexRoute
   '/manager/users/$id/': typeof ManagerUsersIdIndexRoute
+  '/manager/users/invitations/': typeof ManagerUsersInvitationsIndexRoute
   '/manager/users/new/': typeof ManagerUsersNewIndexRoute
   '/manager/books/$id/update/': typeof ManagerBooksIdUpdateIndexRoute
   '/manager/external-systems/$id/update/': typeof ManagerExternalSystemsIdUpdateIndexRoute
@@ -318,6 +340,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/logout': typeof LogoutRoute
+  '/two-factor-setup': typeof TwoFactorSetupRoute
   '/api/upload': typeof ApiUploadRoute
   '/app': typeof AppIndexRoute
   '/login': typeof LoginIndexRoute
@@ -330,6 +353,7 @@ export interface FileRoutesByTo {
   '/app/account': typeof AppAccountIndexRoute
   '/app/books': typeof AppBooksIndexRoute
   '/login/error': typeof LoginErrorIndexRoute
+  '/login/two-factor': typeof LoginTwoFactorIndexRoute
   '/login/verify': typeof LoginVerifyIndexRoute
   '/manager/account': typeof ManagerAccountIndexRoute
   '/manager/books': typeof ManagerBooksIndexRoute
@@ -349,6 +373,7 @@ export interface FileRoutesByTo {
   '/manager/roles/$id': typeof ManagerRolesIdIndexRoute
   '/manager/roles/new': typeof ManagerRolesNewIndexRoute
   '/manager/users/$id': typeof ManagerUsersIdIndexRoute
+  '/manager/users/invitations': typeof ManagerUsersInvitationsIndexRoute
   '/manager/users/new': typeof ManagerUsersNewIndexRoute
   '/manager/books/$id/update': typeof ManagerBooksIdUpdateIndexRoute
   '/manager/external-systems/$id/update': typeof ManagerExternalSystemsIdUpdateIndexRoute
@@ -363,6 +388,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRouteRouteWithChildren
   '/manager': typeof ManagerRouteRouteWithChildren
   '/logout': typeof LogoutRoute
+  '/two-factor-setup': typeof TwoFactorSetupRoute
   '/api/upload': typeof ApiUploadRoute
   '/app/': typeof AppIndexRoute
   '/login/': typeof LoginIndexRoute
@@ -375,6 +401,7 @@ export interface FileRoutesById {
   '/app/account/': typeof AppAccountIndexRoute
   '/app/books/': typeof AppBooksIndexRoute
   '/login/error/': typeof LoginErrorIndexRoute
+  '/login/two-factor/': typeof LoginTwoFactorIndexRoute
   '/login/verify/': typeof LoginVerifyIndexRoute
   '/manager/account/': typeof ManagerAccountIndexRoute
   '/manager/books/': typeof ManagerBooksIndexRoute
@@ -394,6 +421,7 @@ export interface FileRoutesById {
   '/manager/roles/$id/': typeof ManagerRolesIdIndexRoute
   '/manager/roles/new/': typeof ManagerRolesNewIndexRoute
   '/manager/users/$id/': typeof ManagerUsersIdIndexRoute
+  '/manager/users/invitations/': typeof ManagerUsersInvitationsIndexRoute
   '/manager/users/new/': typeof ManagerUsersNewIndexRoute
   '/manager/books/$id/update/': typeof ManagerBooksIdUpdateIndexRoute
   '/manager/external-systems/$id/update/': typeof ManagerExternalSystemsIdUpdateIndexRoute
@@ -409,6 +437,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/manager'
     | '/logout'
+    | '/two-factor-setup'
     | '/api/upload'
     | '/app/'
     | '/login/'
@@ -421,6 +450,7 @@ export interface FileRouteTypes {
     | '/app/account/'
     | '/app/books/'
     | '/login/error/'
+    | '/login/two-factor/'
     | '/login/verify/'
     | '/manager/account/'
     | '/manager/books/'
@@ -440,6 +470,7 @@ export interface FileRouteTypes {
     | '/manager/roles/$id/'
     | '/manager/roles/new/'
     | '/manager/users/$id/'
+    | '/manager/users/invitations/'
     | '/manager/users/new/'
     | '/manager/books/$id/update/'
     | '/manager/external-systems/$id/update/'
@@ -450,6 +481,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/logout'
+    | '/two-factor-setup'
     | '/api/upload'
     | '/app'
     | '/login'
@@ -462,6 +494,7 @@ export interface FileRouteTypes {
     | '/app/account'
     | '/app/books'
     | '/login/error'
+    | '/login/two-factor'
     | '/login/verify'
     | '/manager/account'
     | '/manager/books'
@@ -481,6 +514,7 @@ export interface FileRouteTypes {
     | '/manager/roles/$id'
     | '/manager/roles/new'
     | '/manager/users/$id'
+    | '/manager/users/invitations'
     | '/manager/users/new'
     | '/manager/books/$id/update'
     | '/manager/external-systems/$id/update'
@@ -494,6 +528,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/manager'
     | '/logout'
+    | '/two-factor-setup'
     | '/api/upload'
     | '/app/'
     | '/login/'
@@ -506,6 +541,7 @@ export interface FileRouteTypes {
     | '/app/account/'
     | '/app/books/'
     | '/login/error/'
+    | '/login/two-factor/'
     | '/login/verify/'
     | '/manager/account/'
     | '/manager/books/'
@@ -525,6 +561,7 @@ export interface FileRouteTypes {
     | '/manager/roles/$id/'
     | '/manager/roles/new/'
     | '/manager/users/$id/'
+    | '/manager/users/invitations/'
     | '/manager/users/new/'
     | '/manager/books/$id/update/'
     | '/manager/external-systems/$id/update/'
@@ -539,6 +576,7 @@ export interface RootRouteChildren {
   LoginRouteRoute: typeof LoginRouteRouteWithChildren
   ManagerRouteRoute: typeof ManagerRouteRouteWithChildren
   LogoutRoute: typeof LogoutRoute
+  TwoFactorSetupRoute: typeof TwoFactorSetupRoute
   ApiUploadRoute: typeof ApiUploadRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiOpenapiAppRoute: typeof ApiOpenapiAppRouteWithChildren
@@ -550,6 +588,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/two-factor-setup': {
+      id: '/two-factor-setup'
+      path: '/two-factor-setup'
+      fullPath: '/two-factor-setup'
+      preLoaderRoute: typeof TwoFactorSetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/logout': {
       id: '/logout'
       path: '/logout'
@@ -669,6 +714,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginVerifyIndexRouteImport
       parentRoute: typeof LoginRouteRoute
     }
+    '/login/two-factor/': {
+      id: '/login/two-factor/'
+      path: '/two-factor'
+      fullPath: '/login/two-factor/'
+      preLoaderRoute: typeof LoginTwoFactorIndexRouteImport
+      parentRoute: typeof LoginRouteRoute
+    }
     '/login/error/': {
       id: '/login/error/'
       path: '/error'
@@ -730,6 +782,13 @@ declare module '@tanstack/react-router' {
       path: '/users/new'
       fullPath: '/manager/users/new/'
       preLoaderRoute: typeof ManagerUsersNewIndexRouteImport
+      parentRoute: typeof ManagerRouteRoute
+    }
+    '/manager/users/invitations/': {
+      id: '/manager/users/invitations/'
+      path: '/users/invitations'
+      fullPath: '/manager/users/invitations/'
+      preLoaderRoute: typeof ManagerUsersInvitationsIndexRouteImport
       parentRoute: typeof ManagerRouteRoute
     }
     '/manager/users/$id/': {
@@ -870,12 +929,14 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
 interface LoginRouteRouteChildren {
   LoginIndexRoute: typeof LoginIndexRoute
   LoginErrorIndexRoute: typeof LoginErrorIndexRoute
+  LoginTwoFactorIndexRoute: typeof LoginTwoFactorIndexRoute
   LoginVerifyIndexRoute: typeof LoginVerifyIndexRoute
 }
 
 const LoginRouteRouteChildren: LoginRouteRouteChildren = {
   LoginIndexRoute: LoginIndexRoute,
   LoginErrorIndexRoute: LoginErrorIndexRoute,
+  LoginTwoFactorIndexRoute: LoginTwoFactorIndexRoute,
   LoginVerifyIndexRoute: LoginVerifyIndexRoute,
 }
 
@@ -898,6 +959,7 @@ interface ManagerRouteRouteChildren {
   ManagerRolesIdIndexRoute: typeof ManagerRolesIdIndexRoute
   ManagerRolesNewIndexRoute: typeof ManagerRolesNewIndexRoute
   ManagerUsersIdIndexRoute: typeof ManagerUsersIdIndexRoute
+  ManagerUsersInvitationsIndexRoute: typeof ManagerUsersInvitationsIndexRoute
   ManagerUsersNewIndexRoute: typeof ManagerUsersNewIndexRoute
   ManagerBooksIdUpdateIndexRoute: typeof ManagerBooksIdUpdateIndexRoute
   ManagerExternalSystemsIdUpdateIndexRoute: typeof ManagerExternalSystemsIdUpdateIndexRoute
@@ -921,6 +983,7 @@ const ManagerRouteRouteChildren: ManagerRouteRouteChildren = {
   ManagerRolesIdIndexRoute: ManagerRolesIdIndexRoute,
   ManagerRolesNewIndexRoute: ManagerRolesNewIndexRoute,
   ManagerUsersIdIndexRoute: ManagerUsersIdIndexRoute,
+  ManagerUsersInvitationsIndexRoute: ManagerUsersInvitationsIndexRoute,
   ManagerUsersNewIndexRoute: ManagerUsersNewIndexRoute,
   ManagerBooksIdUpdateIndexRoute: ManagerBooksIdUpdateIndexRoute,
   ManagerExternalSystemsIdUpdateIndexRoute:
@@ -964,6 +1027,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRouteRoute: LoginRouteRouteWithChildren,
   ManagerRouteRoute: ManagerRouteRouteWithChildren,
   LogoutRoute: LogoutRoute,
+  TwoFactorSetupRoute: TwoFactorSetupRoute,
   ApiUploadRoute: ApiUploadRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiOpenapiAppRoute: ApiOpenapiAppRouteWithChildren,

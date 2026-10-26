@@ -1,7 +1,13 @@
 import { expo } from '@better-auth/expo';
+import { oauthProvider } from '@better-auth/oauth-provider';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { admin, emailOTP, openAPI } from 'better-auth/plugins';
+import {
+  APIError,
+  createAuthMiddleware,
+  getSessionFromCtx,
+} from 'better-auth/api';
+import { admin, emailOTP, jwt, openAPI, twoFactor } from 'better-auth/plugins';
 import { match } from 'ts-pattern';
 
 import i18n from '@/lib/i18n';
@@ -9,25 +15,139 @@ import i18n from '@/lib/i18n';
 import TemplateLoginCode from '@/emails/templates/login-code';
 import { envClient } from '@/env/client';
 import { envServer } from '@/env/server';
-import {
-  AUTH_EMAIL_OTP_EXPIRATION_IN_MINUTES,
-  AUTH_EMAIL_OTP_MOCKED,
-  AUTH_SIGNUP_ENABLED,
-} from '@/features/auth/config';
+import { isEmailDomainAllowed } from '@/features/access-settings/domains';
+import { AUTH_EMAIL_OTP_MOCKED } from '@/features/auth/config';
 import { permissions } from '@/features/auth/permissions';
+import {
+  ACCESS_DEFAULTS,
+  getAccessSettings,
+  mustSetUpTwoFactor,
+  requiresTwoFactor,
+} from '@/server/access-settings';
 import { db } from '@/server/db';
 import { sendEmail } from '@/server/email';
+import { SERVICE_SCOPES } from '@/server/identity-tokens';
+import { acceptInvitation, findPendingInvitation } from '@/server/invitations';
+import { getEffectivePermissions, hasPermissions } from '@/server/permissions';
 import { getUserLanguage } from '@/server/utils';
+
+// Existing users always get a login code. A new email only when it could
+// create its account: sign-up open or invited, and from an allowed domain.
+// Others get nothing, the same answer as for any email.
+async function canSignIn(email: string) {
+  const user = await db.user.findUnique({
+    where: { email: email.toLowerCase() },
+    select: { id: true },
+  });
+  if (user) return true;
+  return await canCreateAccount(email);
+}
+
+async function canCreateAccount(email: string) {
+  const { signupEnabled, allowedDomains } = await getAccessSettings();
+  if (!isEmailDomainAllowed(email, allowedDomains)) return false;
+  return signupEnabled || !!(await findPendingInvitation(db, email));
+}
+
+// Fresh login codes (attempt count 0) last what the access settings say;
+// a failed attempt rewrites the code with its original expiration
+const SIGN_IN_CODE = /^sign-in-otp-/;
+async function loginCodeExpiration(verification: {
+  identifier: string;
+  value: string;
+}) {
+  if (
+    !SIGN_IN_CODE.test(verification.identifier) ||
+    !verification.value.endsWith(':0')
+  ) {
+    return undefined;
+  }
+  const { loginCodeMinutes } = await getAccessSettings();
+  return new Date(Date.now() + loginCodeMinutes * 60_000);
+}
+
+async function canManageExternalSystems(userId: string | undefined) {
+  if (!userId) return false;
+  const { permissions } = await getEffectivePermissions(db, {
+    userId,
+    systemId: null,
+  });
+  return hasPermissions(permissions, [
+    { subject: 'externalSystem', action: 'update' },
+  ]);
+}
+
+// Roles and permissions of the user in the system whose API (resource) the
+// token is for, so any backend can authorize with the JWT alone. Format:
+// "subject:action". Systems that need instant changes ask the external API.
+async function systemAccessClaims(
+  userId: string,
+  resources: string[] | undefined
+) {
+  if (!resources?.length) return {};
+  const system = await db.externalSystem.findFirst({
+    where: { resourceIdentifier: { in: resources } },
+    select: { id: true },
+  });
+  if (!system) return {};
+
+  const { roles, permissions } = await getEffectivePermissions(db, {
+    userId,
+    systemId: system.id,
+  });
+  return {
+    roles: roles.map((role) => role.name),
+    permissions: permissions.map((p) => `${p.subject}:${p.action}`),
+  };
+}
+
+// Two-factor authentication with an authenticator app (TOTP) and backup
+// codes. Users have no password (they sign in with an email code), so
+// enabling it does not ask for one.
+const twoFactorPlugin = twoFactor({
+  issuer: envServer.AUTH_TWO_FACTOR_ISSUER,
+  allowPasswordless: true,
+});
+
+// The plugin only challenges password sign-ins; signing in with an email
+// code must ask for the second factor too
+const twoFactorWithEmailOtp: typeof twoFactorPlugin = {
+  ...twoFactorPlugin,
+  hooks: {
+    ...twoFactorPlugin.hooks,
+    after: twoFactorPlugin.hooks.after.map((hook) => ({
+      ...hook,
+      matcher: (context) =>
+        hook.matcher(context) || context.path === '/sign-in/email-otp',
+    })),
+  },
+};
 
 export type Auth = typeof auth;
 export const auth = betterAuth({
+  // Issuer of the identity center: tokens carry it and systems verify it
+  baseURL: envClient.VITE_BASE_URL,
+  // The OAuth provider issues tokens through /oauth2/token instead
+  disabledPaths: ['/token'],
   session: {
     expiresIn: envServer.AUTH_SESSION_EXPIRATION_IN_SECONDS,
     updateAge: envServer.AUTH_SESSION_UPDATE_AGE_IN_SECONDS,
   },
   trustedOrigins: envServer.AUTH_TRUSTED_ORIGINS,
+  hooks: {
+    // Required by the access settings: it cannot be turned off
+    before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path !== '/two-factor/disable') return;
+      const session = await getSessionFromCtx(ctx);
+      if (session && (await requiresTwoFactor(session.user.id))) {
+        throw new APIError('FORBIDDEN', {
+          message: 'Two-factor authentication is required for this account',
+        });
+      }
+    }),
+  },
   database: prismaAdapter(db, {
-    provider: 'postgresql',
+    provider: 'mysql',
   }),
   user: {
     additionalFields: {
@@ -45,11 +165,14 @@ export const auth = betterAuth({
       enabled: !!(envServer.GITHUB_CLIENT_ID && envServer.GITHUB_CLIENT_SECRET),
       clientId: envServer.GITHUB_CLIENT_ID!,
       clientSecret: envServer.GITHUB_CLIENT_SECRET!,
-      disableImplicitSignUp: !AUTH_SIGNUP_ENABLED,
+      // Who may create an account is checked in databaseHooks below
+      disableImplicitSignUp: false,
     },
   },
 
   plugins: [
+    // Signing keys (JWKS) for id tokens and JWT access tokens
+    jwt(),
     expo(), // Allows an Expo native app to use auth, can be delete if no needed
     openAPI({
       disableDefaultReference: true, // Use custom exposition in /routes/api/openapi folder
@@ -58,8 +181,12 @@ export const auth = betterAuth({
       ...permissions,
     }),
     emailOTP({
-      disableSignUp: !AUTH_SIGNUP_ENABLED,
-      expiresIn: AUTH_EMAIL_OTP_EXPIRATION_IN_MINUTES * 60,
+      // With sign-up closed, invited emails can still create their account:
+      // who may join is checked when the code is sent and when the user is
+      // created (databaseHooks below)
+      disableSignUp: false,
+      // Overridden per code with the access settings (databaseHooks below)
+      expiresIn: ACCESS_DEFAULTS.loginCodeMinutes * 60,
       // Use predictable mocked code in dev and demo
       ...(import.meta.env.DEV || envClient.VITE_IS_DEMO
         ? { generateOTP: () => AUTH_EMAIL_OTP_MOCKED }
@@ -67,13 +194,19 @@ export const auth = betterAuth({
       async sendVerificationOTP({ email, otp, type }) {
         await match(type)
           .with('sign-in', async () => {
+            if (!(await canSignIn(email))) return;
+            const { loginCodeMinutes } = await getAccessSettings();
             await sendEmail({
               to: email,
               subject: i18n.t('emails:loginCode.subject', {
                 lng: getUserLanguage(),
               }),
               template: (
-                <TemplateLoginCode language={getUserLanguage()} code={otp} />
+                <TemplateLoginCode
+                  language={getUserLanguage()}
+                  code={otp}
+                  expirationInMinutes={loginCodeMinutes}
+                />
               ),
             });
           })
@@ -87,18 +220,70 @@ export const auth = betterAuth({
               'forget-password email not implemented, update the /app/server/auth.tsx file'
             );
           })
+          .with('change-email', async () => {
+            throw new Error(
+              'change-email email not implemented, update the /app/server/auth.tsx file'
+            );
+          })
           .exhaustive();
+      },
+    }),
+    twoFactorWithEmailOtp,
+    // Identity center: external systems sign users in through OAuth 2.1 /
+    // OpenID Connect and get JWT access tokens for their own API (resource)
+    oauthProvider({
+      loginPage: '/login',
+      consentPage: '/oauth/consent',
+      scopes: [
+        'openid',
+        'profile',
+        'email',
+        'offline_access',
+        ...SERVICE_SCOPES,
+      ],
+      accessTokenExpiresIn:
+        envServer.AUTH_OAUTH_ACCESS_TOKEN_EXPIRATION_IN_SECONDS,
+      customAccessTokenClaims: ({ user, resources }) =>
+        user ? systemAccessClaims(user.id, resources) : {},
+      // OAuth clients and resources belong to external systems: only those
+      // who manage external systems can create or change them
+      clientPrivileges: ({ user }) => canManageExternalSystems(user?.id),
+      resourcePrivileges: ({ user }) => canManageExternalSystems(user?.id),
+      // Two-factor authentication required by the access settings and not
+      // set up yet: the user sets it up before going back to the system
+      postLogin: {
+        page: '/two-factor-setup',
+        consentReferenceId: () => undefined,
+        shouldRedirect: ({ user }) => mustSetUpTwoFactor(user.id),
       },
     }),
   ],
   databaseHooks: {
     user: {
       create: {
-        before: async (user) => {
+        before: async (user, context) => {
           if (envClient.VITE_IS_DEMO) throw new Error('DEMO MODE');
+          const { signupEnabled, allowedDomains } = await getAccessSettings();
+          if (!isEmailDomainAllowed(user.email, allowedDomains)) {
+            throw new APIError('FORBIDDEN', {
+              message: 'This email domain is not allowed',
+            });
+          }
+          // Sign-up closed: an account can only be created by an admin or
+          // from an invitation
+          if (
+            !signupEnabled &&
+            context?.path !== '/admin/create-user' &&
+            !(await findPendingInvitation(db, user.email))
+          ) {
+            throw new APIError('FORBIDDEN', {
+              message: 'Sign up is by invitation only',
+            });
+          }
           return { data: user };
         },
         after: async (user) => {
+          await acceptInvitation(db, user);
           const roleName = (user.role as string) ?? 'user';
           const dynamicRole = await db.role.findUnique({
             where: { name: roleName },
@@ -118,6 +303,16 @@ export const auth = betterAuth({
         before: async (user) => {
           if (envClient.VITE_IS_DEMO) throw new Error('DEMO MODE');
           return { data: user };
+        },
+      },
+    },
+    verification: {
+      create: {
+        before: async (verification) => {
+          const expiresAt = await loginCodeExpiration(verification);
+          return expiresAt
+            ? { data: { ...verification, expiresAt } }
+            : { data: verification };
         },
       },
     },

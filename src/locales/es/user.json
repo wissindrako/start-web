@@ -30,10 +30,12 @@
       "showing": "Mostrando {{count}} de {{total}}",
       "searchResults": "{{total}} resultados para \"{{searchTerm}}\"",
       "filterByRole": "Filtrar por rol",
+      "allRoles": "Todos los roles",
       "confirmVerifyTitle": "Verificar {{user}}",
       "confirmVerifyDescription": "¿Confirmas que deseas verificar a este usuario?",
       "confirmUnverifyTitle": "Quitar verificación a {{user}}",
-      "confirmUnverifyDescription": "¿Confirmas que deseas quitar la verificación a este usuario?"
+      "confirmUnverifyDescription": "¿Confirmas que deseas quitar la verificación a este usuario?",
+      "invitationsButton": "Invitaciones"
     },
     "detail": {
       "editButton": {
@@ -79,10 +81,19 @@
       "banReasonPlaceholder": "Ej. Incumplimiento de términos de servicio",
       "banExpiresLabel": "Bloquear hasta (dejar vacío para permanente)",
       "cancelButton": "Cancelar",
-      "bannedBadge": "Bloqueado"
+      "bannedBadge": "Bloqueado",
+      "twoFactorBadge": "Verificación en dos pasos",
+      "twoFactorReset": {
+        "button": "Restablecer 2FA",
+        "confirmTitle": "¿Restablecer la verificación en dos pasos?",
+        "confirmDescription": "Se desactiva para este usuario (por ejemplo, si perdió el teléfono y los códigos de respaldo). Podrá volver a activarla desde su cuenta.",
+        "success": "Verificación en dos pasos restablecida",
+        "error": "No se pudo restablecer"
+      }
     },
     "form": {
-      "emailAlreadyExist": "Correo electrónico ya utilizado"
+      "emailAlreadyExist": "Correo electrónico ya utilizado",
+      "domainNotAllowed": "Solo se permiten correos de {{domains}}"
     },
     "new": {
       "title": "Nuevo Usuario",

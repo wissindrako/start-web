@@ -1,6 +1,6 @@
 {
-  "name": "Start UI Web",
-  "short_name": "Start UI",
+  "name": "FlyNow Admin",
+  "short_name": "FlyNow Admin",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",

@@ -76,6 +76,21 @@ export const PageUserUpdate = (props: { params: { id: string } }) => {
           });
           return;
         }
+        if (
+          error instanceof ORPCError &&
+          (error.data as { reason?: string } | undefined)?.reason ===
+            'domainNotAllowed'
+        ) {
+          const { allowedDomains = [] } = error.data as {
+            allowedDomains?: string[];
+          };
+          form.setError('email', {
+            message: t('user:manager.form.domainNotAllowed', {
+              domains: allowedDomains.map((d) => `@${d}`).join(', '),
+            }),
+          });
+          return;
+        }
         toast.error(t('user:manager.update.updateError'));
       },
     })

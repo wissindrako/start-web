@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { useRouter } from '@tanstack/react-router';
+import { useRouter, useSearch } from '@tanstack/react-router';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -14,15 +14,11 @@ import {
 import { Button } from '@/components/ui/button';
 
 import { envClient } from '@/env/client';
+import { useAccessSettings } from '@/features/access-settings/use-access-settings';
 import { authClient } from '@/features/auth/client';
-import { AUTH_SIGNUP_ENABLED } from '@/features/auth/config';
 import { useMascot } from '@/features/auth/mascot';
 import { FormFieldsLogin, zFormFieldsLogin } from '@/features/auth/schema';
 import { LoginEmailHint } from '@/features/devtools/login-hint';
-
-const I18N_KEY_PAGE_PREFIX = AUTH_SIGNUP_ENABLED
-  ? ('auth:pageLoginWithSignUp' as const)
-  : ('auth:pageLogin' as const);
 
 export default function PageLogin({
   search,
@@ -31,6 +27,12 @@ export default function PageLogin({
 }) {
   const { t } = useTranslation(['auth', 'common']);
   const router = useRouter();
+  const { settings } = useAccessSettings();
+  const I18N_KEY_PAGE_PREFIX = settings.signupEnabled
+    ? ('auth:pageLoginWithSignUp' as const)
+    : ('auth:pageLogin' as const);
+  // Invitation links come with the invited email
+  const { email: invitedEmail } = useSearch({ strict: false });
   const social = useMutation({
     mutationFn: async (
       provider: Parameters<typeof authClient.signIn.social>[0]['provider']
@@ -63,7 +65,7 @@ export default function PageLogin({
     mode: 'onSubmit',
     resolver: zodResolver(zFormFieldsLogin()),
     defaultValues: {
-      email: '',
+      email: typeof invitedEmail === 'string' ? invitedEmail : '',
     },
   });
 

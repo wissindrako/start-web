@@ -2,7 +2,9 @@ import { beforeEach, vi } from 'vitest';
 
 import {
   mockDb,
+  mockGetEffectivePermissions,
   mockGetSession,
+  mockSatisfiesPermission,
   mockUserHasPermission,
   setupAuthenticatedUser,
 } from '@/server/routers/test-utils';
@@ -44,6 +46,19 @@ vi.mock('@/server/logger', () => ({
 }));
 
 vi.mock('@/server/db', () => ({ db: mockDb }));
+
+vi.mock('@/server/permissions', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/server/permissions')>();
+  mockSatisfiesPermission.mockImplementation(actual.satisfiesPermission);
+  return {
+    ...actual,
+    getEffectivePermissions: (...args: unknown[]) =>
+      mockGetEffectivePermissions(...args),
+    satisfiesPermission: (
+      ...args: Parameters<typeof actual.satisfiesPermission>
+    ) => mockSatisfiesPermission(...args),
+  };
+});
 
 beforeEach(() => {
   vi.clearAllMocks();

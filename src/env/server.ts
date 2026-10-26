@@ -15,16 +15,26 @@ export const envServer = createEnv({
       .int()
       .prefault(2592000), // 30 days by default
     AUTH_SESSION_UPDATE_AGE_IN_SECONDS: z.coerce.number().int().prefault(86400), // 1 day by default
+    // OAuth access tokens carry the user's permissions: a short lifetime
+    // makes permission changes reach systems that read them from the token
+    AUTH_OAUTH_ACCESS_TOKEN_EXPIRATION_IN_SECONDS: z.coerce
+      .number()
+      .int()
+      .prefault(900), // 15 minutes by default
     AUTH_TRUSTED_ORIGINS: z
       .string()
       .optional()
       .transform((stringValue) => stringValue?.split(',').map((v) => v.trim())),
 
+    // Name shown in authenticator apps next to the user's email
+    AUTH_TWO_FACTOR_ISSUER: z.string().prefault('Nucleo'),
+
     GITHUB_CLIENT_ID: zOptionalWithReplaceMe(),
     GITHUB_CLIENT_SECRET: zOptionalWithReplaceMe(),
 
-    EMAIL_SERVER: z.url(),
-    EMAIL_FROM: z.string(),
+    // Defaults for the mail settings, which can also be set from the manager
+    EMAIL_SERVER: z.url().optional(),
+    EMAIL_FROM: z.string().optional(),
 
     LOGGER_LEVEL: z
       .enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal'])

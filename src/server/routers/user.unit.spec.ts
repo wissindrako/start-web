@@ -5,9 +5,11 @@ import { Prisma } from '@/server/db/generated/client';
 import {
   mockDb,
   mockGetSession,
+  mockSatisfiesPermission,
   mockSession,
   mockUser,
   mockUserHasPermission,
+  mockUserPermissions,
 } from '@/server/routers/test-utils';
 import userRouter from '@/server/routers/user';
 
@@ -106,19 +108,13 @@ describe('user router', () => {
 
       await call(userRouter.getAll, {});
 
-      expect(mockUserHasPermission).toHaveBeenCalledWith({
-        body: {
-          userId: mockUser.id,
-          permission: { user: ['list'] },
-        },
+      expect(mockSatisfiesPermission).toHaveBeenCalledWith(expect.any(Array), {
+        user: ['list'],
       });
     });
 
     it('should throw FORBIDDEN when user lacks permission', async () => {
-      mockUserHasPermission.mockResolvedValue({
-        success: false,
-        error: false,
-      });
+      mockUserPermissions({});
 
       await expect(call(userRouter.getAll, {})).rejects.toMatchObject({
         code: 'FORBIDDEN',
@@ -160,19 +156,13 @@ describe('user router', () => {
 
       await call(userRouter.getById, { id: 'target-user-1' });
 
-      expect(mockUserHasPermission).toHaveBeenCalledWith({
-        body: {
-          userId: mockUser.id,
-          permission: { user: ['list'] },
-        },
+      expect(mockSatisfiesPermission).toHaveBeenCalledWith(expect.any(Array), {
+        user: ['list'],
       });
     });
 
     it('should throw FORBIDDEN when user lacks permission', async () => {
-      mockUserHasPermission.mockResolvedValue({
-        success: false,
-        error: false,
-      });
+      mockUserPermissions({});
 
       await expect(
         call(userRouter.getById, { id: 'target-user-1' })
@@ -237,19 +227,13 @@ describe('user router', () => {
 
       await call(userRouter.create, createInput);
 
-      expect(mockUserHasPermission).toHaveBeenCalledWith({
-        body: {
-          userId: mockUser.id,
-          permission: { user: ['create'] },
-        },
+      expect(mockSatisfiesPermission).toHaveBeenCalledWith(expect.any(Array), {
+        user: ['create'],
       });
     });
 
     it('should throw FORBIDDEN when user lacks permission', async () => {
-      mockUserHasPermission.mockResolvedValue({
-        success: false,
-        error: false,
-      });
+      mockUserPermissions({});
 
       await expect(call(userRouter.create, createInput)).rejects.toMatchObject({
         code: 'FORBIDDEN',
@@ -365,19 +349,13 @@ describe('user router', () => {
 
       await call(userRouter.updateById, updateInput);
 
-      expect(mockUserHasPermission).toHaveBeenCalledWith({
-        body: {
-          userId: mockUser.id,
-          permission: { user: ['set-role'] },
-        },
+      expect(mockSatisfiesPermission).toHaveBeenCalledWith(expect.any(Array), {
+        user: ['set-role'],
       });
     });
 
     it('should throw FORBIDDEN when user lacks permission', async () => {
-      mockUserHasPermission.mockResolvedValue({
-        success: false,
-        error: false,
-      });
+      mockUserPermissions({});
 
       await expect(
         call(userRouter.updateById, updateInput)
@@ -429,19 +407,13 @@ describe('user router', () => {
 
       await call(userRouter.deleteById, { id: 'target-user-1' });
 
-      expect(mockUserHasPermission).toHaveBeenCalledWith({
-        body: {
-          userId: mockUser.id,
-          permission: { user: ['delete'] },
-        },
+      expect(mockSatisfiesPermission).toHaveBeenCalledWith(expect.any(Array), {
+        user: ['delete'],
       });
     });
 
     it('should throw FORBIDDEN when user lacks permission', async () => {
-      mockUserHasPermission.mockResolvedValue({
-        success: false,
-        error: false,
-      });
+      mockUserPermissions({});
 
       await expect(
         call(userRouter.deleteById, { id: 'target-user-1' })
@@ -501,19 +473,13 @@ describe('user router', () => {
 
       await call(userRouter.getUserSessions, { userId: 'target-user-1' });
 
-      expect(mockUserHasPermission).toHaveBeenCalledWith({
-        body: {
-          userId: mockUser.id,
-          permission: { session: ['list'] },
-        },
+      expect(mockSatisfiesPermission).toHaveBeenCalledWith(expect.any(Array), {
+        session: ['list'],
       });
     });
 
     it('should throw FORBIDDEN when user lacks permission', async () => {
-      mockUserHasPermission.mockResolvedValue({
-        success: false,
-        error: false,
-      });
+      mockUserPermissions({});
 
       await expect(
         call(userRouter.getUserSessions, { userId: 'target-user-1' })
@@ -565,19 +531,13 @@ describe('user router', () => {
 
       await call(userRouter.revokeUserSessions, { id: 'target-user-1' });
 
-      expect(mockUserHasPermission).toHaveBeenCalledWith({
-        body: {
-          userId: mockUser.id,
-          permission: { session: ['revoke'] },
-        },
+      expect(mockSatisfiesPermission).toHaveBeenCalledWith(expect.any(Array), {
+        session: ['revoke'],
       });
     });
 
     it('should throw FORBIDDEN when user lacks permission', async () => {
-      mockUserHasPermission.mockResolvedValue({
-        success: false,
-        error: false,
-      });
+      mockUserPermissions({});
 
       await expect(
         call(userRouter.revokeUserSessions, { id: 'target-user-1' })
@@ -649,19 +609,13 @@ describe('user router', () => {
         sessionToken: 'other-token',
       });
 
-      expect(mockUserHasPermission).toHaveBeenCalledWith({
-        body: {
-          userId: mockUser.id,
-          permission: { session: ['revoke'] },
-        },
+      expect(mockSatisfiesPermission).toHaveBeenCalledWith(expect.any(Array), {
+        session: ['revoke'],
       });
     });
 
     it('should throw FORBIDDEN when user lacks permission', async () => {
-      mockUserHasPermission.mockResolvedValue({
-        success: false,
-        error: false,
-      });
+      mockUserPermissions({});
 
       await expect(
         call(userRouter.revokeUserSession, {

@@ -8,8 +8,8 @@ import bookRouter from '@/server/routers/book';
 import {
   mockDb,
   mockGetSession,
-  mockUser,
-  mockUserHasPermission,
+  mockSatisfiesPermission,
+  mockUserPermissions,
 } from '@/server/routers/test-utils';
 
 const now = new Date();
@@ -89,19 +89,13 @@ describe('book router', () => {
 
       await call(bookRouter.getAll, {});
 
-      expect(mockUserHasPermission).toHaveBeenCalledWith({
-        body: {
-          userId: mockUser.id,
-          permission: { book: ['read'] },
-        },
+      expect(mockSatisfiesPermission).toHaveBeenCalledWith(expect.any(Array), {
+        book: ['read'],
       });
     });
 
     it('should throw FORBIDDEN when user lacks permission', async () => {
-      mockUserHasPermission.mockResolvedValue({
-        success: false,
-        error: false,
-      });
+      mockUserPermissions({});
 
       await expect(call(bookRouter.getAll, {})).rejects.toMatchObject({
         code: 'FORBIDDEN',
@@ -143,19 +137,13 @@ describe('book router', () => {
 
       await call(bookRouter.getById, { id: 'book-1' });
 
-      expect(mockUserHasPermission).toHaveBeenCalledWith({
-        body: {
-          userId: mockUser.id,
-          permission: { book: ['read'] },
-        },
+      expect(mockSatisfiesPermission).toHaveBeenCalledWith(expect.any(Array), {
+        book: ['read'],
       });
     });
 
     it('should throw FORBIDDEN when user lacks permission', async () => {
-      mockUserHasPermission.mockResolvedValue({
-        success: false,
-        error: false,
-      });
+      mockUserPermissions({});
 
       await expect(
         call(bookRouter.getById, { id: 'book-1' })
@@ -226,19 +214,13 @@ describe('book router', () => {
 
       await call(bookRouter.create, createInput);
 
-      expect(mockUserHasPermission).toHaveBeenCalledWith({
-        body: {
-          userId: mockUser.id,
-          permission: { book: ['create'] },
-        },
+      expect(mockSatisfiesPermission).toHaveBeenCalledWith(expect.any(Array), {
+        book: ['create'],
       });
     });
 
     it('should throw FORBIDDEN when user lacks permission', async () => {
-      mockUserHasPermission.mockResolvedValue({
-        success: false,
-        error: false,
-      });
+      mockUserPermissions({});
 
       await expect(call(bookRouter.create, createInput)).rejects.toMatchObject({
         code: 'FORBIDDEN',
@@ -327,19 +309,13 @@ describe('book router', () => {
 
       await call(bookRouter.updateById, updateInput);
 
-      expect(mockUserHasPermission).toHaveBeenCalledWith({
-        body: {
-          userId: mockUser.id,
-          permission: { book: ['update'] },
-        },
+      expect(mockSatisfiesPermission).toHaveBeenCalledWith(expect.any(Array), {
+        book: ['update'],
       });
     });
 
     it('should throw FORBIDDEN when user lacks permission', async () => {
-      mockUserHasPermission.mockResolvedValue({
-        success: false,
-        error: false,
-      });
+      mockUserPermissions({});
 
       await expect(
         call(bookRouter.updateById, updateInput)
@@ -398,19 +374,13 @@ describe('book router', () => {
 
       await call(bookRouter.deleteById, { id: 'book-1' });
 
-      expect(mockUserHasPermission).toHaveBeenCalledWith({
-        body: {
-          userId: mockUser.id,
-          permission: { book: ['delete'] },
-        },
+      expect(mockSatisfiesPermission).toHaveBeenCalledWith(expect.any(Array), {
+        book: ['delete'],
       });
     });
 
     it('should throw FORBIDDEN when user lacks permission', async () => {
-      mockUserHasPermission.mockResolvedValue({
-        success: false,
-        error: false,
-      });
+      mockUserPermissions({});
 
       await expect(
         call(bookRouter.deleteById, { id: 'book-1' })

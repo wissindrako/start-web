@@ -15,31 +15,45 @@ const levels = {
 function createPrisma() {
   return new PrismaClient({
     log: levels[envServer.LOGGER_LEVEL],
-  }).$extends({
-    name: 'server-timing',
-    query: {
-      $allModels: {
-        async $allOperations({ query, args, model, operation }) {
-          const start = performance.now();
-
-          const result = await query(args);
-
-          const duration = performance.now() - start;
-
-          const store = timingStore.getStore();
-          if (store) {
-            store.prisma.push({
-              model,
-              operation,
-              duration,
-            });
-          }
-
-          return result;
+  })
+    .$extends({
+      name: 'external-module-actions-as-array',
+      result: {
+        externalModule: {
+          actions: {
+            needs: { actions: true },
+            compute(module) {
+              return module.actions as string[];
+            },
+          },
         },
       },
-    },
-  });
+    })
+    .$extends({
+      name: 'server-timing',
+      query: {
+        $allModels: {
+          async $allOperations({ query, args, model, operation }) {
+            const start = performance.now();
+
+            const result = await query(args);
+
+            const duration = performance.now() - start;
+
+            const store = timingStore.getStore();
+            if (store) {
+              store.prisma.push({
+                model,
+                operation,
+                duration,
+              });
+            }
+
+            return result;
+          },
+        },
+      },
+    });
 }
 
 const globalForPrisma = globalThis as unknown as {

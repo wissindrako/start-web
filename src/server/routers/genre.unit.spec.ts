@@ -5,8 +5,8 @@ import genreRouter from '@/server/routers/genre';
 import {
   mockDb,
   mockGetSession,
-  mockUser,
-  mockUserHasPermission,
+  mockSatisfiesPermission,
+  mockUserPermissions,
 } from '@/server/routers/test-utils';
 
 const now = new Date();
@@ -72,19 +72,13 @@ describe('genre router', () => {
 
       await call(genreRouter.getAll, {});
 
-      expect(mockUserHasPermission).toHaveBeenCalledWith({
-        body: {
-          userId: mockUser.id,
-          permission: { genre: ['read'] },
-        },
+      expect(mockSatisfiesPermission).toHaveBeenCalledWith(expect.any(Array), {
+        genre: ['read'],
       });
     });
 
     it('should throw FORBIDDEN when user lacks permission', async () => {
-      mockUserHasPermission.mockResolvedValue({
-        success: false,
-        error: false,
-      });
+      mockUserPermissions({});
 
       await expect(call(genreRouter.getAll, {})).rejects.toMatchObject({
         code: 'FORBIDDEN',

@@ -33,5 +33,41 @@
   "personalData": {
     "title": "Personal data",
     "editButton": "Edit personal data"
+  },
+  "sessions": {
+    "title": "Active Sessions",
+    "current": "This device",
+    "revokeAriaLabel": "Close session",
+    "revokeSuccess": "Session closed",
+    "revokeError": "Failed to close session",
+    "revokeOthers": "Close all other sessions",
+    "revokeOthersSuccess": "All other sessions closed",
+    "revokeOthersError": "Failed to close other sessions"
+  },
+  "twoFactor": {
+    "title": "Two-step verification",
+    "description": "Besides the email code, asks for a code from an authenticator app (Google Authenticator, Microsoft Authenticator, 1Password…) when signing in.",
+    "statusOn": "On",
+    "statusOff": "Off",
+    "enable": "Turn on",
+    "disable": "Turn off",
+    "regenerate": "Generate new backup codes",
+    "setupTitle": "Set up the authenticator app",
+    "setupDescription": "Scan the QR code with your app (or type the key) and enter the 6-digit code it shows.",
+    "qrAlt": "QR code for the authenticator app",
+    "code": "App code",
+    "confirm": "Turn on",
+    "invalidCode": "The code is not valid. Check that your phone's clock is right.",
+    "backupTitle": "Backup codes",
+    "backupDescription": "Keep them somewhere safe: each one works once when you don't have your phone. They are not shown again.",
+    "copyAll": "Copy all",
+    "done": "Done",
+    "copied": "Copied",
+    "enabled": "Two-step verification turned on",
+    "disabled": "Two-step verification turned off",
+    "disableConfirmTitle": "Turn off two-step verification?",
+    "disableConfirmDescription": "The email code will be enough to sign in.",
+    "error": "The operation could not be completed",
+    "required": "It is required for your account: it cannot be turned off."
   }
 }

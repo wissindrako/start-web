@@ -28,6 +28,7 @@ export const zUser = () =>
     banned: z.boolean().nullish(),
     banReason: z.string().nullish(),
     banExpires: z.date().nullish(),
+    twoFactorEnabled: z.boolean().nullish(),
     personalData: z
       .object({
         nombre: z.string().nullish(),
@@ -47,6 +48,8 @@ export const zSession = () =>
     createdAt: z.date(),
     updatedAt: z.date(),
     expiresAt: z.date(),
+    userAgent: z.string().nullish(),
+    ipAddress: z.string().nullish(),
   });
 
 export type FormFieldsUser = z.infer<ReturnType<typeof zFormFieldsUser>>;

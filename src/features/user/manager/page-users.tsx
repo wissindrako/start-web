@@ -1,4 +1,5 @@
 import { getUiState } from '@bearstudio/ui-state';
+import { ORPCError } from '@orpc/client';
 import {
   useInfiniteQuery,
   useMutation,
@@ -7,12 +8,18 @@ import {
 } from '@tanstack/react-query';
 import { Link, useRouter } from '@tanstack/react-router';
 import dayjs from 'dayjs';
-import { BadgeCheckIcon, PlusIcon, RefreshCwIcon } from 'lucide-react';
+import {
+  BadgeCheckIcon,
+  MailIcon,
+  PlusIcon,
+  RefreshCwIcon,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 import { orpc } from '@/lib/orpc/client';
 
+import { PageError } from '@/components/errors/page-error';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -91,6 +98,12 @@ export const PageUsers = (props: {
 
   const ui = getUiState((set) => {
     if (usersQuery.status === 'pending') return set('pending');
+    if (
+      usersQuery.status === 'error' &&
+      usersQuery.error instanceof ORPCError &&
+      usersQuery.error.code === 'FORBIDDEN'
+    )
+      return set('forbidden');
     if (usersQuery.status === 'error') return set('error');
     const searchTerm = props.search.searchTerm;
     const items = usersQuery.data?.pages.flatMap((p) => p.items) ?? [];
@@ -119,6 +132,14 @@ export const PageUsers = (props: {
             >
               <RefreshCwIcon />
             </ResponsiveIconButton>
+            <ResponsiveIconButtonLink
+              label={t('user:manager.list.invitationsButton')}
+              variant="ghost"
+              size="sm"
+              to="/manager/users/invitations"
+            >
+              <MailIcon />
+            </ResponsiveIconButtonLink>
             <ResponsiveIconButtonLink
               label={t('user:manager.list.newButton')}
               variant="secondary"
@@ -152,6 +173,7 @@ export const PageUsers = (props: {
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="">{t('user:manager.list.allRoles')}</SelectItem>
             {roles.map((role) => (
               <SelectItem key={role.id} value={role.id}>
                 {role.name}
@@ -173,6 +195,7 @@ export const PageUsers = (props: {
       <PageLayoutContent className="pb-20">
         <DataList>
           {ui
+            .match('forbidden', () => <PageError type="403" />)
             .match('pending', () => <DataListLoadingState />)
             .match('error', () => (
               <DataListErrorState retry={() => usersQuery.refetch()} />
@@ -223,10 +246,12 @@ export const PageUsers = (props: {
                       </DataListText>
                       <DataListText className="text-xs text-muted-foreground">
                         {item.email}
-                        {item.personalData?.numeroDocumento && (
-                          <> · {item.personalData.numeroDocumento}</>
-                        )}
                       </DataListText>
+                      {item.personalData?.numeroDocumento && (
+                        <DataListText className="text-xs text-muted-foreground">
+                          {item.personalData.numeroDocumento}
+                        </DataListText>
+                      )}
                       {!!item.roles?.length && (
                         <div className="mt-1 flex flex-wrap gap-1">
                           {item.roles.map((r) => (

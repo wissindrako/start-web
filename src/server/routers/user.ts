@@ -4,9 +4,11 @@ import { z } from 'zod';
 
 import { zRole } from '@/features/role/schema';
 import { zSession, zUser } from '@/features/user/schema';
+import { assertEmailDomainAllowed } from '@/server/access-settings';
 import { auth } from '@/server/auth';
 import { Prisma } from '@/server/db/generated/client';
 import { protectedProcedure } from '@/server/orpc';
+import { assertRequesterHolds } from '@/server/permissions';
 
 const tags = ['users'];
 
@@ -44,33 +46,29 @@ export default {
           input.roleId ? { roles: { some: { roleId: input.roleId } } } : {},
           {
             OR: [
-              { name: { contains: input.searchTerm, mode: 'insensitive' } },
-              { email: { contains: input.searchTerm, mode: 'insensitive' } },
+              { name: { contains: input.searchTerm } },
+              { email: { contains: input.searchTerm } },
               {
                 personalData: {
                   OR: [
                     {
                       nombre: {
                         contains: input.searchTerm,
-                        mode: 'insensitive',
                       },
                     },
                     {
                       primerApellido: {
                         contains: input.searchTerm,
-                        mode: 'insensitive',
                       },
                     },
                     {
                       segundoApellido: {
                         contains: input.searchTerm,
-                        mode: 'insensitive',
                       },
                     },
                     {
                       numeroDocumento: {
                         contains: input.searchTerm,
-                        mode: 'insensitive',
                       },
                     },
                   ],
@@ -188,6 +186,10 @@ export default {
         throw new ORPCError('NOT_FOUND');
       }
 
+      if (currentUser.email !== input.email) {
+        await assertEmailDomainAllowed(input.email);
+      }
+
       context.logger.info('Update user');
       return await context.db.user.update({
         where: { id: input.id },
@@ -220,6 +222,17 @@ export default {
     .output(zUser())
     .handler(async ({ context, input }) => {
       context.logger.info('Create user');
+
+      // The static admin role unlocks Better Auth's admin API (ban,
+      // impersonate, set role...): only admins can hand it out
+      if (input.role === 'admin' && context.user.role !== 'admin') {
+        throw new ORPCError('FORBIDDEN', {
+          message: 'Only admins can create admin users',
+        });
+      }
+
+      await assertEmailDomainAllowed(input.email);
+
       return await context.db.user.create({
         data: {
           email: input.email,
@@ -343,27 +356,13 @@ export default {
     )
     .output(z.void())
     .handler(async ({ context, input }) => {
-      if (context.user.id === input.id) {
-        context.logger.warn(
-          'Prevent to revoke all sesssions of the current connected user'
-        );
-        throw new ORPCError('BAD_REQUEST', {
-          message: 'You cannot revoke all your sessions',
-        });
-      }
-
-      context.logger.info('Revoke all user sessions');
-      const response = await auth.api.revokeUserSessions({
-        body: {
+      context.logger.info('Revoke all user sessions except current');
+      await context.db.session.deleteMany({
+        where: {
           userId: input.id,
+          token: { not: context.session.token },
         },
-        headers: getRequestHeaders(),
       });
-
-      if (!response.success) {
-        context.logger.error('Failed to revoke all the user sessions');
-        throw new ORPCError('INTERNAL_SERVER_ERROR');
-      }
     }),
 
   revokeUserSession: protectedProcedure({
@@ -394,17 +393,9 @@ export default {
       }
 
       context.logger.info('Revoke user session');
-      const response = await auth.api.revokeUserSession({
-        body: {
-          sessionToken: input.sessionToken,
-        },
-        headers: getRequestHeaders(),
+      await context.db.session.delete({
+        where: { token: input.sessionToken, userId: input.id },
       });
-
-      if (!response.success) {
-        context.logger.error('Failed to revoke the user session');
-        throw new ORPCError('INTERNAL_SERVER_ERROR');
-      }
     }),
   updateImage: protectedProcedure({
     permission: {
@@ -468,6 +459,43 @@ export default {
         where: { id: input.id },
         data: { verifiedAt: input.verified ? new Date() : null },
       });
+    }),
+
+  // For a user who lost their authenticator app and backup codes: turns
+  // two-factor authentication off so they can sign in and set it up again
+  resetTwoFactor: protectedProcedure({
+    permission: {
+      user: ['update'],
+    },
+  })
+    .route({
+      method: 'POST',
+      path: '/users/{id}/two-factor/reset',
+      tags,
+    })
+    .input(z.object({ id: z.string() }))
+    .output(zUser())
+    .handler(async ({ context, input }) => {
+      if (context.user.id === input.id) {
+        throw new ORPCError('BAD_REQUEST', {
+          message:
+            'Turn off your own two-factor authentication from your account',
+        });
+      }
+      const user = await context.db.user.findUnique({
+        where: { id: input.id },
+      });
+      if (!user) throw new ORPCError('NOT_FOUND');
+
+      context.logger.info({ userId: input.id }, 'Resetting two-factor');
+      const [, updated] = await context.db.$transaction([
+        context.db.twoFactor.deleteMany({ where: { userId: input.id } }),
+        context.db.user.update({
+          where: { id: input.id },
+          data: { twoFactorEnabled: false },
+        }),
+      ]);
+      return updated;
     }),
 
   banUser: protectedProcedure({
@@ -577,6 +605,39 @@ export default {
     .output(z.void())
     .handler(async ({ context, input }) => {
       context.logger.info('Updating user roles');
+
+      if (input.id === context.user.id) {
+        throw new ORPCError('FORBIDDEN', {
+          message: 'Cannot change your own roles',
+        });
+      }
+
+      // Assigning or removing an identity-center role requires holding all
+      // of its permissions (external-system roles are not restricted)
+      const current = await context.db.userRoleAssignment.findMany({
+        where: { userId: input.id },
+        select: { roleId: true },
+      });
+      const currentIds = current.map((a) => a.roleId);
+      const changedIds = [
+        ...input.roleIds.filter((id) => !currentIds.includes(id)),
+        ...currentIds.filter((id) => !input.roleIds.includes(id)),
+      ];
+      const changedLocalRoles = await context.db.role.findMany({
+        where: { id: { in: changedIds }, systemId: null },
+        include: { permissions: { include: { permission: true } } },
+      });
+      await assertRequesterHolds(
+        context.db,
+        context.user.id,
+        changedLocalRoles.flatMap((role) =>
+          role.permissions.map(({ permission }) => ({
+            subject: permission.subject,
+            action: permission.action,
+          }))
+        )
+      );
+
       await context.db.userRoleAssignment.deleteMany({
         where: { userId: input.id },
       });

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 
 import { DisplayPreferences } from '@/features/account/display-preferences';
+import { TwoFactorCard } from '@/features/account/two-factor-card';
 import { UserCard } from '@/features/account/user-card';
 import { BuildInfoDrawer } from '@/features/build-info/build-info-drawer';
 import { BuildInfoVersion } from '@/features/build-info/build-info-version';
@@ -23,6 +24,7 @@ export const PageAccount = () => {
       <PageLayoutContent>
         <div className="flex flex-col gap-4">
           <UserCard />
+          <TwoFactorCard />
           <DisplayPreferences />
           <BuildInfoDrawer>
             <Button variant="ghost" size="xs" className="opacity-60">

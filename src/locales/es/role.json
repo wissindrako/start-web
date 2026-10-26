@@ -24,6 +24,13 @@
     },
     "users": {
       "label": "Usuarios"
+    },
+    "undeclared": {
+      "title": "Permisos que el sistema ya no tiene",
+      "description": "El rol los conserva, pero no habilitan nada: el sistema dejó de declararlos en su catálogo. Vuelven a valer si el sistema los declara otra vez.",
+      "remove": "Quitarlos del rol",
+      "badge": "El sistema ya no tiene este permiso",
+      "short": "Permisos sin efecto"
     }
   },
   "scopes": {
@@ -40,7 +47,8 @@
     "session": "Sesiones",
     "personalData": "Datos Personales",
     "systemConfig": "Config. del Sistema",
-    "externalSystem": "Sistemas Externos"
+    "externalSystem": "Sistemas Externos",
+    "privilege": "Privilegios"
   },
   "actions": {
     "read": "Leer",
@@ -51,7 +59,8 @@
     "ban": "Banear",
     "app": "App",
     "manager": "Gestor",
-    "revoke": "Revocar"
+    "revoke": "Revocar",
+    "manage": "Gestionar"
   },
   "external": {
     "addModule": "Agregar módulo",

@@ -38,6 +38,8 @@ const ROLES = [
       { subject: 'externalSystem', action: 'delete' },
       { subject: 'systemConfig', action: 'read' },
       { subject: 'systemConfig', action: 'update' },
+      { subject: 'privilege', action: 'read' },
+      { subject: 'privilege', action: 'manage' },
     ],
   },
   {

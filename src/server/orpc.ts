@@ -7,10 +7,15 @@ import { match } from 'ts-pattern';
 
 import { envClient } from '@/env/client';
 import { Permission } from '@/features/auth/permissions';
+import { requiresTwoFactor } from '@/server/access-settings';
 import { auth } from '@/server/auth';
 import { db } from '@/server/db';
 import { Prisma } from '@/server/db/generated/client';
 import { logger } from '@/server/logger';
+import {
+  getEffectivePermissions,
+  satisfiesPermission,
+} from '@/server/permissions';
 import { timingStore } from '@/server/timing-store';
 
 const base = os
@@ -168,6 +173,8 @@ const base = os
         });
       }
 
+      // Keep the real cause in the logs; the client only gets a generic error
+      context.logger.error(error, 'Unhandled error');
       throw new ORPCError('INTERNAL_SERVER_ERROR', {
         message: 'Unhandled error',
       });
@@ -198,48 +205,28 @@ export const protectedProcedure = ({
       return await next({ context: { user, session } });
     }
 
-    // Load dynamic permissions from all the user's assigned roles (union)
-    const userWithRoles = await context.db.user.findUnique({
-      where: { id: user.id },
-      include: {
-        roles: {
-          include: {
-            role: {
-              include: { permissions: { include: { permission: true } } },
-            },
-          },
-        },
-      },
-    });
-
-    const seen = new Set<string>();
-    const userPermissions: { subject: string; action: string }[] = [];
-    for (const assignment of userWithRoles?.roles ?? []) {
-      for (const rp of assignment.role.permissions) {
-        const key = `${rp.permission.subject}:${rp.permission.action}`;
-        if (!seen.has(key)) {
-          seen.add(key);
-          userPermissions.push({
-            subject: rp.permission.subject,
-            action: rp.permission.action,
-          });
-        }
-      }
-    }
+    // Identity-center permissions: local roles + grants - denies
+    const { permissions: userPermissions } = await getEffectivePermissions(
+      context.db,
+      { userId: user.id, systemId: null }
+    );
 
     // permission is { subject: action[] } — user must satisfy ALL subject entries
     // and needs at least ONE matching action per subject
-    const hasAllPermissions = Object.entries(permission).every(
-      ([subject, actions]) =>
-        (actions as string[]).some((action) =>
-          userPermissions.some(
-            (up) => up.subject === subject && up.action === action
-          )
-        )
-    );
-
-    if (!hasAllPermissions) {
+    if (!satisfiesPermission(userPermissions, permission)) {
       throw new ORPCError('FORBIDDEN');
+    }
+
+    // The access settings require two-factor authentication: nothing but
+    // the account itself until it is set up
+    if (
+      !user.twoFactorEnabled &&
+      (await requiresTwoFactor(user.id, userPermissions))
+    ) {
+      throw new ORPCError('FORBIDDEN', {
+        message: 'Two-factor authentication must be set up first',
+        data: { reason: 'twoFactorRequired' },
+      });
     }
 
     return await next({ context: { user, session } });

@@ -74,9 +74,9 @@ model MiModelo {
 }
 ```
 
-Aplicar la migración:
+Crear y aplicar la migración (revisa el SQL generado; ver [database.md](database.md)):
 ```bash
-pnpm db:push
+pnpm db:migrate --name agregar_<modulo>
 ```
 
 ---
@@ -424,8 +424,59 @@ import miModulo from './mi-modulo.json' with { type: 'json' };
 
 export default {
   // ...existentes
-  miModulo,
+  // Si el nombre tiene guiones, usar string como clave:
+  'mi-modulo': miModulo,
+  // Si el nombre no tiene guiones, se puede usar shorthand:
+  // miModulo,
 } as const;
+```
+
+> **Nota:** el nombre de la clave determina el namespace que se usa en `useTranslation(['mi-modulo'])` y en los archivos de traducción.
+
+---
+
+## Paso 10 — Navegación (sidebar)
+
+**Archivo:** `src/layout/manager/nav-sidebar.tsx`
+
+Agregar un `SidebarMenuItem` dentro del grupo correspondiente. Si requiere permisos, envolverlo con `WithPermissions`:
+
+```tsx
+import { MiIcono } from 'lucide-react';
+
+// Sin restricción de permisos (visible para todos):
+<SidebarMenuItem>
+  <Link to="/manager/mi-modulo">
+    {({ isActive }) => (
+      <SidebarMenuButton
+        isActive={isActive}
+        render={
+          <span>
+            <MiIcono />
+            <span>{t('layout:nav.miModulo')}</span>
+          </span>
+        }
+      />
+    )}
+  </Link>
+</SidebarMenuItem>
+
+// Con restricción de permisos:
+<WithPermissions permissions={[{ miModulo: ['read'] }]}>
+  <SidebarMenuItem>
+    ...
+  </SidebarMenuItem>
+</WithPermissions>
+```
+
+Agregar la clave de traducción en **`src/locales/en/layout.json`** y **`src/locales/es/layout.json`**:
+
+```json
+{
+  "nav": {
+    "miModulo": "Mi Módulo"
+  }
+}
 ```
 
 ---
@@ -433,7 +484,7 @@ export default {
 ## Checklist rápido
 
 - [ ] `prisma/schema.prisma` — modelo + relación
-- [ ] `pnpm db:push` — migrar DB
+- [ ] `pnpm db:migrate --name agregar_<modulo>` — migración (commitear la carpeta)
 - [ ] `src/features/<modulo>/schema.ts` — schemas Zod
 - [ ] `src/features/auth/permissions.ts` — statement + roles
 - [ ] `src/features/role/schema.ts` — AVAILABLE_PERMISSIONS
@@ -444,6 +495,8 @@ export default {
 - [ ] `src/routes/manager/...` — ruta TanStack
 - [ ] `src/locales/en/<modulo>.json` + `es/<modulo>.json` — traducciones
 - [ ] `src/locales/en/index.ts` + `es/index.ts` — registrar namespace
+- [ ] `src/locales/en/layout.json` + `es/layout.json` — clave de navegación
+- [ ] `src/layout/manager/nav-sidebar.tsx` — link en el sidebar
 
 ---
 

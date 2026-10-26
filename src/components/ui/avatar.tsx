@@ -32,7 +32,7 @@ function AvatarImage({
     <AvatarPrimitive.Image
       data-slot="avatar-image"
       className={cn(
-        'aspect-square size-full rounded-full object-cover',
+        'absolute inset-0 aspect-square size-full rounded-full object-cover',
         className
       )}
       {...props}
@@ -40,11 +40,13 @@ function AvatarImage({
   );
 }
 
+type AvatarFallbackBaseProps = Omit<
+  React.ComponentProps<typeof AvatarPrimitive.Fallback>,
+  'children'
+>;
+
 function AvatarFallback(
-  props: Omit<
-    React.ComponentProps<typeof AvatarPrimitive.Fallback>,
-    'children'
-  > &
+  props: AvatarFallbackBaseProps &
     StrictUnion<
       | {
           name: string;

@@ -20,7 +20,7 @@ export const Default = () => {
   return (
     <Button
       onClick={() =>
-        toast.success('Hey there, thanks for checking out Start UI! [web]')
+        toast.success('Hey there, thanks for checking out  FlyNow Admin! [web]')
       }
     >
       Show toast

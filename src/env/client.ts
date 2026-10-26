@@ -30,6 +30,12 @@ export const envClient = createEnv({
       .optional()
       .prefault('false')
       .transform((v) => v === 'true'),
+    // false: only invited people (and users created by an admin) can join
+    VITE_AUTH_SIGNUP_ENABLED: z
+      .enum(['true', 'false'])
+      .optional()
+      .prefault('true')
+      .transform((v) => v === 'true'),
     VITE_ENV_NAME: z
       .string()
       .optional()

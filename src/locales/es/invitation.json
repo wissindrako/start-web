@@ -1,0 +1,52 @@
+{
+  "list": {
+    "title": "Invitaciones",
+    "refresh": "Actualizar",
+    "empty": "Todavía no hay invitaciones",
+    "invitedBy": "Invitado por {{name}} el {{date}}",
+    "expiresAt": "Vence el {{date}}",
+    "signupOpen": "El registro público está abierto: cualquiera puede crear su cuenta. Las invitaciones sirven para asignar roles de antemano.",
+    "signupClosed": "El registro público está cerrado: solo pueden entrar los usuarios existentes y las personas invitadas."
+  },
+  "status": {
+    "pending": "Pendiente",
+    "accepted": "Aceptada",
+    "expired": "Vencida"
+  },
+  "invite": {
+    "button": "Invitar",
+    "title": "Invitar a una persona",
+    "description": "Le llega un email para entrar con su dirección y un código. La invitación vence en {{days}} días.",
+    "email": "Email",
+    "roles": "Roles",
+    "rolesHelper": "Los recibe al entrar por primera vez.",
+    "submit": "Enviar invitación",
+    "success": "Invitación enviada",
+    "userExists": "Ya existe un usuario con este email",
+    "pendingInvitation": "Este email ya tiene una invitación pendiente: reenviala desde la lista",
+    "forbidden": "No podés dar roles con permisos que no tenés",
+    "error": "No se pudo completar la operación",
+    "system": "Sistema",
+    "localSystem": "Nucleo Admin (este centro)",
+    "systemLocalHelper": "Para administrar el centro de identidad. Los roles son opcionales.",
+    "systemExternalHelper": "La persona entra desde ese sistema. Elegí al menos uno de sus roles.",
+    "systemRoleRequired": "Elegí al menos un rol del sistema",
+    "userExistsSystem": "Ya tiene cuenta: para darle acceso a este sistema, asignale el rol desde su ficha",
+    "openUser": "Abrir su ficha",
+    "emailFailed": "No se pudo enviar el correo (¿está corriendo el servidor de correo?). La invitación no se guardó.",
+    "domainNotAllowed": "Solo se puede invitar a correos de {{domains}}",
+    "allowedDomains": "Solo correos de {{domains}}"
+  },
+  "resend": {
+    "button": "Reenviar",
+    "success": "Invitación reenviada (vence en 7 días)",
+    "emailFailed": "No se pudo enviar el correo: la invitación sigue como estaba",
+    "domainNotAllowed": "Este correo ya no está entre los dominios permitidos"
+  },
+  "revoke": {
+    "button": "Revocar",
+    "confirmTitle": "¿Revocar la invitación de {{email}}?",
+    "confirmDescription": "El enlace deja de servir para crear la cuenta.",
+    "success": "Invitación revocada"
+  }
+}

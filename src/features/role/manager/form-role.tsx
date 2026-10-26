@@ -10,6 +10,7 @@ import {
   FormFieldController,
   FormFieldLabel,
 } from '@/components/form';
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import {
@@ -20,6 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+import { undeclaredPermissions } from '@/features/external-system/declared-permissions';
 import { ExternalSystem } from '@/features/external-system/schema';
 import {
   AVAILABLE_PERMISSIONS,
@@ -51,6 +53,9 @@ const ExternalSystemPermissions = ({
   const { t } = useTranslation(['role']);
 
   const selectedSystem = systems.find((s) => s.id === systemId) ?? null;
+  const undeclared = selectedSystem
+    ? undeclaredPermissions(selectedSystem.modules, permissions)
+    : [];
 
   const isChecked = (subject: string, action: string) =>
     permissions.some((p) => p.subject === subject && p.action === action);
@@ -148,6 +153,45 @@ const ExternalSystemPermissions = ({
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Kept by the role but no longer declared by the system */}
+      {undeclared.length > 0 && (
+        <div
+          className="flex flex-col gap-2 rounded-md border border-warning-300 bg-warning-50 px-4 py-3 dark:border-warning-500/40 dark:bg-warning-500/10"
+          data-testid="undeclared-permissions"
+        >
+          <p className="text-sm font-medium">
+            {t('role:common.undeclared.title')}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {t('role:common.undeclared.description')}
+          </p>
+          <div className="flex flex-wrap gap-1">
+            {undeclared.map((p) => (
+              <span
+                key={`${p.subject}:${p.action}`}
+                className="rounded-md bg-background px-2 py-0.5 text-xs font-medium"
+              >
+                {p.subject}:{p.action}
+              </span>
+            ))}
+          </div>
+          <div>
+            <Button
+              type="button"
+              size="xs"
+              variant="secondary"
+              onClick={() =>
+                onPermissionsChange(
+                  permissions.filter((p) => !undeclared.includes(p))
+                )
+              }
+            >
+              {t('role:common.undeclared.remove')}
+            </Button>
           </div>
         </div>
       )}

@@ -30,10 +30,12 @@
       "showing": "Showing {{count}} of {{total}}",
       "searchResults": "{{total}} results for \"{{searchTerm}}\"",
       "filterByRole": "Filter by role",
+      "allRoles": "All roles",
       "confirmVerifyTitle": "Verify {{user}}",
       "confirmVerifyDescription": "Are you sure you want to verify this user?",
       "confirmUnverifyTitle": "Remove verification from {{user}}",
-      "confirmUnverifyDescription": "Are you sure you want to remove verification from this user?"
+      "confirmUnverifyDescription": "Are you sure you want to remove verification from this user?",
+      "invitationsButton": "Invitations"
     },
     "detail": {
       "editButton": {
@@ -79,10 +81,19 @@
       "banReasonPlaceholder": "e.g. Violation of terms of service",
       "banExpiresLabel": "Block until (leave empty for permanent)",
       "cancelButton": "Cancel",
-      "bannedBadge": "Blocked"
+      "bannedBadge": "Blocked",
+      "twoFactorBadge": "Two-step verification",
+      "twoFactorReset": {
+        "button": "Reset 2FA",
+        "confirmTitle": "Reset two-step verification?",
+        "confirmDescription": "It is turned off for this user (for example, if they lost their phone and backup codes). They can turn it on again from their account.",
+        "success": "Two-step verification reset",
+        "error": "It could not be reset"
+      }
     },
     "form": {
-      "emailAlreadyExist": "Email already used"
+      "emailAlreadyExist": "Email already used",
+      "domainNotAllowed": "Only emails from {{domains}} are allowed"
     },
     "new": {
       "title": "New User",

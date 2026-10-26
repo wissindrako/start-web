@@ -22,7 +22,8 @@
       "placeholder": "ej. aprobar, exportar"
     },
     "add": "Agregar módulo",
-    "remove": "Eliminar módulo"
+    "remove": "Eliminar módulo",
+    "published": "El sistema publica sus módulos desde su código (última vez: {{date}}). Para agregar o quitar módulos o acciones, cambialos en el sistema: lo que se edite acá se perdería en su próxima publicación."
   },
   "actions": {
     "read": "Leer",
@@ -37,8 +38,12 @@
       "modulesCount": "{{count}} módulo(s)"
     },
     "detail": {
-      "editButton": { "label": "Editar" },
-      "deleteButton": { "label": "Eliminar" },
+      "editButton": {
+        "label": "Editar"
+      },
+      "deleteButton": {
+        "label": "Eliminar"
+      },
       "deleted": "Sistema eliminado",
       "deleteError": "Error al eliminar el sistema",
       "confirmDeleteTitle": "Eliminar \"{{name}}\"",
@@ -46,13 +51,17 @@
     },
     "new": {
       "title": "Nuevo Sistema Externo",
-      "createButton": { "label": "Crear" },
+      "createButton": {
+        "label": "Crear"
+      },
       "createError": "Error al crear el sistema",
       "nameAlreadyUsed": "Ya existe un sistema con este nombre"
     },
     "update": {
       "title": "Editar Sistema Externo",
-      "updateButton": { "label": "Guardar" },
+      "updateButton": {
+        "label": "Guardar"
+      },
       "updateError": "Error al actualizar el sistema",
       "nameAlreadyUsed": "Ya existe un sistema con este nombre"
     },
@@ -68,6 +77,54 @@
       "rotateHint": "Rotar la clave invalida la anterior. Actualiza tu sistema externo con la nueva clave.",
       "confirmRotateTitle": "¿Rotar API Key?",
       "confirmRotateDescription": "La clave anterior dejará de funcionar inmediatamente. Deberás actualizar tu sistema externo con la nueva clave."
+    },
+    "oauth": {
+      "title": "Conexión OIDC (inicio de sesión único)",
+      "description": "Cómo inicia sesión este sistema contra el centro de identidad. Sus access tokens son JWT con la URL de su API como audiencia.",
+      "configured": "Configurado",
+      "notConfigured": "Sin configurar",
+      "issuer": "Issuer",
+      "discoveryUrl": "Descubrimiento (OpenID)",
+      "clientId": "Client ID",
+      "resourceIdentifier": {
+        "label": "URL de la API del sistema",
+        "helper": "Va como \"aud\" en los tokens: el sistema debe validar que coincida."
+      },
+      "redirectUris": {
+        "label": "URLs de retorno",
+        "helper": "Una por línea. En producción, https; http solo en localhost (desarrollo)."
+      },
+      "postLogoutRedirectUris": {
+        "label": "URLs tras cerrar sesión (opcional)"
+      },
+      "clientType": {
+        "label": "Tipo de cliente",
+        "public": "Público (navegador o móvil, sin secreto)",
+        "confidential": "Confidencial (servidor, con secreto)",
+        "helper": "Público para apps en el navegador; confidencial si el login lo resuelve un servidor.",
+        "locked": "El tipo no se puede cambiar una vez creado el cliente."
+      },
+      "create": "Crear conexión",
+      "update": "Guardar cambios",
+      "saved": "Conexión OIDC guardada",
+      "saveError": "No se pudo guardar la conexión OIDC",
+      "resourceInUse": "Otro sistema ya usa esta URL de API",
+      "copied": "Copiado",
+      "secretTitle": "Secreto del cliente",
+      "secretWarning": "Copialo ahora: no se vuelve a mostrar."
+    },
+    "service": {
+      "title": "Credenciales de servicio",
+      "description": "Para que el backend del sistema llame a la API externa del centro (permisos, catálogo) con el estándar OAuth client_credentials, en lugar de la API key.",
+      "tokenEndpoint": "Endpoint de tokens",
+      "audience": "Recurso (resource / aud)",
+      "scopes": "Scopes",
+      "create": "Crear credenciales",
+      "rotate": "Regenerar credenciales",
+      "rotateConfirmTitle": "¿Regenerar las credenciales de servicio?",
+      "rotateConfirmDescription": "Se crea un client ID y un secreto nuevos. Los actuales dejan de funcionar en el momento: actualizá el backend del sistema.",
+      "issued": "Credenciales de servicio creadas",
+      "error": "No se pudieron crear las credenciales"
     }
   }
 }

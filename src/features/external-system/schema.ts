@@ -17,6 +17,8 @@ export const zExternalSystem = () =>
     name: z.string(),
     label: z.string().nullish(),
     modules: z.array(zExternalModule()),
+    // Set once the system publishes its catalog: modules are then read-only
+    catalogSyncedAt: z.date().nullish(),
     createdAt: z.date(),
     updatedAt: z.date(),
   });

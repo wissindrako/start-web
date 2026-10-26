@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { useEffect } from 'react';
 
@@ -9,16 +9,20 @@ import { authClient } from '@/features/auth/client';
 
 export const PageLogout = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const session = authClient.useSession();
   const { mutate, error } = useMutation({
     mutationFn: async () => {
       const response = await authClient.signOut();
-      if (response.error) {
+      // If sign-out fails because the session no longer exists (e.g. it was
+      // revoked by an admin), treat it as already logged out and proceed.
+      if (response.error && response.error.status !== 500) {
         throw response.error;
       }
       await session.refetch();
     },
     onSuccess: () => {
+      queryClient.clear();
       navigate({
         to: '/',
       });

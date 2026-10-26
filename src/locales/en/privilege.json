@@ -1,0 +1,52 @@
+{
+  "card": {
+    "title": "Permissions and privileges",
+    "description": "Effective permissions: those of the roles, plus granted and minus denied ones.",
+    "identityCenter": "Identity center",
+    "roles": "Roles: {{roles}}",
+    "noRoles": "No roles in this system",
+    "noPermissions": "No permissions in this system",
+    "noPrivileges": "No privileges: only roles apply",
+    "expired": "Expired",
+    "expiresAt": "Expires {{date}}",
+    "noExpiry": "No expiry",
+    "grantedBy": "Granted by {{name}}",
+    "adminNote": "Admins hold every permission of the identity center: privileges apply only in external systems"
+  },
+  "source": {
+    "role": "From a role",
+    "grant": "Granted as a privilege",
+    "deny": "Denied as a privilege"
+  },
+  "effect": {
+    "grant": "Grant",
+    "deny": "Deny"
+  },
+  "fields": {
+    "permission": "Permission",
+    "permissionPlaceholder": "Pick a permission",
+    "effect": "Effect",
+    "reason": "Reason",
+    "reasonPlaceholder": "E.g. covering for a colleague on vacation",
+    "expiresAt": "Expires on"
+  },
+  "add": {
+    "button": "Add privilege",
+    "title": "Add privilege",
+    "description": "Grants a permission the roles lack or removes one they have. An existing privilege for that permission is replaced.",
+    "cancel": "Cancel",
+    "save": "Save",
+    "success": "Privilege saved"
+  },
+  "remove": {
+    "button": "Remove privilege",
+    "confirmTitle": "Remove the privilege “{{name}}”?",
+    "confirmDescription": "The user goes back to what their roles say for this permission.",
+    "success": "Privilege removed"
+  },
+  "errors": {
+    "forbidden": "You cannot manage a permission you do not hold, nor your own privileges",
+    "adminTarget": "Admins hold every permission of the identity center: they cannot receive privileges here",
+    "generic": "The privilege could not be saved"
+  }
+}

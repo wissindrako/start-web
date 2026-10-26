@@ -19,6 +19,9 @@ import { ConfirmResponsiveDrawer } from '@/components/ui/confirm-responsive-draw
 import { ResponsiveIconButton } from '@/components/ui/responsive-icon-button';
 import { Spinner } from '@/components/ui/spinner';
 
+import { WithPermissions } from '@/features/auth/with-permission';
+import { ExternalSystemOAuthCard } from '@/features/external-system/manager/external-system-oauth-card';
+import { ExternalSystemServiceClientCard } from '@/features/external-system/manager/external-system-service-client-card';
 import { FormExternalSystem } from '@/features/external-system/manager/form-external-system';
 import { zFormFieldsExternalSystem } from '@/features/external-system/schema';
 import {
@@ -150,7 +153,13 @@ export const PageExternalSystemUpdate = (props: { params: { id: string } }) => {
       <Form
         {...form}
         onSubmit={(values) => {
-          update.mutate({ id: props.params.id, ...values });
+          // Published by the system: its modules are not ours to send
+          const { modules, ...rest } = values;
+          update.mutate({
+            id: props.params.id,
+            ...rest,
+            ...(!systemQuery.data?.catalogSyncedAt && { modules }),
+          });
         }}
       >
         <PageLayout>
@@ -205,7 +214,9 @@ export const PageExternalSystemUpdate = (props: { params: { id: string } }) => {
           <PageLayoutContent>
             <Card>
               <CardContent>
-                <FormExternalSystem />
+                <FormExternalSystem
+                  catalogSyncedAt={systemQuery.data?.catalogSyncedAt}
+                />
               </CardContent>
             </Card>
 
@@ -275,6 +286,13 @@ export const PageExternalSystemUpdate = (props: { params: { id: string } }) => {
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {systemQuery.data && (
+              <WithPermissions permissions={[{ externalSystem: ['update'] }]}>
+                <ExternalSystemOAuthCard systemId={props.params.id} />
+                <ExternalSystemServiceClientCard systemId={props.params.id} />
+              </WithPermissions>
             )}
           </PageLayoutContent>
         </PageLayout>

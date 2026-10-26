@@ -13,8 +13,10 @@ import {
   AlertCircleIcon,
   BanIcon,
   ContactIcon,
+  MonitorIcon,
   PencilLineIcon,
   ShieldCheckIcon,
+  SmartphoneIcon,
   Trash2Icon,
 } from 'lucide-react';
 import { useState } from 'react';
@@ -69,12 +71,37 @@ import { Spinner } from '@/components/ui/spinner';
 import { authClient } from '@/features/auth/client';
 import { WithPermissions } from '@/features/auth/with-permission';
 import { TIPO_DOCUMENTO_OPTIONS } from '@/features/personal-data/schema';
+import { UserPrivilegesCard } from '@/features/privilege/manager/user-privileges-card';
 import {
   PageLayout,
   PageLayoutContent,
   PageLayoutTopBar,
   PageLayoutTopBarTitle,
 } from '@/layout/manager/page-layout';
+
+function parseUserAgent(ua: string | null | undefined): {
+  browser: string;
+  os: string;
+  isMobile: boolean;
+} {
+  if (!ua) return { browser: 'Unknown', os: 'Unknown', isMobile: false };
+  const isMobile = /Mobile|Android|iPhone|iPad/i.test(ua);
+  let browser = 'Unknown';
+  if (/Edg\//i.test(ua)) browser = 'Edge';
+  else if (/OPR\/|Opera\//i.test(ua)) browser = 'Opera';
+  else if (/Chrome\//i.test(ua)) browser = 'Chrome';
+  else if (/Firefox\//i.test(ua)) browser = 'Firefox';
+  else if (/Safari\//i.test(ua) && /Version\//i.test(ua)) browser = 'Safari';
+  let os = 'Unknown';
+  if (/Windows NT 10\.0/i.test(ua)) os = 'Windows 10/11';
+  else if (/Windows/i.test(ua)) os = 'Windows';
+  else if (/Mac OS X/i.test(ua)) os = 'macOS';
+  else if (/Android/i.test(ua)) os = 'Android';
+  else if (/iPhone/i.test(ua)) os = 'iPhone';
+  else if (/iPad/i.test(ua)) os = 'iPad';
+  else if (/Linux/i.test(ua)) os = 'Linux';
+  return { browser, os, isMobile };
+}
 
 export const PageUser = (props: { params: { id: string } }) => {
   const queryClient = useQueryClient();
@@ -119,6 +146,12 @@ export const PageUser = (props: { params: { id: string } }) => {
       userQuery.error.code === 'NOT_FOUND'
     )
       return set('not-found');
+    if (
+      userQuery.status === 'error' &&
+      userQuery.error instanceof ORPCError &&
+      userQuery.error.code === 'FORBIDDEN'
+    )
+      return set('forbidden');
     if (userQuery.status === 'error') return set('error');
 
     return set('default', { user: userQuery.data });
@@ -171,7 +204,7 @@ export const PageUser = (props: { params: { id: string } }) => {
         <PageLayoutTopBarTitle>
           {ui
             .match('pending', () => <Skeleton className="h-4 w-48" />)
-            .match(['not-found', 'error'], () => (
+            .match(['not-found', 'error', 'forbidden'], () => (
               <AlertCircleIcon className="size-4 text-muted-foreground" />
             ))
             .match('default', ({ user }) => <>{user.name || user.email}</>)
@@ -182,6 +215,7 @@ export const PageUser = (props: { params: { id: string } }) => {
         {ui
           .match('pending', () => <Spinner full />)
           .match('not-found', () => <PageError type="404" />)
+          .match('forbidden', () => <PageError type="403" />)
           .match('error', () => <PageError type="unknown-server-error" />)
           .match('default', ({ user }) => (
             <div className="flex flex-col gap-4 xl:flex-row xl:items-start">
@@ -205,45 +239,48 @@ export const PageUser = (props: { params: { id: string } }) => {
                       </CardTitle>
                       <CardDescription>{user.email}</CardDescription>
                     </div>
-                    <WithPermissions permissions={[{ user: ['update'] }]}>
-                      <Link
-                        to="/manager/users/$id/update"
-                        params={props.params}
-                        className="-m-2 self-start"
-                      >
-                        <Button
-                          size="icon-sm"
-                          variant="ghost"
-                          render={<span />}
-                          nativeButton={false}
+                    <div className="relative z-10 flex flex-none items-center gap-1">
+                      <WithPermissions permissions={[{ user: ['update'] }]}>
+                        <Link
+                          to="/manager/users/$id/update"
+                          params={props.params}
+                          className="-m-2 self-start"
                         >
-                          <PencilLineIcon />
-                          <span className="sr-only">
-                            {t('user:manager.detail.editUser')}
-                          </span>
-                        </Button>
-                        <span className="absolute inset-0" />
-                      </Link>
-                    </WithPermissions>
-                    <WithPermissions permissions={[{ personalData: ['read'] }]}>
-                      <Link
-                        to="/manager/users/$id/personal-data"
-                        params={props.params}
-                        className="-m-2 self-start"
+                          <Button
+                            size="icon-sm"
+                            variant="ghost"
+                            render={<span />}
+                            nativeButton={false}
+                          >
+                            <PencilLineIcon />
+                            <span className="sr-only">
+                              {t('user:manager.detail.editUser')}
+                            </span>
+                          </Button>
+                        </Link>
+                      </WithPermissions>
+                      <WithPermissions
+                        permissions={[{ personalData: ['read'] }]}
                       >
-                        <Button
-                          size="icon-sm"
-                          variant="ghost"
-                          render={<span />}
-                          nativeButton={false}
+                        <Link
+                          to="/manager/users/$id/personal-data"
+                          params={props.params}
+                          className="-m-2 self-start"
                         >
-                          <ContactIcon />
-                          <span className="sr-only">
-                            {t('user:manager.detail.personalDataButton')}
-                          </span>
-                        </Button>
-                      </Link>
-                    </WithPermissions>
+                          <Button
+                            size="icon-sm"
+                            variant="ghost"
+                            render={<span />}
+                            nativeButton={false}
+                          >
+                            <ContactIcon />
+                            <span className="sr-only">
+                              {t('user:manager.detail.personalDataButton')}
+                            </span>
+                          </Button>
+                        </Link>
+                      </WithPermissions>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-4">
@@ -258,6 +295,17 @@ export const PageUser = (props: { params: { id: string } }) => {
                         {t('user:manager.detail.bannedBadge')}
                       </Badge>
                     )}
+                    {user.twoFactorEnabled && (
+                      <Badge variant="positive">
+                        {t('user:manager.detail.twoFactorBadge')}
+                      </Badge>
+                    )}
+                    {user.twoFactorEnabled &&
+                      session.data?.user.id !== user.id && (
+                        <WithPermissions permissions={[{ user: ['update'] }]}>
+                          <ResetTwoFactorButton userId={user.id} />
+                        </WithPermissions>
+                      )}
                     <p className="text-sm text-muted-foreground">
                       {user.verifiedAt ? (
                         <>
@@ -284,6 +332,13 @@ export const PageUser = (props: { params: { id: string } }) => {
                 </WithPermissions>
                 <WithPermissions permissions={[{ session: ['list'] }]}>
                   <UserSessions userId={props.params.id} />
+                </WithPermissions>
+                <WithPermissions permissions={[{ privilege: ['read'] }]}>
+                  <UserPrivilegesCard
+                    userId={props.params.id}
+                    isCurrentUser={session.data?.user.id === props.params.id}
+                    isAdmin={user.role === 'admin'}
+                  />
                 </WithPermissions>
               </div>
             </div>
@@ -478,40 +533,59 @@ const UserSessions = (props: { userId: string }) => {
           ))
           .match('default', ({ items }) => (
             <>
-              {items.map((item) => (
-                <DataListRow
-                  key={item.id}
-                  className="max-md:flex-col max-md:py-2 max-md:[&>div]:py-1"
-                >
-                  <DataListCell>
-                    <DataListText>
-                      {t('user:manager.detail.session', { token: item.token })}
-                    </DataListText>
-                  </DataListCell>
-                  <DataListCell>
-                    <DataListText className="text-muted-foreground">
-                      {t('user:manager.detail.sessionUpdated', {
-                        time: dayjs(item.updatedAt).fromNow(),
-                      })}
-                    </DataListText>
-                  </DataListCell>
-                  <DataListCell>
-                    <DataListText className="text-muted-foreground">
-                      {t('user:manager.detail.sessionExpires', {
-                        time: dayjs().to(item.expiresAt),
-                      })}
-                    </DataListText>
-                  </DataListCell>
-                  <WithPermissions permissions={[{ session: ['revoke'] }]}>
-                    <DataListCell className="flex-none">
-                      <RevokeSessionButton
-                        userId={props.userId}
-                        sessionToken={item.token}
-                      />
+              {items.map((item) => {
+                const { browser, os, isMobile } = parseUserAgent(
+                  item.userAgent
+                );
+                return (
+                  <DataListRow
+                    key={item.id}
+                    className="max-md:flex-col max-md:py-2 max-md:[&>div]:py-1"
+                  >
+                    <DataListCell className="flex items-center gap-2">
+                      <span className="text-muted-foreground">
+                        {isMobile ? (
+                          <SmartphoneIcon className="size-4" />
+                        ) : (
+                          <MonitorIcon className="size-4" />
+                        )}
+                      </span>
+                      <div>
+                        <DataListText>
+                          {browser} · {os}
+                        </DataListText>
+                        {item.ipAddress && (
+                          <DataListText className="text-xs text-muted-foreground">
+                            {item.ipAddress}
+                          </DataListText>
+                        )}
+                      </div>
                     </DataListCell>
-                  </WithPermissions>
-                </DataListRow>
-              ))}
+                    <DataListCell>
+                      <DataListText className="text-muted-foreground">
+                        {t('user:manager.detail.sessionUpdated', {
+                          time: dayjs(item.updatedAt).fromNow(),
+                        })}
+                      </DataListText>
+                    </DataListCell>
+                    <DataListCell>
+                      <DataListText className="text-muted-foreground">
+                        {t('user:manager.detail.sessionExpires', {
+                          time: dayjs().to(item.expiresAt),
+                        })}
+                      </DataListText>
+                    </DataListCell>
+                    <WithPermissions permissions={[{ session: ['revoke'] }]}>
+                      <DataListCell className="flex-none">
+                        <RevokeSessionButton
+                          userId={props.userId}
+                          sessionToken={item.token}
+                        />
+                      </DataListCell>
+                    </WithPermissions>
+                  </DataListRow>
+                );
+              })}
               <DataListRow>
                 <DataListCell className="flex-none">
                   <Button
@@ -543,7 +617,6 @@ const UserSessions = (props: { userId: string }) => {
 
 const RevokeAllSessionsButton = (props: { userId: string }) => {
   const queryClient = useQueryClient();
-  const currentSession = authClient.useSession();
   const { t } = useTranslation(['user']);
   const revokeAllSessions = useMutation(
     orpc.user.revokeUserSessions.mutationOptions({
@@ -565,7 +638,6 @@ const RevokeAllSessionsButton = (props: { userId: string }) => {
     <Button
       size="xs"
       variant="secondary"
-      disabled={currentSession.data?.user.id === props.userId}
       loading={revokeAllSessions.isPending}
       onClick={() => {
         revokeAllSessions.mutate({
@@ -775,5 +847,35 @@ const BanUserButton = (props: {
         </ResponsiveDrawerContent>
       </ResponsiveDrawer>
     </>
+  );
+};
+
+const ResetTwoFactorButton = (props: { userId: string }) => {
+  const { t } = useTranslation(['user']);
+  const queryClient = useQueryClient();
+  const reset = useMutation(
+    orpc.user.resetTwoFactor.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: orpc.user.getById.key({ input: { id: props.userId } }),
+        });
+        toast.success(t('user:manager.detail.twoFactorReset.success'));
+      },
+      onError: () => toast.error(t('user:manager.detail.twoFactorReset.error')),
+    })
+  );
+
+  return (
+    <ConfirmResponsiveDrawer
+      onConfirm={() => reset.mutate({ id: props.userId })}
+      title={t('user:manager.detail.twoFactorReset.confirmTitle')}
+      description={t('user:manager.detail.twoFactorReset.confirmDescription')}
+      confirmText={t('user:manager.detail.twoFactorReset.button')}
+      confirmVariant="destructive"
+    >
+      <Button size="xs" variant="ghost" loading={reset.isPending}>
+        {t('user:manager.detail.twoFactorReset.button')}
+      </Button>
+    </ConfirmResponsiveDrawer>
   );
 };

@@ -8,8 +8,10 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+  // Scratch database for `prisma migrate dev` (see docs/database.md)
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 enum UserRole {
@@ -23,25 +25,39 @@ enum Genero {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String
-  email         String
-  emailVerified Boolean
-  image         String?
+  id             String    @id @default(cuid())
+  name           String
+  email          String
+  emailVerified  Boolean
+  image          String?
   imageThumbnail String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  sessions       Session[]
+  accounts       Account[]
 
-  role        UserRole?
-  banned      Boolean?
-  banReason   String?
-  banExpires  DateTime?
-  verifiedAt  DateTime?
+  role       UserRole?
+  banned     Boolean?
+  banReason  String?
+  banExpires DateTime?
+  verifiedAt DateTime?
+
+  // Two-factor authentication (TOTP app + backup codes)
+  twoFactorEnabled Boolean?    @default(false)
+  twoFactors       TwoFactor[]
 
   roles        UserRoleAssignment[]
   personalData PersonalData?
+
+  permissionOverrides        UserPermissionOverride[] @relation("overrideUser")
+  grantedPermissionOverrides UserPermissionOverride[] @relation("overrideGrantedBy")
+
+  invitationsSent Invitation[] @relation("invitationsSent")
+
+  oauthclients       OauthClient[]
+  oauthrefreshtokens OauthRefreshToken[]
+  oauthaccesstokens  OauthAccessToken[]
+  oauthconsents      OauthConsent[]
 
   @@unique([email])
   @@map("user")
@@ -76,15 +92,64 @@ enum RoleScope {
   external
 }
 
+// Invitation to join while public sign-up is closed: the invited email can
+// create its account (signing in with the email code) and gets these roles
+model Invitation {
+  id          String          @id @default(cuid())
+  email       String
+  roles       Role[]
+  // System the person is invited to (its roles only); null = this center
+  systemId    String?
+  system      ExternalSystem? @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  invitedById String?
+  invitedBy   User?           @relation("invitationsSent", fields: [invitedById], references: [id], onDelete: SetNull)
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([email])
+  @@index([systemId])
+  @@map("invitation")
+}
+
+model TwoFactor {
+  id                      String    @id @default(cuid())
+  secret                  String    @db.Text
+  backupCodes             String    @db.Text
+  userId                  String
+  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verified                Boolean?  @default(true)
+  failedVerificationCount Int?      @default(0)
+  lockedUntil             DateTime?
+
+  @@index([userId])
+  @@map("twoFactor")
+}
+
 model ExternalSystem {
-  id        String           @id @default(cuid())
-  name      String           @unique
-  label     String?
-  apiKey    String           @unique @default(uuid())
-  modules   ExternalModule[]
-  roles     Role[]
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  id                  String                   @id @default(cuid())
+  name                String                   @unique
+  label               String?
+  apiKey              String                   @unique @default(uuid())
+  modules             ExternalModule[]
+  roles               Role[]
+  // OAuth client the system signs users in with, and the resource
+  // (its API URL) that becomes the `aud` of its access tokens
+  oauthClientId       String?                  @unique
+  oauthClient         OauthClient?             @relation(fields: [oauthClientId], references: [clientId], onDelete: SetNull)
+  resourceIdentifier  String?                  @unique
+  // Confidential OAuth client the system's backend uses (client_credentials)
+  // to call the external API, instead of the API key
+  serviceClientId     String?                  @unique
+  // Last time the system published its own module catalog (PUT
+  // /external/modules). From then on its modules are edited in its code,
+  // not here: the next publication would undo the changes.
+  catalogSyncedAt     DateTime?
+  permissionOverrides UserPermissionOverride[]
+  invitations         Invitation[]
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
 
   @@map("external_system")
 }
@@ -94,7 +159,7 @@ model ExternalModule {
   systemId String
   system   ExternalSystem @relation(fields: [systemId], references: [id], onDelete: Cascade)
   name     String
-  actions  String[]
+  actions  Json
   order    Int            @default(0)
 
   @@unique([systemId, name])
@@ -113,24 +178,27 @@ model Role {
   permissions     RolePermission[]
   userAssignments UserRoleAssignment[]
 
+  invitations Invitation[]
+
   @@map("role")
 }
 
 model UserRoleAssignment {
-  userId    String
-  roleId    String
-  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role      Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  userId String
+  roleId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@id([userId, roleId])
   @@map("user_role_assignment")
 }
 
 model Permission {
-  id      String           @id @default(cuid())
-  subject String
-  action  String
-  roles   RolePermission[]
+  id        String                   @id @default(cuid())
+  subject   String
+  action    String
+  roles     RolePermission[]
+  overrides UserPermissionOverride[]
 
   @@unique([subject, action])
   @@map("permission")
@@ -159,7 +227,11 @@ model Session {
 
   impersonatedBy String?
 
+  oauthrefreshtokens OauthRefreshToken[]
+  oauthaccesstokens  OauthAccessToken[]
+
   @@unique([token])
+  @@index([userId])
   @@map("session")
 }
 
@@ -169,27 +241,30 @@ model Account {
   providerId            String
   userId                String
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
   accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
-  scope                 String?
+  scope                 String?   @db.Text
   password              String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
+  @@index([userId])
   @@map("account")
 }
 
 model Verification {
   id         String    @id @default(cuid())
   identifier String
-  value      String
+  // Holds JSON payloads (e.g. OAuth authorization codes)
+  value      String    @db.Text
   expiresAt  DateTime
   createdAt  DateTime? @default(now())
   updatedAt  DateTime? @updatedAt
 
+  @@index([identifier])
   @@map("verification")
 }
 
@@ -201,6 +276,45 @@ model SystemConfig {
   updatedAt  DateTime @updatedAt
 
   @@map("system_config")
+}
+
+// Who can get in and how: set from the manager; while there is no row the
+// defaults in src/server/access-settings.ts apply
+model AccessSettings {
+  id                String   @id @default("singleton")
+  // false: accounts only by invitation or created by an admin
+  signupEnabled     Boolean
+  // Email domains new accounts and invitations may use; empty: any
+  allowedDomains    Json
+  loginCodeMinutes  Int
+  invitationDays    Int
+  // off, managers (who can open the manager) or everyone
+  twoFactorRequired String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("access_settings")
+}
+
+// Mail settings saved from the manager; while there are none, the center
+// sends with EMAIL_SERVER and EMAIL_FROM from the environment
+model MailSettings {
+  id          String   @id @default("singleton")
+  // smtp sends; log writes the messages to the server log instead
+  mailer      String   @default("smtp")
+  host        String?
+  port        Int?
+  // auto (TLS on port 465, STARTTLS when the server offers it), starttls or tls
+  encryption  String   @default("auto")
+  username    String?
+  // Encrypted with a key derived from AUTH_SECRET (src/server/secrets.ts)
+  password    String?  @db.Text
+  fromAddress String
+  fromName    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("mail_settings")
 }
 
 model Book {
@@ -245,4 +359,219 @@ model Publisher {
   name      String   @unique
 
   @@map("publisher")
+}
+
+model Jwks {
+  id         String    @id
+  publicKey  String    @db.Text
+  privateKey String    @db.Text
+  createdAt  DateTime
+  expiresAt  DateTime?
+  alg        String?   @db.Text
+  crv        String?   @db.Text
+
+  @@map("jwks")
+}
+
+model OauthClient {
+  id                               String                @id
+  clientId                         String
+  clientSecret                     String?               @db.Text
+  clientDiscoveryId                String?               @db.Text
+  disabled                         Boolean?              @default(false)
+  skipConsent                      Boolean?
+  enableEndSession                 Boolean?
+  subjectType                      String?               @db.Text
+  scopes                           String?
+  clientCredentialsScopes          String?
+  userId                           String?
+  user                             User?                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt                        DateTime?
+  updatedAt                        DateTime?
+  name                             String?               @db.Text
+  uri                              String?               @db.Text
+  icon                             String?               @db.Text
+  contacts                         String?
+  tos                              String?               @db.Text
+  policy                           String?               @db.Text
+  softwareId                       String?               @db.Text
+  softwareVersion                  String?               @db.Text
+  softwareStatement                String?               @db.Text
+  redirectUris                     String
+  postLogoutRedirectUris           String?
+  backchannelLogoutUri             String?               @db.Text
+  backchannelLogoutSessionRequired Boolean?
+  tokenEndpointAuthMethod          String?               @db.Text
+  applicationType                  String?               @db.Text
+  jwks                             String?               @db.Text
+  jwksUri                          String?               @db.Text
+  grantTypes                       String?
+  responseTypes                    String?
+  requirePKCE                      Boolean?
+  dpopBoundAccessTokens            Boolean?              @default(false)
+  referenceId                      String?               @db.Text
+  metadata                         String?
+  oauthclientresources             OauthClientResource[]
+  oauthrefreshtokens               OauthRefreshToken[]
+  oauthaccesstokens                OauthAccessToken[]
+  oauthconsents                    OauthConsent[]
+  externalSystem                   ExternalSystem?
+
+  @@unique([clientId])
+  @@index([userId])
+  @@map("oauthClient")
+}
+
+model OauthResource {
+  id                            String                @id
+  identifier                    String
+  name                          String                @db.Text
+  accessTokenTtl                Int?
+  refreshTokenTtl               Int?
+  signingAlgorithm              String?               @db.Text
+  signingKeyId                  String?               @db.Text
+  allowedScopes                 String?
+  customClaims                  String?
+  dpopBoundAccessTokensRequired Boolean?              @default(false)
+  disabled                      Boolean?              @default(false)
+  createdAt                     DateTime?
+  updatedAt                     DateTime?
+  policyVersion                 Int?                  @default(1)
+  metadata                      String?
+  oauthclientresources          OauthClientResource[]
+
+  @@unique([identifier])
+  @@map("oauthResource")
+}
+
+model OauthClientResource {
+  id            String        @id
+  clientId      String        @db.VarChar(191)
+  oauthclient   OauthClient   @relation(fields: [clientId], references: [clientId], onDelete: Cascade)
+  resourceId    String        @db.VarChar(191)
+  oauthresource OauthResource @relation(fields: [resourceId], references: [identifier], onDelete: Cascade)
+  metadata      String?
+  createdAt     DateTime?
+
+  @@unique([clientId, resourceId], map: "oauthClientResource_clientId_resourceId_uidx")
+  @@index([clientId])
+  @@index([resourceId])
+  @@map("oauthClientResource")
+}
+
+model OauthRefreshToken {
+  id                      String             @id
+  token                   String
+  clientId                String
+  oauthclient             OauthClient        @relation(fields: [clientId], references: [clientId], onDelete: Cascade)
+  sessionId               String?
+  session                 Session?           @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  userId                  String
+  user                    User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referenceId             String?            @db.Text
+  authorizationCodeId     String?            @db.Text
+  resources               String?
+  requestedUserInfoClaims String?
+  expiresAt               DateTime
+  createdAt               DateTime
+  revoked                 DateTime?
+  rotatedAt               DateTime?
+  rotationReplayResponse  String?            @db.Text
+  rotationReplayExpiresAt DateTime?
+  authTime                DateTime?
+  confirmation            String?
+  scopes                  String
+  oauthaccesstokens       OauthAccessToken[]
+
+  @@unique([token])
+  @@index([clientId])
+  @@index([sessionId])
+  @@index([userId])
+  @@index([authorizationCodeId(length: 191)])
+  @@map("oauthRefreshToken")
+}
+
+model OauthAccessToken {
+  id                      String             @id
+  token                   String
+  clientId                String
+  oauthclient             OauthClient        @relation(fields: [clientId], references: [clientId], onDelete: Cascade)
+  sessionId               String?
+  session                 Session?           @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  userId                  String?
+  user                    User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referenceId             String?            @db.Text
+  authorizationCodeId     String?            @db.Text
+  resources               String?
+  requestedUserInfoClaims String?
+  refreshId               String?
+  oauthrefreshtoken       OauthRefreshToken? @relation(fields: [refreshId], references: [id], onDelete: Cascade)
+  expiresAt               DateTime
+  createdAt               DateTime
+  revoked                 DateTime?
+  confirmation            String?
+  scopes                  String
+
+  @@unique([token])
+  @@index([clientId])
+  @@index([sessionId])
+  @@index([userId])
+  @@index([authorizationCodeId(length: 191)])
+  @@index([refreshId])
+  @@map("oauthAccessToken")
+}
+
+model OauthConsent {
+  id                      String      @id
+  clientId                String
+  oauthclient             OauthClient @relation(fields: [clientId], references: [clientId], onDelete: Cascade)
+  userId                  String?
+  user                    User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referenceId             String?     @db.Text
+  resources               String?
+  requestedUserInfoClaims String?
+  scopes                  String
+  createdAt               DateTime
+  updatedAt               DateTime
+
+  @@index([clientId])
+  @@index([userId])
+  @@map("oauthConsent")
+}
+
+model OauthClientAssertion {
+  id        String   @id
+  expiresAt DateTime
+
+  @@map("oauthClientAssertion")
+}
+
+enum PermissionEffect {
+  grant
+  deny
+}
+
+// Privilege: grants or denies one permission to one user, on top of their
+// roles, in one system (systemId null = the identity center itself).
+// Effective permissions = roles + grants - denies (deny wins), expired
+// privileges ignored.
+model UserPermissionOverride {
+  id           String           @id @default(cuid())
+  userId       String
+  user         User             @relation("overrideUser", fields: [userId], references: [id], onDelete: Cascade)
+  systemId     String?
+  system       ExternalSystem?  @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  permissionId String
+  permission   Permission       @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  effect       PermissionEffect
+  reason       String?
+  expiresAt    DateTime?
+  grantedById  String?
+  grantedBy    User?            @relation("overrideGrantedBy", fields: [grantedById], references: [id], onDelete: SetNull)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@unique([userId, systemId, permissionId])
+  @@index([permissionId])
+  @@map("user_permission_override")
 }

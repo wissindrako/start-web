@@ -1,12 +1,16 @@
 import { InferRouterInputs, InferRouterOutputs } from '@orpc/server';
 
+import accessSettingsRouter from './routers/access-settings';
 import accountRouter from './routers/account';
 import bookRouter from './routers/book';
 import configRouter from './routers/config';
 import externalApiRouter from './routers/external-api';
 import externalSystemRouter from './routers/external-system';
 import genreRouter from './routers/genre';
+import invitationRouter from './routers/invitation';
+import mailSettingsRouter from './routers/mail-settings';
 import personalDataRouter from './routers/personal-data';
+import privilegeRouter from './routers/privilege';
 import roleRouter from './routers/role';
 import systemConfigRouter from './routers/system-config';
 import userRouter from './routers/user';
@@ -15,12 +19,16 @@ export type Router = typeof router;
 export type Inputs = InferRouterInputs<typeof router>;
 export type Outputs = InferRouterOutputs<typeof router>;
 export const router = {
+  accessSettings: accessSettingsRouter,
   account: accountRouter,
   book: bookRouter,
   externalApi: externalApiRouter,
   externalSystem: externalSystemRouter,
   genre: genreRouter,
+  invitation: invitationRouter,
+  mailSettings: mailSettingsRouter,
   personalData: personalDataRouter,
+  privilege: privilegeRouter,
   role: roleRouter,
   systemConfig: systemConfigRouter,
   user: userRouter,
