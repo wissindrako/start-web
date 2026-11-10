@@ -8,8 +8,8 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
   // Scratch database for `prisma migrate dev` (see docs/database.md)
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
@@ -446,9 +446,9 @@ model OauthResource {
 
 model OauthClientResource {
   id            String        @id
-  clientId      String        @db.VarChar(191)
+  clientId      String
   oauthclient   OauthClient   @relation(fields: [clientId], references: [clientId], onDelete: Cascade)
-  resourceId    String        @db.VarChar(191)
+  resourceId    String
   oauthresource OauthResource @relation(fields: [resourceId], references: [identifier], onDelete: Cascade)
   metadata      String?
   createdAt     DateTime?
@@ -487,7 +487,7 @@ model OauthRefreshToken {
   @@index([clientId])
   @@index([sessionId])
   @@index([userId])
-  @@index([authorizationCodeId(length: 191)])
+  @@index([authorizationCodeId])
   @@map("oauthRefreshToken")
 }
 
@@ -516,7 +516,7 @@ model OauthAccessToken {
   @@index([clientId])
   @@index([sessionId])
   @@index([userId])
-  @@index([authorizationCodeId(length: 191)])
+  @@index([authorizationCodeId])
   @@index([refreshId])
   @@map("oauthAccessToken")
 }

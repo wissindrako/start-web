@@ -55,7 +55,7 @@ Better Auth stores several OAuth fields as lists (scopes, redirect URIs, grant t
 1. Better Auth sends `null` for a list with no value and Prisma does not accept `null` in a list: `Argument allowedScopes must not be null`.
 2. Worse, Prisma always reads an empty list as `[]`, never `null`. For Better Auth `null` means "use the defaults" and `[]` means "none allowed", so OAuth clients would silently end up with no scopes.
 
-**Fix (proven in a MySQL → Postgres migration on 10/11/2026):** keep the columns as text, as in MySQL, and add a Prisma client extension (`src/server/db/oauth-lists.ts`) that does what the adapter did on MySQL: on write, serialize lists to JSON; on read, parse them back to lists, or `null` when empty. Better Auth then sees exactly what it saw with MySQL.
+**Fix (applied here on 10/11/2026, when nucleo-admin moved to PostgreSQL):** keep the columns as text, as in MySQL, and add a Prisma client extension (`src/server/db/oauth-lists.ts`) that does what the adapter did on MySQL: on write, serialize lists to JSON; on read, parse them back to lists, or `null` when empty. Better Auth then sees exactly what it saw with MySQL.
 
 ## Module structure
 

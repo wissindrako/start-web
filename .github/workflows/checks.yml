@@ -19,15 +19,15 @@ jobs:
 
     services:
       # Only for the migrations check: Prisma replays them in this database
-      mysql:
-        image: mysql:8.0
+      postgres:
+        image: postgres:17-alpine
         env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: shadow
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: shadow
         ports:
-          - 3306:3306
+          - 5432:5432
         options: >-
-          --health-cmd "mysqladmin ping -proot"
+          --health-cmd "pg_isready -U postgres"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 20
@@ -75,5 +75,5 @@ jobs:
           pnpm exec prisma migrate diff
           --from-migrations prisma/migrations
           --to-schema-datamodel prisma/schema.prisma
-          --shadow-database-url mysql://root:root@localhost:3306/shadow
+          --shadow-database-url postgresql://postgres:postgres@localhost:5432/shadow
           --exit-code

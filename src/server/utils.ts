@@ -9,6 +9,8 @@ import {
   DEFAULT_LANGUAGE_KEY,
 } from '@/lib/i18n/constants';
 
+import { parseList } from '@/server/db/oauth-lists';
+
 /**
  * Retrieves the user's language preference.
  *
@@ -33,16 +35,6 @@ export const getUserLanguage = (input?: string) => {
   return language;
 };
 
-// Better Auth stores URI lists as JSON text on MySQL
-export const parseUriList = (value: string | null | undefined): string[] => {
-  if (!value) return [];
-  try {
-    const parsed: unknown = JSON.parse(value);
-    return Array.isArray(parsed) ? parsed.map(String) : [value];
-  } catch {
-    return value
-      .split(',')
-      .map((v) => v.trim())
-      .filter(Boolean);
-  }
-};
+// The OAuth lists of Better Auth (see server/db/oauth-lists.ts)
+export const parseUriList = (value: unknown): string[] =>
+  parseList(value) ?? [];
