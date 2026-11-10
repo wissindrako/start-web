@@ -1,0 +1,54 @@
+{
+  "title": "Dashboard",
+  "users": {
+    "total": "Users",
+    "totalDetail": "{{verified}} verified · {{recent}} new in 30 days",
+    "sessions": "Active sessions",
+    "sessionsDetail_one": "{{count}} person signed in",
+    "sessionsDetail_other": "{{count}} people signed in",
+    "invitations": "Pending invitations",
+    "twoFactor": "With two-factor authentication",
+    "banned_one": "{{count}} banned user",
+    "banned_other": "{{count}} banned users",
+    "recentTitle": "Latest users"
+  },
+  "roles": {
+    "total": "Roles",
+    "detail": "{{local}} of the center · {{external}} of systems"
+  },
+  "systems": {
+    "total": "External systems",
+    "title": "Connected systems",
+    "description": "Sign-in (OIDC) and service credentials of each system.",
+    "empty": "No external systems yet.",
+    "oidc": "Sign-in",
+    "service": "Service",
+    "detail": "{{modules}} modules · {{roles}} roles",
+    "synced": "catalog published on {{date}}"
+  },
+  "status": {
+    "title": "Status",
+    "description": "Services and access rules of the center.",
+    "mail": "Mail",
+    "mailValues": {
+      "smtp": "SMTP server configured",
+      "log": "Log only"
+    },
+    "storage": "Files (avatars and logos)",
+    "storageOn": "Active",
+    "storageOff": "No storage",
+    "signup": "Sign-up",
+    "signupOpen": "Open",
+    "signupInvite": "Invitation only",
+    "twoFactor": "Two-factor authentication",
+    "twoFactorValues": {
+      "off": "Optional",
+      "managers": "Required for administrators",
+      "everyone": "Required for everyone"
+    },
+    "domains": "Email domains",
+    "domainsAny": "Any",
+    "domainsCount_one": "{{count}} allowed",
+    "domainsCount_other": "{{count}} allowed"
+  }
+}

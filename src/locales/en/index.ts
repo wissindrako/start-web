@@ -6,6 +6,7 @@ import book from './book.json' with { type: 'json' };
 import buildInfo from './build-info.json' with { type: 'json' };
 import common from './common.json' with { type: 'json' };
 import components from './components.json' with { type: 'json' };
+import dashboard from './dashboard.json' with { type: 'json' };
 import demo from './demo.json' with { type: 'json' };
 import emails from './emails.json' with { type: 'json' };
 import externalSystem from './external-system.json' with { type: 'json' };
@@ -25,6 +26,7 @@ export default {
   buildInfo,
   common,
   components,
+  dashboard,
   demo,
   emails,
   genre,

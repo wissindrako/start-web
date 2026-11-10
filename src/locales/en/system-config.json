@@ -19,7 +19,7 @@
       "source": {
         "database": "Using the settings saved here",
         "env": "Using the environment variables (EMAIL_SERVER and EMAIL_FROM)",
-        "none": "Not configured: the center cannot send emails"
+        "none": "Not configured: emails are written to the server log"
       },
       "mailer": "Delivery",
       "mailers": {

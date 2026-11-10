@@ -1,0 +1,54 @@
+{
+  "title": "Panel",
+  "users": {
+    "total": "Usuarios",
+    "totalDetail": "{{verified}} verificados · {{recent}} nuevos en 30 días",
+    "sessions": "Sesiones activas",
+    "sessionsDetail_one": "{{count}} persona conectada",
+    "sessionsDetail_other": "{{count}} personas conectadas",
+    "invitations": "Invitaciones pendientes",
+    "twoFactor": "Con verificación en dos pasos",
+    "banned_one": "{{count}} usuario bloqueado",
+    "banned_other": "{{count}} usuarios bloqueados",
+    "recentTitle": "Últimos usuarios"
+  },
+  "roles": {
+    "total": "Roles",
+    "detail": "{{local}} del centro · {{external}} de sistemas"
+  },
+  "systems": {
+    "total": "Sistemas externos",
+    "title": "Sistemas conectados",
+    "description": "Inicio de sesión (OIDC) y credenciales de servicio de cada sistema.",
+    "empty": "Todavía no hay sistemas externos.",
+    "oidc": "Inicio de sesión",
+    "service": "Servicio",
+    "detail": "{{modules}} módulos · {{roles}} roles",
+    "synced": "catálogo publicado el {{date}}"
+  },
+  "status": {
+    "title": "Estado",
+    "description": "Servicios y reglas de acceso del centro.",
+    "mail": "Correo",
+    "mailValues": {
+      "smtp": "Servidor SMTP configurado",
+      "log": "Solo en el log"
+    },
+    "storage": "Archivos (fotos y logos)",
+    "storageOn": "Activo",
+    "storageOff": "Sin almacenamiento",
+    "signup": "Registro",
+    "signupOpen": "Abierto",
+    "signupInvite": "Solo por invitación",
+    "twoFactor": "Verificación en dos pasos",
+    "twoFactorValues": {
+      "off": "Opcional",
+      "managers": "Obligatoria para administradores",
+      "everyone": "Obligatoria para todos"
+    },
+    "domains": "Dominios de correo",
+    "domainsAny": "Cualquiera",
+    "domainsCount_one": "{{count}} permitido",
+    "domainsCount_other": "{{count}} permitidos"
+  }
+}

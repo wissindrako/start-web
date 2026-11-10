@@ -4,6 +4,7 @@ import accessSettingsRouter from './routers/access-settings';
 import accountRouter from './routers/account';
 import bookRouter from './routers/book';
 import configRouter from './routers/config';
+import dashboardRouter from './routers/dashboard';
 import externalApiRouter from './routers/external-api';
 import externalSystemRouter from './routers/external-system';
 import genreRouter from './routers/genre';
@@ -22,6 +23,7 @@ export const router = {
   accessSettings: accessSettingsRouter,
   account: accountRouter,
   book: bookRouter,
+  dashboard: dashboardRouter,
   externalApi: externalApiRouter,
   externalSystem: externalSystemRouter,
   genre: genreRouter,

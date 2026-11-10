@@ -19,7 +19,7 @@
       "source": {
         "database": "Usando la configuración guardada aquí",
         "env": "Usando las variables de entorno (EMAIL_SERVER y EMAIL_FROM)",
-        "none": "Sin configurar: el centro no puede enviar correos"
+        "none": "Sin configurar: los correos se escriben en el log del servidor"
       },
       "mailer": "Envío",
       "mailers": {
