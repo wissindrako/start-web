@@ -1,4 +1,4 @@
-import { AlertCircleIcon, ArrowLeftIcon } from 'lucide-react';
+import { AlertCircleIcon, ArrowLeftIcon, LogOutIcon } from 'lucide-react';
 import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -39,6 +39,10 @@ export default function PageLoginError({
             {t('auth:pageLoginError.no_access.description')}
           </AlertDescription>
         </Alert>
+        <ButtonLink variant="secondary" size="sm" to="/logout">
+          <LogOutIcon />
+          {t('auth:pageLoginError.no_access.signOut')}
+        </ButtonLink>
       </Wrapper>
     );
   }

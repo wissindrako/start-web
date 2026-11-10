@@ -39,14 +39,15 @@ export const useRedirectAfterLogin = () => {
       }
 
       // Signed in, but no role gives access to the manager or the app:
-      // without this, '/' sends back to the login and nothing seems to happen
-      authClient.signOut().then(() =>
-        router.navigate({
-          replace: true,
-          to: '/login/error',
-          search: { error: 'no_access' },
-        })
-      );
+      // without this, '/' sends back to the login and nothing seems to
+      // happen. Not signed out here: when an external system started the
+      // sign-in, it still needs this session to finish it (the browser is
+      // already on its way back to the system).
+      router.navigate({
+        replace: true,
+        to: '/login/error',
+        search: { error: 'no_access' },
+      });
     };
 
     exec();
