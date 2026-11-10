@@ -29,6 +29,19 @@ export default function PageLoginError({
       </Wrapper>
     );
   }
+  if (search.error === 'no_access') {
+    return (
+      <Wrapper>
+        <Alert>
+          <AlertCircleIcon />
+          <AlertTitle>{t('auth:pageLoginError.no_access.title')}</AlertTitle>
+          <AlertDescription>
+            {t('auth:pageLoginError.no_access.description')}
+          </AlertDescription>
+        </Alert>
+      </Wrapper>
+    );
+  }
   if (search.error === 'access_denied') {
     return (
       <Wrapper>

@@ -17,7 +17,7 @@ código.
 | `pnpm db:deploy` | En CI y producción: aplica las migraciones pendientes (no crea ninguna ni borra datos) |
 | `pnpm db:status` | Muestra qué migraciones faltan aplicar |
 | `pnpm db:init` | Base nueva: aplica todas las migraciones y carga el seed |
-| `pnpm db:reset` | Solo desarrollo: borra la base, aplica las migraciones y el seed |
+| `pnpm db:reset` | Solo desarrollo: borra la base, aplica las migraciones y el seed (configurado en `package.json`, clave `prisma.seed`) |
 
 ## Cambiar el esquema
 
@@ -63,6 +63,7 @@ registrar los sistemas conectados:
    base vieja en `MYSQL_SOURCE_CONTAINER`, `MYSQL_SOURCE_DATABASE`,
    `MYSQL_SOURCE_USERNAME` y `MYSQL_SOURCE_PASSWORD` (ver `.env.example`).
 2. `docker compose up -d postgres` y `pnpm db:deploy` (tablas vacías, sin seed).
+   No correr el seed antes de copiar: si la base ya tiene usuarios, la copia se detiene.
 3. `pnpm db:from-mysql`: copia cada tabla y columna que exista en las dos
    bases, en una transacción. MySQL solo se lee. Si PostgreSQL ya tiene
    usuarios se detiene; `--replace` la vacía antes.

@@ -45,6 +45,9 @@
     "db:from-mysql": "dotenv -- cross-env node ./run-jiti ./prisma/from-mysql.ts",
     "db:seed": "dotenv -- cross-env node ./run-jiti ./prisma/seed/index.ts"
   },
+  "prisma": {
+    "seed": "dotenv -- cross-env node ./run-jiti ./prisma/seed/index.ts"
+  },
   "dependencies": {
     "@base-ui/react": "1.2.0",
     "@bearstudio/ui-state": "1.1.0",
