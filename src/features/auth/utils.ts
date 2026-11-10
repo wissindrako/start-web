@@ -40,7 +40,7 @@ export const useRedirectAfterLogin = () => {
 
       // Signed in, but no role gives access to the manager or the app:
       // without this, '/' sends back to the login and nothing seems to happen
-      void authClient.signOut().then(() =>
+      authClient.signOut().then(() =>
         router.navigate({
           replace: true,
           to: '/login/error',
