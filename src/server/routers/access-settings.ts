@@ -1,3 +1,4 @@
+import { ORPCError } from '@orpc/client';
 import { z } from 'zod';
 
 import {
@@ -12,6 +13,7 @@ import {
   reloadAccessSettings,
 } from '@/server/access-settings';
 import { protectedProcedure, publicProcedure } from '@/server/orpc';
+import { hasPassword } from '@/server/passwords';
 
 const tags = ['access-settings'];
 
@@ -41,6 +43,22 @@ export default {
     )
     .output(zAccessSettings())
     .handler(async ({ context, input }) => {
+      // Without email codes the only way in is a password: at least the
+      // person saving this must have one, or nobody could get back in
+      if (!input.emailCodeLogin) {
+        if (!input.passwordLogin) {
+          throw new ORPCError('BAD_REQUEST', {
+            message: 'At least one sign-in method must stay on',
+            data: { reason: 'noLoginMethod' },
+          });
+        }
+        if (!(await hasPassword(context.user.id))) {
+          throw new ORPCError('BAD_REQUEST', {
+            message: 'Set your own password before turning off email codes',
+            data: { reason: 'noOwnPassword' },
+          });
+        }
+      }
       await context.db.accessSettings.upsert({
         where: { id: ACCESS_SETTINGS_ID },
         create: { id: ACCESS_SETTINGS_ID, ...input },
@@ -52,6 +70,8 @@ export default {
           signupEnabled: input.signupEnabled,
           allowedDomains: input.allowedDomains,
           twoFactorRequired: input.twoFactorRequired,
+          emailCodeLogin: input.emailCodeLogin,
+          passwordLogin: input.passwordLogin,
         },
         'Access settings updated'
       );

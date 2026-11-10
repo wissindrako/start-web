@@ -31,6 +31,9 @@ const load = async (): Promise<AccessSettings> => {
     )
       ? (row.twoFactorRequired as TwoFactorPolicy)
       : 'off',
+    // Never both off: nobody could sign in
+    emailCodeLogin: row.emailCodeLogin || !row.passwordLogin,
+    passwordLogin: row.passwordLogin,
   };
 };
 

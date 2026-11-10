@@ -69,5 +69,24 @@
     "disableConfirmDescription": "The email code will be enough to sign in.",
     "error": "The operation could not be completed",
     "required": "It is required for your account: it cannot be turned off."
+  },
+  "password": {
+    "title": "Password",
+    "set": "Set",
+    "notSet": "No password",
+    "createHelp": "You sign in with an email code. If you create a password, you can also sign in with it.",
+    "changeHelp": "You can sign in with your email and this password.",
+    "current": "Current password",
+    "new": "New password",
+    "confirm": "Repeat the new password",
+    "create": "Create password",
+    "change": "Change password",
+    "currentRequired": "Type your current password",
+    "tooShort": "At least {{min}} characters",
+    "tooLong": "At most {{max}} characters",
+    "mismatch": "The passwords do not match",
+    "saved": "Password saved",
+    "wrongCurrent": "The current password is not correct",
+    "error": "The password could not be saved"
   }
 }

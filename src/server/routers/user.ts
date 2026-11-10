@@ -2,12 +2,14 @@ import { ORPCError } from '@orpc/client';
 import { getRequestHeaders } from '@tanstack/react-start/server';
 import { z } from 'zod';
 
+import { zPassword } from '@/features/access-settings/schema';
 import { zRole } from '@/features/role/schema';
 import { zSession, zUser } from '@/features/user/schema';
 import { assertEmailDomainAllowed } from '@/server/access-settings';
 import { auth } from '@/server/auth';
 import { Prisma } from '@/server/db/generated/client';
 import { protectedProcedure } from '@/server/orpc';
+import { hasPassword, setPassword } from '@/server/passwords';
 import { assertRequesterHolds } from '@/server/permissions';
 
 const tags = ['users'];
@@ -510,6 +512,34 @@ export default {
         }),
       ]);
       return updated;
+    }),
+
+  passwordStatus: protectedProcedure({ permission: { user: ['list'] } })
+    .route({ method: 'GET', path: '/users/{id}/password', tags })
+    .input(z.object({ id: z.string() }))
+    .output(z.object({ hasPassword: z.boolean() }))
+    .handler(async ({ input }) => ({
+      hasPassword: await hasPassword(input.id),
+    })),
+
+  // For people who cannot receive the email code: an administrator gives
+  // them a password and they can change it from their account
+  setPassword: protectedProcedure({
+    permission: {
+      user: ['update'],
+    },
+  })
+    .route({ method: 'POST', path: '/users/{id}/password', tags })
+    .input(z.object({ id: z.string(), newPassword: zPassword() }))
+    .output(z.void())
+    .handler(async ({ context, input }) => {
+      const user = await context.db.user.findUnique({
+        where: { id: input.id },
+        select: { id: true },
+      });
+      if (!user) throw new ORPCError('NOT_FOUND');
+      await setPassword(input.id, input.newPassword);
+      context.logger.info({ userId: input.id }, 'Password set by an admin');
     }),
 
   banUser: protectedProcedure({

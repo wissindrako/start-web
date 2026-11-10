@@ -22,6 +22,8 @@ export const zFormFieldsLogin = () =>
             : t('auth:common.email.required'),
       })
     ),
+    // Only when signing in with a password
+    password: z.string().optional(),
   });
 
 export type FormFieldsLoginVerify = z.infer<

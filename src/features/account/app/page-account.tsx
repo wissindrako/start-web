@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { AccountAvatarUpload } from '@/features/account/account-avatar-upload';
 import { DisplayPreferences } from '@/features/account/display-preferences';
+import { PasswordCard } from '@/features/account/password-card';
 import { SessionsList } from '@/features/account/sessions-list';
 import { TwoFactorCard } from '@/features/account/two-factor-card';
 import { UserCard } from '@/features/account/user-card';
@@ -70,6 +71,7 @@ export const PageAccount = () => {
               <SessionsList />
             </CardContent>
           </Card>
+          <PasswordCard />
           <TwoFactorCard />
           <DisplayPreferences />
           <BuildInfoDrawer>

@@ -16,6 +16,7 @@ import TemplateLoginCode from '@/emails/templates/login-code';
 import { envClient } from '@/env/client';
 import { envServer } from '@/env/server';
 import { isEmailDomainAllowed } from '@/features/access-settings/domains';
+import { PASSWORD_LENGTH } from '@/features/access-settings/schema';
 import { AUTH_EMAIL_OTP_MOCKED } from '@/features/auth/config';
 import { permissions } from '@/features/auth/permissions';
 import {
@@ -123,6 +124,11 @@ const twoFactorWithEmailOtp: typeof twoFactorPlugin = {
   },
 };
 
+const LOGIN_PATHS = {
+  password: ['/sign-in/email'],
+  emailCode: ['/email-otp/send-verification-otp', '/sign-in/email-otp'],
+};
+
 export type Auth = typeof auth;
 export const auth = betterAuth({
   // Issuer of the identity center: tokens carry it and systems verify it
@@ -134,9 +140,34 @@ export const auth = betterAuth({
     updateAge: envServer.AUTH_SESSION_UPDATE_AGE_IN_SECONDS,
   },
   trustedOrigins: envServer.AUTH_TRUSTED_ORIGINS,
+  // Passwords: only when the access settings allow them, and never to
+  // create an account (accounts come from invitations or an admin)
+  emailAndPassword: {
+    enabled: true,
+    disableSignUp: true,
+    minPasswordLength: PASSWORD_LENGTH.min,
+    maxPasswordLength: PASSWORD_LENGTH.max,
+  },
   hooks: {
-    // Required by the access settings: it cannot be turned off
     before: createAuthMiddleware(async (ctx) => {
+      // The sign-in methods the access settings turned off
+      if (LOGIN_PATHS.password.includes(ctx.path)) {
+        const { passwordLogin } = await getAccessSettings();
+        if (!passwordLogin) {
+          throw new APIError('FORBIDDEN', {
+            message: 'Signing in with a password is turned off',
+          });
+        }
+      }
+      if (LOGIN_PATHS.emailCode.includes(ctx.path)) {
+        const { emailCodeLogin } = await getAccessSettings();
+        if (!emailCodeLogin) {
+          throw new APIError('FORBIDDEN', {
+            message: 'Signing in with an email code is turned off',
+          });
+        }
+      }
+      // Required by the access settings: it cannot be turned off
       if (ctx.path !== '/two-factor/disable') return;
       const session = await getSessionFromCtx(ctx);
       if (session && (await requiresTwoFactor(session.user.id))) {

@@ -290,6 +290,9 @@ model AccessSettings {
   invitationDays    Int
   // off, managers (who can open the manager) or everyone
   twoFactorRequired String
+  // How people sign in: a code sent by email, a password, or both
+  emailCodeLogin    Boolean  @default(true)
+  passwordLogin     Boolean  @default(false)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 

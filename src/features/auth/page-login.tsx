@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter, useSearch } from '@tanstack/react-router';
+import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -28,6 +29,13 @@ export default function PageLogin({
   const { t } = useTranslation(['auth', 'common']);
   const router = useRouter();
   const { settings } = useAccessSettings();
+  const session = authClient.useSession();
+  // The sign-in methods the access settings leave on
+  const [chosenMode, setChosenMode] = useState<'code' | 'password'>('code');
+  let mode = chosenMode;
+  if (!settings.emailCodeLogin) mode = 'password';
+  else if (!settings.passwordLogin) mode = 'code';
+  const bothModes = settings.emailCodeLogin && settings.passwordLogin;
   const I18N_KEY_PAGE_PREFIX = settings.signupEnabled
     ? ('auth:pageLoginWithSignUp' as const)
     : ('auth:pageLogin' as const);
@@ -66,13 +74,60 @@ export default function PageLogin({
     resolver: zodResolver(zFormFieldsLogin()),
     defaultValues: {
       email: typeof invitedEmail === 'string' ? invitedEmail : '',
+      password: '',
     },
   });
 
   const { isValid, isSubmitted } = form.formState;
   useMascot({ isError: !isValid && isSubmitted });
 
-  const submitHandler: SubmitHandler<FormFieldsLogin> = async ({ email }) => {
+  const signInWithPassword = async (email: string, password: string) => {
+    if (!password) {
+      form.setError('password', {
+        message: t('auth:common.password.required'),
+      });
+      return;
+    }
+    let result;
+    try {
+      result = await authClient.signIn.email({ email, password });
+    } catch {
+      toast.error(t('auth:errorCode.UNKNOWN_ERROR'));
+      return;
+    }
+    if (result.error) {
+      toast.error(
+        result.error.code === 'INVALID_EMAIL_OR_PASSWORD'
+          ? t('auth:common.password.invalid')
+          : result.error.message || t('auth:errorCode.UNKNOWN_ERROR')
+      );
+      return;
+    }
+    // Two-factor authentication enabled: the code from the app is next
+    if (
+      result.data &&
+      'twoFactorRedirect' in result.data &&
+      result.data.twoFactorRedirect
+    ) {
+      router.navigate({
+        to: '/login/two-factor',
+        replace: true,
+        search: { redirect: search.redirect },
+      });
+      return;
+    }
+    // Refetch session to update guards and redirect
+    session.refetch();
+  };
+
+  const submitHandler: SubmitHandler<FormFieldsLogin> = async ({
+    email,
+    password,
+  }) => {
+    if (mode === 'password') {
+      await signInWithPassword(email, password ?? '');
+      return;
+    }
     let result;
     try {
       result = await authClient.emailOtp.sendVerificationOtp({
@@ -115,6 +170,21 @@ export default function PageLogin({
         </p>
       </div>
       <div className="grid gap-6">
+        {bothModes && (
+          <div className="grid grid-cols-2 gap-1 rounded-md bg-muted p-1">
+            {(['code', 'password'] as const).map((value) => (
+              <Button
+                key={value}
+                type="button"
+                size="sm"
+                variant={mode === value ? 'secondary' : 'ghost'}
+                onClick={() => setChosenMode(value)}
+              >
+                {t(`auth:pageLogin.modes.${value}`)}
+              </Button>
+            ))}
+          </div>
+        )}
         <div className="grid gap-4">
           <FormField>
             <FormFieldLabel className="sr-only">
@@ -128,15 +198,32 @@ export default function PageLogin({
               placeholder={t('auth:common.email.label')}
             />
           </FormField>
+          {mode === 'password' && (
+            <FormField>
+              <FormFieldLabel className="sr-only">
+                {t('auth:common.password.label')}
+              </FormFieldLabel>
+              <FormFieldController
+                type="password"
+                control={form.control}
+                name="password"
+                size="lg"
+                autoComplete="current-password"
+                placeholder={t('auth:common.password.label')}
+              />
+            </FormField>
+          )}
           <Button
             loading={form.formState.isSubmitting}
             type="submit"
             size="lg"
             className="w-full"
           >
-            {t(`${I18N_KEY_PAGE_PREFIX}.loginWithEmail`)}
+            {mode === 'password'
+              ? t('auth:pageLogin.loginWithPassword')
+              : t(`${I18N_KEY_PAGE_PREFIX}.loginWithEmail`)}
           </Button>
-          <LoginEmailHint />
+          {mode === 'code' && <LoginEmailHint />}
         </div>
         <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
           <span className="relative z-10 bg-background px-2 text-muted-foreground">

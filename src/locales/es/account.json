@@ -69,5 +69,24 @@
     "disableConfirmDescription": "Para iniciar sesión alcanzará con el código por email.",
     "error": "No se pudo completar la operación",
     "required": "Es obligatoria para tu cuenta: no se puede desactivar."
+  },
+  "password": {
+    "title": "Contraseña",
+    "set": "Configurada",
+    "notSet": "Sin contraseña",
+    "createHelp": "Entras con un código por correo. Si creas una contraseña, también podrás entrar con ella.",
+    "changeHelp": "Puedes entrar con tu correo y esta contraseña.",
+    "current": "Contraseña actual",
+    "new": "Nueva contraseña",
+    "confirm": "Repite la nueva contraseña",
+    "create": "Crear contraseña",
+    "change": "Cambiar contraseña",
+    "currentRequired": "Escribe tu contraseña actual",
+    "tooShort": "Mínimo {{min}} caracteres",
+    "tooLong": "Máximo {{max}} caracteres",
+    "mismatch": "Las contraseñas no coinciden",
+    "saved": "Contraseña guardada",
+    "wrongCurrent": "La contraseña actual no es correcta",
+    "error": "No se pudo guardar la contraseña"
   }
 }

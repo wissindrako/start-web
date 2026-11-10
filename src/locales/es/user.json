@@ -124,6 +124,11 @@
     "uploadErrors": {
       "NOT_AUTHENTICATED": "No autenticado",
       "UNAUTHORIZED": "No autorizado"
+    },
+    "password": {
+      "help": "Para quien no recibe el código por correo: dale una contraseña y pídele que la cambie desde su cuenta.",
+      "save": "Asignar contraseña",
+      "saved": "Contraseña asignada"
     }
   }
 }

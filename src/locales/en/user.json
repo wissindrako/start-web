@@ -124,6 +124,11 @@
     "uploadErrors": {
       "NOT_AUTHENTICATED": "Not authenticated",
       "UNAUTHORIZED": "Unauthorized"
+    },
+    "password": {
+      "help": "For people who do not get the email code: give them a password and ask them to change it from their account.",
+      "save": "Set password",
+      "saved": "Password set"
     }
   }
 }

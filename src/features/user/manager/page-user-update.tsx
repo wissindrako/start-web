@@ -25,6 +25,7 @@ import { authClient } from '@/features/auth/client';
 import { Role } from '@/features/role/schema';
 import { FormUser } from '@/features/user/manager/form-user';
 import { UserAvatarUpload } from '@/features/user/manager/user-avatar-upload';
+import { UserPasswordCard } from '@/features/user/manager/user-password-card';
 import { zFormFieldsUser } from '@/features/user/schema';
 import {
   PageLayout,
@@ -210,6 +211,7 @@ export const PageUserUpdate = (props: { params: { id: string } }) => {
                 )}
               </CardContent>
             </Card>
+            <UserPasswordCard userId={props.params.id} />
           </PageLayoutContent>
         </PageLayout>
       </Form>

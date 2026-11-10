@@ -42,25 +42,32 @@ import { authClient } from '@/features/auth/client';
 const SIGNUP_MODES = ['invitation', 'open'] as const;
 
 const zFormFieldsAccess = () =>
-  z.object({
-    signup: z.enum(SIGNUP_MODES),
-    allowedDomains: z
-      .string()
-      .refine((value) => parseDomainList(value).every(isValidDomain), {
-        message: t('system-config:manager.access.invalidDomains'),
-      }),
-    loginCodeMinutes: z
-      .number(t('system-config:manager.access.required'))
-      .int()
-      .min(LOGIN_CODE_MINUTES.min)
-      .max(LOGIN_CODE_MINUTES.max),
-    invitationDays: z
-      .number(t('system-config:manager.access.required'))
-      .int()
-      .min(INVITATION_DAYS.min)
-      .max(INVITATION_DAYS.max),
-    twoFactorRequired: z.enum(TWO_FACTOR_POLICIES),
-  });
+  z
+    .object({
+      signup: z.enum(SIGNUP_MODES),
+      allowedDomains: z
+        .string()
+        .refine((value) => parseDomainList(value).every(isValidDomain), {
+          message: t('system-config:manager.access.invalidDomains'),
+        }),
+      loginCodeMinutes: z
+        .number(t('system-config:manager.access.required'))
+        .int()
+        .min(LOGIN_CODE_MINUTES.min)
+        .max(LOGIN_CODE_MINUTES.max),
+      invitationDays: z
+        .number(t('system-config:manager.access.required'))
+        .int()
+        .min(INVITATION_DAYS.min)
+        .max(INVITATION_DAYS.max),
+      twoFactorRequired: z.enum(TWO_FACTOR_POLICIES),
+      emailCodeLogin: z.boolean(),
+      passwordLogin: z.boolean(),
+    })
+    .refine((values) => values.emailCodeLogin || values.passwordLogin, {
+      message: t('system-config:manager.access.loginMethodsRequired'),
+      path: ['passwordLogin'],
+    });
 
 type FormFieldsAccess = z.infer<ReturnType<typeof zFormFieldsAccess>>;
 
@@ -70,6 +77,8 @@ const toFormValues = (settings: AccessSettings): FormFieldsAccess => ({
   loginCodeMinutes: settings.loginCodeMinutes,
   invitationDays: settings.invitationDays,
   twoFactorRequired: settings.twoFactorRequired,
+  emailCodeLogin: settings.emailCodeLogin,
+  passwordLogin: settings.passwordLogin,
 });
 
 export const AccessSettingsCard = () => {
@@ -113,7 +122,14 @@ const AccessSettingsForm = ({ settings }: { settings: AccessSettings }) => {
         });
         toast.success(t('system-config:manager.access.saveSuccess'));
       },
-      onError: () => toast.error(t('system-config:manager.access.saveError')),
+      onError: (error) => {
+        const reason = (error as { data?: { reason?: string } }).data?.reason;
+        toast.error(
+          reason === 'noOwnPassword'
+            ? t('system-config:manager.access.noOwnPassword')
+            : t('system-config:manager.access.saveError')
+        );
+      },
     })
   );
 
@@ -136,6 +152,8 @@ const AccessSettingsForm = ({ settings }: { settings: AccessSettings }) => {
               loginCodeMinutes: values.loginCodeMinutes,
               invitationDays: values.invitationDays,
               twoFactorRequired: values.twoFactorRequired,
+              emailCodeLogin: values.emailCodeLogin,
+              passwordLogin: values.passwordLogin,
             })
           }
         >
@@ -152,6 +170,29 @@ const AccessSettingsForm = ({ settings }: { settings: AccessSettings }) => {
                 label: t(`system-config:manager.access.signupModes.${value}`),
               }))}
             />
+          </FormField>
+
+          <FormField>
+            <FormFieldLabel>
+              {t('system-config:manager.access.loginMethods')}
+            </FormFieldLabel>
+            <FormFieldController
+              type="checkbox"
+              control={form.control}
+              name="emailCodeLogin"
+            >
+              {t('system-config:manager.access.emailCodeLogin')}
+            </FormFieldController>
+            <FormFieldController
+              type="checkbox"
+              control={form.control}
+              name="passwordLogin"
+            >
+              {t('system-config:manager.access.passwordLogin')}
+            </FormFieldController>
+            <FormFieldHelper>
+              {t('system-config:manager.access.loginMethodsHelper')}
+            </FormFieldHelper>
           </FormField>
 
           <FormField>

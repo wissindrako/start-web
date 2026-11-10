@@ -82,7 +82,13 @@
       "twoFactorAppliesToMe": "You do not have it: after saving you will have to set it up to go on.",
       "save": "Save security",
       "saveSuccess": "Security and access saved",
-      "saveError": "Could not save"
+      "saveError": "Could not save",
+      "loginMethods": "How people sign in",
+      "emailCodeLogin": "With a code sent by email",
+      "passwordLogin": "With a password",
+      "loginMethodsHelper": "Passwords help when there is no mail server: an administrator sets one on the user page and each person changes it in their account. To turn off email codes, first create your own password.",
+      "loginMethodsRequired": "Keep at least one way to sign in",
+      "noOwnPassword": "Before turning off email codes, create your own password in My account"
     }
   }
 }

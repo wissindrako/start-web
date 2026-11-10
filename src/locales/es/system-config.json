@@ -82,7 +82,13 @@
       "twoFactorAppliesToMe": "Tú no la tienes activa: al guardar tendrás que configurarla para seguir.",
       "save": "Guardar seguridad",
       "saveSuccess": "Seguridad y acceso guardados",
-      "saveError": "No se pudo guardar"
+      "saveError": "No se pudo guardar",
+      "loginMethods": "Cómo se inicia sesión",
+      "emailCodeLogin": "Con un código enviado por correo",
+      "passwordLogin": "Con contraseña",
+      "loginMethodsHelper": "Con contraseña sirve cuando no hay servidor de correo: un administrador la asigna en la ficha del usuario y cada persona la cambia en su cuenta. Para apagar los códigos por correo, primero crea tu propia contraseña.",
+      "loginMethodsRequired": "Deja al menos una forma de iniciar sesión",
+      "noOwnPassword": "Antes de apagar los códigos por correo, crea tu propia contraseña en Mi cuenta"
     }
   }
 }

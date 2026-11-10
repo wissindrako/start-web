@@ -31,7 +31,14 @@ export const zAccessSettings = () =>
       .min(INVITATION_DAYS.min)
       .max(INVITATION_DAYS.max),
     twoFactorRequired: z.enum(TWO_FACTOR_POLICIES),
+    // How people sign in: at least one of the two
+    emailCodeLogin: z.boolean(),
+    passwordLogin: z.boolean(),
   });
+
+export const PASSWORD_LENGTH = { min: 8, max: 128 } as const;
+export const zPassword = () =>
+  z.string().min(PASSWORD_LENGTH.min).max(PASSWORD_LENGTH.max);
 
 // Until an admin saves them: the environment and the former constants
 export const ACCESS_DEFAULTS: AccessSettings = {
@@ -40,4 +47,6 @@ export const ACCESS_DEFAULTS: AccessSettings = {
   loginCodeMinutes: AUTH_EMAIL_OTP_EXPIRATION_IN_MINUTES,
   invitationDays: INVITATION_EXPIRATION_IN_DAYS,
   twoFactorRequired: 'off',
+  emailCodeLogin: true,
+  passwordLogin: false,
 };
