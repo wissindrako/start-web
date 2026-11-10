@@ -48,7 +48,8 @@ export const envClient = createEnv({
       .string()
       .optional()
       .transform((value) => value ?? (isDev ? 'gold' : 'plum')),
-    VITE_S3_BUCKET_PUBLIC_URL: z.url(),
+    // Optional: without it the upload controls are hidden (src/lib/storage.ts)
+    VITE_S3_BUCKET_PUBLIC_URL: z.url().optional(),
   },
   runtimeEnv: {
     ...envMetaOrProcess,

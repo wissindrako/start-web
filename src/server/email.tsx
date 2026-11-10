@@ -16,8 +16,6 @@ import { decryptSecret } from '@/server/secrets';
 
 export const MAIL_SETTINGS_ID = 'singleton';
 
-export class MailNotConfiguredError extends Error {}
-
 type Mailer = {
   transport: Transporter;
   from: string | Address;
@@ -70,9 +68,17 @@ const loadMailer = async (): Promise<Mailer> => {
   }
 
   if (!envServer.EMAIL_SERVER || !envServer.EMAIL_FROM) {
-    throw new MailNotConfiguredError(
-      'Mail is not configured: set it up in the manager or with EMAIL_SERVER and EMAIL_FROM'
+    // Mail is optional: without it the messages go to the log
+    logger.warn(
+      'Mail is not configured (manager or EMAIL_SERVER and EMAIL_FROM): emails are written to the log'
     );
+    return {
+      // Nothing is sent: the message is only serialized for the log
+      // eslint-disable-next-line sonarjs/no-clear-text-protocols
+      transport: nodemailer.createTransport({ jsonTransport: true }),
+      from: envServer.EMAIL_FROM ?? 'nucleo-admin@localhost',
+      log: true,
+    };
   }
   return {
     // eslint-disable-next-line sonarjs/no-clear-text-protocols
@@ -99,23 +105,40 @@ export const reloadMailSettings = () => {
 
 export const sendEmail = async ({
   template,
+  strict,
   ...options
 }: Omit<MailOptions, 'html'> &
-  Required<Pick<MailOptions, 'subject'>> & { template: ReactElement }) => {
+  Required<Pick<MailOptions, 'subject'>> & {
+    template: ReactElement;
+    /** Fail when the mail server is not reachable, also in development */
+    strict?: boolean;
+  }) => {
   if (envClient.VITE_IS_DEMO) {
     return;
   }
 
   const { transport, from, log } = await getMailer();
   const html = await render(template);
-  const info = await transport.sendMail({ from, html, ...options });
+  const writeToLog = (reason: string) =>
+    logger.info({ to: options.to, subject: options.subject, html }, reason);
   if (log) {
-    logger.info(
-      { to: options.to, subject: options.subject, html },
-      'Email written to the log (log mailer)'
-    );
+    const info = await transport.sendMail({ from, html, ...options });
+    writeToLog('Email written to the log (log mailer)');
+    return info;
   }
-  return info;
+  try {
+    return await transport.sendMail({ from, html, ...options });
+  } catch (error) {
+    // In development the mail server is often not running (Maildev): the
+    // message goes to the log instead of failing the request
+    if (strict || !import.meta.env.DEV) throw error;
+    logger.warn(
+      { error: (error as Error).message },
+      'The mail server is not reachable: email written to the log'
+    );
+    writeToLog('Email written to the log (mail server not reachable)');
+    return undefined;
+  }
 };
 
 export const previewEmailRoute = async (

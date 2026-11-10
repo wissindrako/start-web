@@ -161,6 +161,7 @@ export default {
           to: input.to,
           subject: i18n.t('emails:mailTest.subject', { lng: language }),
           template: <TemplateMailTest language={language} />,
+          strict: true,
         });
       } catch (error) {
         context.logger.warn({ error }, 'Test email failed');

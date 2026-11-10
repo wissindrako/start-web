@@ -6,6 +6,7 @@ import { join } from 'remeda';
 import { toast } from 'sonner';
 
 import { orpc } from '@/lib/orpc/client';
+import { isStorageEnabled } from '@/lib/storage';
 
 import {
   FormField,
@@ -67,34 +68,36 @@ export const FormBookCover = () => {
                   }}
                 />
 
-                <div className="absolute top-1/2 left-1/2 flex -translate-1/2 gap-2">
-                  <UploadButton
-                    uploadRoute="bookCover"
-                    inputProps={{
-                      accept: join(bookCoverAcceptedFileTypes, ','),
-                    }}
-                    className="bg-black/50 text-white"
-                    variant="ghost"
-                    onSuccess={(file) => field.onChange(file.objectInfo.key)}
-                    onError={() => {
-                      if (envClient.VITE_IS_DEMO) {
-                        openDemoModeDrawer();
-                        return;
-                      }
-                      toast.error(t('book:manager.uploadErrors.failed'));
-                    }}
-                  />
-                  {field.value && (
-                    <Button
-                      variant="ghost"
+                {isStorageEnabled && (
+                  <div className="absolute top-1/2 left-1/2 flex -translate-1/2 gap-2">
+                    <UploadButton
+                      uploadRoute="bookCover"
+                      inputProps={{
+                        accept: join(bookCoverAcceptedFileTypes, ','),
+                      }}
                       className="bg-black/50 text-white"
-                      size="icon"
-                      onClick={() => field.onChange(undefined)}
-                    >
-                      <Trash2Icon />
-                    </Button>
-                  )}
-                </div>
+                      variant="ghost"
+                      onSuccess={(file) => field.onChange(file.objectInfo.key)}
+                      onError={() => {
+                        if (envClient.VITE_IS_DEMO) {
+                          openDemoModeDrawer();
+                          return;
+                        }
+                        toast.error(t('book:manager.uploadErrors.failed'));
+                      }}
+                    />
+                    {field.value && (
+                      <Button
+                        variant="ghost"
+                        className="bg-black/50 text-white"
+                        size="icon"
+                        onClick={() => field.onChange(undefined)}
+                      >
+                        <Trash2Icon />
+                      </Button>
+                    )}
+                  </div>
+                )}
               </div>
               <FormFieldError />
             </>
