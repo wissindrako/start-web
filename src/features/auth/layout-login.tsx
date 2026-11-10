@@ -6,10 +6,9 @@ import { LocalSwitcher } from '@/components/ui/local-switcher';
 import { ThemeSwitcher } from '@/components/ui/theme-switcher';
 
 import { useMascotState } from '@/features/auth/mascot';
+import { MascotVector } from '@/features/auth/mascot-vector';
 
 import image from './layout-login-image.jpg';
-import mascot from './mascot.png';
-import mascotError from './mascot-error.png';
 
 export const LayoutLogin = (props: {
   children?: ReactNode;
@@ -42,10 +41,9 @@ export const LayoutLogin = (props: {
           alt=""
           className="absolute inset-0 size-full object-cover"
         />
-        <img
-          src={mascotState === 'error' ? mascotError : mascot}
-          alt=""
-          className="animate-float-in-space pointer-events-none absolute top-1/2 left-1/2 w-52 -translate-1/2"
+        <MascotVector
+          state={mascotState}
+          className="animate-float-in-space pointer-events-none absolute top-1/2 left-1/2 w-64 -translate-1/2"
         />
       </div>
     </div>

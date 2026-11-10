@@ -17,7 +17,7 @@
     "env": "run-p env:*",
     "env:client": "dotenv -- node ./run-jiti ./src/env/client.ts",
     "env:server": "dotenv -- node ./run-jiti ./src/env/server.ts",
-    "storybook": "storybook dev --no-open -p 6006",
+    "storybook": "storybook dev --no-open -p 6007",
     "storybook:build": "storybook build && mv ./storybook-static ./public/storybook",
     "pretty": "prettier -w .",
     "lint": "run-p lint:*",
