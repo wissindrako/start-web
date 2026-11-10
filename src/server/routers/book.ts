@@ -42,11 +42,13 @@ export default {
           {
             title: {
               contains: input.searchTerm,
+              mode: 'insensitive' as const,
             },
           },
           {
             author: {
               contains: input.searchTerm,
+              mode: 'insensitive' as const,
             },
           },
         ],

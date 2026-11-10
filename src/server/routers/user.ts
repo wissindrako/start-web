@@ -46,29 +46,43 @@ export default {
           input.roleId ? { roles: { some: { roleId: input.roleId } } } : {},
           {
             OR: [
-              { name: { contains: input.searchTerm } },
-              { email: { contains: input.searchTerm } },
+              {
+                name: {
+                  contains: input.searchTerm,
+                  mode: 'insensitive' as const,
+                },
+              },
+              {
+                email: {
+                  contains: input.searchTerm,
+                  mode: 'insensitive' as const,
+                },
+              },
               {
                 personalData: {
                   OR: [
                     {
                       nombre: {
                         contains: input.searchTerm,
+                        mode: 'insensitive' as const,
                       },
                     },
                     {
                       primerApellido: {
                         contains: input.searchTerm,
+                        mode: 'insensitive' as const,
                       },
                     },
                     {
                       segundoApellido: {
                         contains: input.searchTerm,
+                        mode: 'insensitive' as const,
                       },
                     },
                     {
                       numeroDocumento: {
                         contains: input.searchTerm,
+                        mode: 'insensitive' as const,
                       },
                     },
                   ],

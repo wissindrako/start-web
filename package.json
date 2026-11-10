@@ -42,6 +42,7 @@
     "db:status": "prisma migrate status",
     "db:reset": "prisma migrate reset",
     "db:ui": "prisma studio",
+    "db:from-mysql": "dotenv -- cross-env node ./run-jiti ./prisma/from-mysql.ts",
     "db:seed": "dotenv -- cross-env node ./run-jiti ./prisma/seed/index.ts"
   },
   "dependencies": {

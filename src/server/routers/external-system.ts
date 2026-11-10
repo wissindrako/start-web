@@ -98,11 +98,13 @@ export default {
               {
                 name: {
                   contains: input.searchTerm,
+                  mode: 'insensitive' as const,
                 },
               },
               {
                 label: {
                   contains: input.searchTerm,
+                  mode: 'insensitive' as const,
                 },
               },
             ],
@@ -538,8 +540,8 @@ function toOAuthConfig(
   client: {
     clientId: string;
     tokenEndpointAuthMethod: string | null;
-    redirectUris: string;
-    postLogoutRedirectUris: string | null;
+    redirectUris: string[] | null;
+    postLogoutRedirectUris: string[] | null;
   } | null,
   resourceIdentifier: string | null
 ) {

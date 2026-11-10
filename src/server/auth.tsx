@@ -147,7 +147,7 @@ export const auth = betterAuth({
     }),
   },
   database: prismaAdapter(db, {
-    provider: 'mysql',
+    provider: 'postgresql',
   }),
   user: {
     additionalFields: {

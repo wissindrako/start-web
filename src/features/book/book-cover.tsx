@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
+import { isStorageEnabled } from '@/lib/storage';
 import { cn } from '@/lib/tailwind/utils';
 
 import { envClient } from '@/env/client';
@@ -32,7 +33,7 @@ export const BookCover = (props: {
       <div className="absolute inset-y-0 left-[7%] z-10 w-[2%] bg-gradient-to-r from-white/0 to-white/20 bg-blend-screen" />
       <div className="absolute -top-1/8 -right-1/8 z-10 aspect-square w-3/4 rounded-full bg-white/40 bg-blend-screen blur-xl @6xs:blur-2xl @5xs:blur-3xl" />
       <div className="absolute -bottom-1/8 -left-1/8 z-10 aspect-square w-3/4 rounded-full bg-black/40 bg-blend-screen blur-xl @6xs:blur-2xl @5xs:blur-3xl" />
-      {!!props.book.coverId && (
+      {!!props.book.coverId && isStorageEnabled && (
         <>
           <img
             alt=""
@@ -44,7 +45,7 @@ export const BookCover = (props: {
       <div
         className={cn(
           'relative flex flex-1 flex-col justify-between',
-          !!props.book.coverId && 'sr-only'
+          !!props.book.coverId && isStorageEnabled && 'sr-only'
         )}
       >
         <h3

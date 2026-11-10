@@ -9,7 +9,8 @@ import { systemLogo } from '@/server/upload/system-logo';
 import { userAvatar } from '@/server/upload/user-avatar';
 
 const router = {
-  client: uploadClient,
+  // Never used without storage: the handler answers 503 first
+  client: uploadClient!,
   bucketName: envServer.S3_BUCKET_NAME,
   routes: {
     bookCover,
@@ -28,6 +29,11 @@ export const Route = createFileRoute('/api/upload')({
       POST: ({ request }) => {
         if (envClient.VITE_IS_DEMO) {
           return new Response('Demo Mode', { status: 405 });
+        }
+        if (!uploadClient) {
+          return new Response('File storage is not configured', {
+            status: 503,
+          });
         }
         return handleRequest(request, router);
       },

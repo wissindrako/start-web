@@ -32,40 +32,53 @@ código.
 Las migraciones ya aplicadas en algún entorno no se editan: un cambio nuevo
 es una migración nueva.
 
+## Base de datos en desarrollo
+
+PostgreSQL 17 en Docker, en el puerto **5441** (registrado en
+`D:/javascript/ports.json`):
+
+```bash
+docker compose up -d postgres   # solo la base; MinIO y Maildev son opcionales
+pnpm db:deploy                  # base nueva: crea las tablas
+```
+
 ## Shadow database (desarrollo)
 
 `prisma migrate dev` compara contra una base auxiliar que borra y recrea en
 cada ejecución. Se configura en `SHADOW_DATABASE_URL` (ver `.env.example`) y
-debe ser **otra** base, a la que el usuario de la aplicación tenga acceso
-total. Con el MySQL de Docker:
-
-```sql
--- como root
-CREATE DATABASE IF NOT EXISTS app_db_shadow;
-GRANT ALL PRIVILEGES ON app_db_shadow.* TO 'app_user'@'%';
-```
+debe ser **otra** base. El contenedor de PostgreSQL la crea la primera vez
+que arranca (`<base>_shadow`, con `docker/postgres-init/shadow.sh`).
 
 `pnpm db:deploy` no la usa: en CI y producción no hace falta.
 
-## Bases creadas antes de las migraciones
+## Venir de MySQL (hasta noviembre de 2026)
 
-Hasta octubre de 2026 el esquema se aplicaba con `db push`. Una base de esa
-época ya tiene las tablas de la migración inicial (`20261024000000_init`):
-hay que marcarla como aplicada en lugar de ejecutarla.
+nucleo-admin usó MySQL hasta el 10/11/2026. La migración inicial
+(`20261110000000_init`) es de PostgreSQL y reemplaza a la de MySQL. Para
+pasar los datos de una base MySQL existente (usuarios, roles, sistemas
+externos con sus clientes OAuth y secretos, claves de firma…), sin volver a
+registrar los sistemas conectados:
 
-1. Comprueba que la base coincide con la migración inicial (no debe mostrar
-   cambios; si los muestra, corrígelos antes):
+1. En `.env`, apuntar `DATABASE_URL` a PostgreSQL y dejar los datos de la
+   base vieja en `MYSQL_SOURCE_CONTAINER`, `MYSQL_SOURCE_DATABASE`,
+   `MYSQL_SOURCE_USERNAME` y `MYSQL_SOURCE_PASSWORD` (ver `.env.example`).
+2. `docker compose up -d postgres` y `pnpm db:deploy` (tablas vacías, sin seed).
+3. `pnpm db:from-mysql`: copia cada tabla y columna que exista en las dos
+   bases, en una transacción. MySQL solo se lee. Si PostgreSQL ya tiene
+   usuarios se detiene; `--replace` la vacía antes.
+4. Detener el servidor de desarrollo, `pnpm gen:prisma` y volver a levantarlo.
 
-   ```bash
-   npx prisma migrate diff --from-url "$DATABASE_URL" \
-     --to-migrations prisma/migrations \
-     --shadow-database-url "$SHADOW_DATABASE_URL" --script
-   ```
+Better Auth guarda listas de OAuth como texto JSON; en PostgreSQL eso lo
+hace `src/server/db/oauth-lists.ts` (ver CLAUDE.md, "Moving the database from
+MySQL to PostgreSQL"). Las búsquedas usan `mode: 'insensitive'`, porque
+PostgreSQL distingue mayúsculas y MySQL no.
 
-2. Márcala como aplicada (no ejecuta SQL ni toca datos):
+## Correo y archivos (opcionales)
 
-   ```bash
-   npx prisma migrate resolve --applied 20261024000000_init
-   ```
-
-3. Desde ahí, `pnpm db:deploy` aplica solo las migraciones nuevas.
+- **Correo:** sin configuración (Manager o `EMAIL_SERVER` y `EMAIL_FROM`) los
+  correos se escriben en el log. En desarrollo, si el servidor de correo no
+  responde (Maildev apagado), también van al log; el código de ingreso fijo
+  (`000000`) sigue funcionando. El correo de prueba del Manager sí falla.
+- **Archivos (S3 / MinIO):** sin `S3_HOST`, las claves y
+  `VITE_S3_BUCKET_PUBLIC_URL`, se ocultan las subidas (avatar, logo, portada)
+  y `/api/upload` responde 503.

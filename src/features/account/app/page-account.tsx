@@ -2,6 +2,8 @@ import { Link } from '@tanstack/react-router';
 import { ContactIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+import { isStorageEnabled } from '@/lib/storage';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -31,14 +33,16 @@ export const PageAccount = () => {
       <PageLayoutContent>
         <div className="flex flex-col gap-4">
           <UserCard />
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('account:avatar.title')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <AccountAvatarUpload />
-            </CardContent>
-          </Card>
+          {isStorageEnabled && (
+            <Card>
+              <CardHeader>
+                <CardTitle>{t('account:avatar.title')}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <AccountAvatarUpload />
+              </CardContent>
+            </Card>
+          )}
           <Card>
             <CardHeader>
               <CardTitle>{t('account:personalData.title')}</CardTitle>

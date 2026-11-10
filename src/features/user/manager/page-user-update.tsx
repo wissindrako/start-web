@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 import { orpc } from '@/lib/orpc/client';
+import { isStorageEnabled } from '@/lib/storage';
 import { useNavigateBack } from '@/hooks/use-navigate-back';
 
 import { BackButton } from '@/components/back-button';
@@ -167,19 +168,21 @@ export const PageUserUpdate = (props: { params: { id: string } }) => {
             </PageLayoutTopBarTitle>
           </PageLayoutTopBar>
           <PageLayoutContent containerClassName="flex flex-col gap-6 py-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('user:manager.update.avatarTitle')}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <UserAvatarUpload
-                  userId={props.params.id}
-                  currentImage={userQuery.data?.image}
-                  currentThumbnail={userQuery.data?.imageThumbnail}
-                  userName={userQuery.data?.name}
-                />
-              </CardContent>
-            </Card>
+            {isStorageEnabled && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('user:manager.update.avatarTitle')}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <UserAvatarUpload
+                    userId={props.params.id}
+                    currentImage={userQuery.data?.image}
+                    currentThumbnail={userQuery.data?.imageThumbnail}
+                    userName={userQuery.data?.name}
+                  />
+                </CardContent>
+              </Card>
+            )}
             <Card>
               <CardContent>
                 <FormUser />

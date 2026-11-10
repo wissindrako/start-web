@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 import { orpc } from '@/lib/orpc/client';
+import { isStorageEnabled } from '@/lib/storage';
 
 import {
   Form,
@@ -110,20 +111,21 @@ export const PageSystemConfig = () => {
                     )}
                   />
                 </FormField>
-                {configQuery.isPending ? (
-                  <Skeleton className="h-20 w-full" />
-                ) : (
-                  <LogoUpload
-                    currentLogoUrl={configQuery.data?.logoUrl ?? null}
-                    currentSystemName={configQuery.data?.systemName ?? null}
-                    onLogoChange={(logoUrl) => {
-                      update.mutate({
-                        systemName: form.getValues('systemName') || null,
-                        logoUrl,
-                      });
-                    }}
-                  />
-                )}
+                {isStorageEnabled &&
+                  (configQuery.isPending ? (
+                    <Skeleton className="h-20 w-full" />
+                  ) : (
+                    <LogoUpload
+                      currentLogoUrl={configQuery.data?.logoUrl ?? null}
+                      currentSystemName={configQuery.data?.systemName ?? null}
+                      onLogoChange={(logoUrl) => {
+                        update.mutate({
+                          systemName: form.getValues('systemName') || null,
+                          logoUrl,
+                        });
+                      }}
+                    />
+                  ))}
               </CardContent>
             </Card>
             <AccessSettingsCard />
