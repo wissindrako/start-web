@@ -119,11 +119,19 @@ export const sendEmail = async ({
 
   const { transport, from, log } = await getMailer();
   const html = await render(template);
-  const writeToLog = (reason: string) =>
-    logger.info({ to: options.to, subject: options.subject, html }, reason);
+  // The plain text version: readable in the console, unlike the HTML
+  const writeToLog = async (reason: string) => {
+    const text = (await render(template, { plainText: true }))
+      .replaceAll(/\n{3,}/g, '\n\n')
+      .trim();
+    logger.info(
+      { to: options.to, subject: options.subject },
+      `${reason}\n\n${text}\n`
+    );
+  };
   if (log) {
     const info = await transport.sendMail({ from, html, ...options });
-    writeToLog('Email written to the log (log mailer)');
+    await writeToLog('Email written to the log (log mailer)');
     return info;
   }
   try {
@@ -132,11 +140,9 @@ export const sendEmail = async ({
     // In development the mail server is often not running (Maildev): the
     // message goes to the log instead of failing the request
     if (strict || !import.meta.env.DEV) throw error;
-    logger.warn(
-      { error: (error as Error).message },
-      'The mail server is not reachable: email written to the log'
+    await writeToLog(
+      `Mail server not reachable (${(error as Error).message}): email written to the log`
     );
-    writeToLog('Email written to the log (mail server not reachable)');
     return undefined;
   }
 };
