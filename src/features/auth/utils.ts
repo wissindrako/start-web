@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 
 import { useMyPermissions } from '@/hooks/use-my-permissions';
 
-import { authClient } from '@/features/auth/client';
+import { authClient, isResumingOAuthFlow } from '@/features/auth/client';
 
 export const useRedirectAfterLogin = () => {
   const search = useSearch({ strict: false });
@@ -17,6 +17,9 @@ export const useRedirectAfterLogin = () => {
       if (session.isPending || !session.data || isLoading) {
         return;
       }
+
+      // The browser is on its way back to the system that asked for the login
+      if (isResumingOAuthFlow()) return;
 
       if (searchRedirect) {
         const redirectUrl = new URL(searchRedirect);

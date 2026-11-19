@@ -42,19 +42,59 @@ const restoreSignedQuery = (search: URLSearchParams) => {
   return signed;
 };
 
+/**
+ * Keeps a signed query for the next steps of the login, until it expires.
+ * The expiry is measured with this browser's clock: `exp` comes from the
+ * server's clock, and a device whose clock or time zone is off (common on
+ * other PCs of the network) would see it as already expired and silently
+ * drop the authorization flow. So only the lifetime the server gave it
+ * (`exp` - `ba_iat`) is used, counted from now.
+ */
+const DEFAULT_QUERY_LIFETIME_MS = 10 * 60 * 1000;
+
+const rememberQuery = (key: string, signed: string) => {
+  const params = new URLSearchParams(signed);
+  const lifetime =
+    Number(params.get('exp')) * 1000 - Number(params.get('ba_iat'));
+  sessionStorage.setItem(
+    key,
+    JSON.stringify({
+      query: signed,
+      until:
+        Date.now() +
+        (Number.isFinite(lifetime) && lifetime > 0
+          ? lifetime
+          : DEFAULT_QUERY_LIFETIME_MS),
+    })
+  );
+};
+
+const recallQuery = (key: string) => {
+  try {
+    const stored: unknown = JSON.parse(sessionStorage.getItem(key) ?? 'null');
+    if (!stored || typeof stored !== 'object') return null;
+    const { query, until } = stored as { query?: unknown; until?: unknown };
+    return typeof query === 'string' &&
+      typeof until === 'number' &&
+      until > Date.now()
+      ? query
+      : null;
+  } catch {
+    return null;
+  }
+};
+
 const getSignedQuery = () => {
   const search = new URLSearchParams(window.location.search);
   if (search.has('sig')) {
     const signed = restoreSignedQuery(search).toString();
-    sessionStorage.setItem(PENDING_OAUTH_QUERY, signed);
+    rememberQuery(PENDING_OAUTH_QUERY, signed);
     return signed;
   }
 
   // Only while still signing in, and only until the signed query expires
   if (!window.location.pathname.startsWith('/login')) return null;
-  const pending = sessionStorage.getItem(PENDING_OAUTH_QUERY);
-  const exp = Number(new URLSearchParams(pending ?? '').get('exp'));
-  return pending && exp * 1000 > Date.now() ? pending : null;
+  return recallQuery(PENDING_OAUTH_QUERY);
 };
 
 /**
@@ -67,17 +107,24 @@ const TAKEN_OAUTH_QUERY = 'taken-oauth-query';
 export const takeSignedOAuthQuery = () => {
   const search = new URLSearchParams(window.location.search);
   if (search.has('sig')) {
-    sessionStorage.setItem(
-      TAKEN_OAUTH_QUERY,
-      restoreSignedQuery(search).toString()
-    );
+    rememberQuery(TAKEN_OAUTH_QUERY, restoreSignedQuery(search).toString());
     window.history.replaceState(null, '', window.location.pathname);
   }
   // Also after a reload, until the signed query expires
-  const taken = sessionStorage.getItem(TAKEN_OAUTH_QUERY);
-  const exp = Number(new URLSearchParams(taken ?? '').get('exp'));
-  return taken && exp * 1000 > Date.now() ? taken : null;
+  return recallQuery(TAKEN_OAUTH_QUERY);
 };
+
+/**
+ * Set when a sign-in response sends the browser back to the system that
+ * asked for the login (OAuth flow). From then on this page must not navigate
+ * by itself or send the code again: on a slow device the page kept running
+ * while the browser left, redirected to "no access" or re-sent the code
+ * (already used: "invalid code"), and the user never reached the system.
+ */
+let resumingOAuthFlowTo: string | null = null;
+export const isResumingOAuthFlow = () => resumingOAuthFlowTo !== null;
+
+const OAUTH_REDIRECT_RETRY_MS = 4000;
 
 const signedOAuthQueryClient = () =>
   ({
@@ -112,6 +159,20 @@ const signedOAuthQueryClient = () =>
               !pendingSecondFactor
             ) {
               sessionStorage.removeItem(PENDING_OAUTH_QUERY);
+            }
+            const data = ctx.data as {
+              redirect?: boolean;
+              url?: string;
+            } | null;
+            if (data?.redirect && data.url) {
+              const url = data.url;
+              resumingOAuthFlowTo = url;
+              // oauthProviderClient navigates there; if that navigation got
+              // lost, try once more (timers do not run once the page is gone)
+              setTimeout(
+                () => window.location.assign(url),
+                OAUTH_REDIRECT_RETRY_MS
+              );
             }
           },
         },

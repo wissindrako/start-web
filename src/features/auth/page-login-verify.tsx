@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from '@tanstack/react-router';
 import { ArrowLeftIcon } from 'lucide-react';
+import { useRef } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -16,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { ButtonLink } from '@/components/ui/button-link';
 
 import { useAccessSettings } from '@/features/access-settings/use-access-settings';
-import { authClient } from '@/features/auth/client';
+import { authClient, isResumingOAuthFlow } from '@/features/auth/client';
 import { useMascot } from '@/features/auth/mascot';
 import {
   FormFieldsLoginVerify,
@@ -47,13 +48,20 @@ export default function PageLoginVerify({
   const { isValid, isSubmitted } = form.formState;
   useMascot({ isError: !isValid && isSubmitted });
 
+  // The code can only be used once: the field submits by itself when it is
+  // complete, so a click or Enter right after must not send it again
+  const sendingRef = useRef(false);
+
   const submitHandler: SubmitHandler<FormFieldsLoginVerify> = async ({
     otp,
   }) => {
-    const { data, error } = await authClient.signIn.emailOtp({
-      email: search.email,
-      otp,
-    });
+    if (sendingRef.current || isResumingOAuthFlow()) return;
+    sendingRef.current = true;
+    const { data, error } = await authClient.signIn
+      .emailOtp({ email: search.email, otp })
+      .finally(() => {
+        sendingRef.current = false;
+      });
 
     if (error) {
       toast.error(
