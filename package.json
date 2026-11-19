@@ -188,7 +188,11 @@
       "lefthook",
       "prisma",
       "sharp"
-    ]
+    ],
+    "patchedDependencies": {
+      "@better-auth/oauth-provider@1.7.11": "patches/@better-auth__oauth-provider@1.7.11.patch",
+      "@better-auth/core@1.7.11": "patches/@better-auth__core@1.7.11.patch"
+    }
   },
   "packageManager": "pnpm@10.34.7+sha512.ba98abc585539933375b5971f4bc6d6c73a1b4b7edc4a879e7d102fe5423d1e02309d67c60a11f04955093a96e521ad9c3b138cdd654ca5be563f378b3ae48bd"
 }

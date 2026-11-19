@@ -1,0 +1,16 @@
+diff --git a/dist/authorize-CtCi8mAs.mjs b/dist/authorize-CtCi8mAs.mjs
+index f4dc409f53eb313d19f7d28b4107620ee0418578..c723205b295c8c91c3f6d5d7f89c4598e30a82d4 100644
+--- a/dist/authorize-CtCi8mAs.mjs
++++ b/dist/authorize-CtCi8mAs.mjs
+@@ -5503,7 +5503,10 @@ function redirectWithPromptNoneError(ctx, opts, query, error, description) {
+ function validateIssuerUrl(issuer) {
+ 	try {
+ 		const url = new URL(issuer);
+-		if (url.protocol !== "https:" && !isLoopbackHost(url.host)) url.protocol = "https:";
++		// nucleo-admin dev patch: keep http issuers on the local network (SIGEC `pnpm red`).
++		// Never in production; see patches/ in nucleo-admin.
++		const allowHttpIssuer = process.env.NODE_ENV !== "production" && process.env.OAUTH_DEV_ALLOW_HTTP === "true";
++		if (url.protocol !== "https:" && !isLoopbackHost(url.host) && !allowHttpIssuer) url.protocol = "https:";
+ 		url.search = "";
+ 		url.hash = "";
+ 		return url.toString().replace(/\/$/, "");

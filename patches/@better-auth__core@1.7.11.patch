@@ -1,0 +1,16 @@
+diff --git a/dist/utils/redirect-uri.mjs b/dist/utils/redirect-uri.mjs
+index f57c0736e0b557162c0c91cdcd7f2252cc4f121d..352525f2059f29f293bc614be5bf286f63ca84a4 100644
+--- a/dist/utils/redirect-uri.mjs
++++ b/dist/utils/redirect-uri.mjs
+@@ -88,7 +88,10 @@ const SafeUrlSchema = z.url().superRefine((val, ctx) => {
+ 		code: "custom",
+ 		message: "Redirect URI must not contain a fragment component"
+ 	});
+-	if (u.protocol === "http:" && !isLoopbackHost(u.host)) ctx.addIssue({
++	// nucleo-admin dev patch: accept http redirect URIs on the local network (SIGEC `pnpm red`).
++	// Never in production; see patches/ in nucleo-admin.
++	const allowHttp = process.env.NODE_ENV !== "production" && process.env.OAUTH_DEV_ALLOW_HTTP === "true";
++	if (u.protocol === "http:" && !isLoopbackHost(u.host) && !allowHttp) ctx.addIssue({
+ 		code: "custom",
+ 		message: "Redirect URI must use HTTPS (HTTP allowed only for loopback hosts)"
+ 	});

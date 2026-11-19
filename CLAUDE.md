@@ -57,6 +57,19 @@ Better Auth stores several OAuth fields as lists (scopes, redirect URIs, grant t
 
 **Fix (applied here on 10/11/2026, when nucleo-admin moved to PostgreSQL):** keep the columns as text, as in MySQL, and add a Prisma client extension (`src/server/db/oauth-lists.ts`) that does what the adapter did on MySQL: on write, serialize lists to JSON; on read, parse them back to lists, or `null` when empty. Better Auth then sees exactly what it saw with MySQL.
 
+### Patched Better Auth: http on the local network (dev only)
+
+`patches/` holds two `pnpm patch` files (`patchedDependencies` in `package.json`) so SIGEC's `pnpm red` can sign in
+through this PC's LAN IP over plain http (`http://192.168.x.x:3004`):
+
+- `@better-auth/core` — `SafeUrlSchema` (`dist/utils/redirect-uri.mjs`) accepts http redirect URIs off loopback.
+- `@better-auth/oauth-provider` — `validateIssuerUrl` keeps an http issuer instead of forcing https.
+
+Both apply **only** when `OAUTH_DEV_ALLOW_HTTP=true` **and** `NODE_ENV !== 'production'`; SIGEC's script sets the
+variable only on the dev servers it starts. Without it, behaviour is upstream's. **When upgrading Better Auth**, pnpm
+fails if a patch no longer applies: redo it with `pnpm patch <pkg>@<version>` (search for `OAUTH_DEV_ALLOW_HTTP`) or
+drop it if upstream gained an option for this. Never set the variable in a deployed `.env`.
+
 ## Module structure
 
 See the [Creating a new module](README.md#creating-a-new-module) section in README.md for the step-by-step guide.
