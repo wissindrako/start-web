@@ -11,7 +11,8 @@ import {
 import { db } from '@/server/db';
 import { getEffectivePermissions, hasPermissions } from '@/server/permissions';
 
-export const ACCESS_SETTINGS_ID = 'singleton';
+// The singleton row of access settings (see prisma/schema.prisma)
+export const ACCESS_SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
 
 const load = async (): Promise<AccessSettings> => {
   const row = await db.accessSettings.findUnique({

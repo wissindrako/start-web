@@ -12,7 +12,7 @@ import {
 const now = new Date();
 
 const mockGenreFromDb = {
-  id: 'genre-1',
+  id: '11111111-1111-4111-8111-777777777777',
   name: 'Fiction',
   color: '#ff0000',
   createdAt: now,

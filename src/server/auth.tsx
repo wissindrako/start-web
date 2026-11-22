@@ -180,6 +180,16 @@ export const auth = betterAuth({
   database: prismaAdapter(db, {
     provider: 'postgresql',
   }),
+  advanced: {
+    database: {
+      // Every id column is a UUID (prisma/schema.prisma). Better Auth
+      // generates the ids of the tables whose id has no default (OAuth
+      // clients, resources, tokens…). There is no UUID v7 generator in the
+      // dependencies, so v4. The few forced ids Better Auth derives from a
+      // value are converted in src/server/db/uuid-ids.ts.
+      generateId: () => crypto.randomUUID(),
+    },
+  },
   user: {
     additionalFields: {
       verifiedAt: {

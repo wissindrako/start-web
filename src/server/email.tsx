@@ -14,7 +14,8 @@ import type { MailSettings } from '@/server/db/generated/client';
 import { logger } from '@/server/logger';
 import { decryptSecret } from '@/server/secrets';
 
-export const MAIL_SETTINGS_ID = 'singleton';
+// The singleton row of mail settings (see prisma/schema.prisma)
+export const MAIL_SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
 
 type Mailer = {
   transport: Transporter;

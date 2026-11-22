@@ -25,7 +25,7 @@ enum Genero {
 }
 
 model User {
-  id             String    @id @default(cuid())
+  id             String    @id @default(uuid(7)) @db.Uuid
   name           String
   email          String
   emailVerified  Boolean
@@ -64,8 +64,8 @@ model User {
 }
 
 model PersonalData {
-  id                  String    @id @default(cuid())
-  userId              String    @unique
+  id                  String    @id @default(uuid(7)) @db.Uuid
+  userId              String    @unique @db.Uuid
   user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   nombre              String?
   primerApellido      String?
@@ -95,13 +95,13 @@ enum RoleScope {
 // Invitation to join while public sign-up is closed: the invited email can
 // create its account (signing in with the email code) and gets these roles
 model Invitation {
-  id          String          @id @default(cuid())
+  id          String          @id @default(uuid(7)) @db.Uuid
   email       String
   roles       Role[]
   // System the person is invited to (its roles only); null = this center
-  systemId    String?
+  systemId    String?         @db.Uuid
   system      ExternalSystem? @relation(fields: [systemId], references: [id], onDelete: Cascade)
-  invitedById String?
+  invitedById String?         @db.Uuid
   invitedBy   User?           @relation("invitationsSent", fields: [invitedById], references: [id], onDelete: SetNull)
   expiresAt   DateTime
   acceptedAt  DateTime?
@@ -114,10 +114,10 @@ model Invitation {
 }
 
 model TwoFactor {
-  id                      String    @id @default(cuid())
+  id                      String    @id @default(uuid(7)) @db.Uuid
   secret                  String    @db.Text
   backupCodes             String    @db.Text
-  userId                  String
+  userId                  String    @db.Uuid
   user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   verified                Boolean?  @default(true)
   failedVerificationCount Int?      @default(0)
@@ -128,7 +128,7 @@ model TwoFactor {
 }
 
 model ExternalSystem {
-  id                  String                   @id @default(cuid())
+  id                  String                   @id @default(uuid(7)) @db.Uuid
   name                String                   @unique
   label               String?
   apiKey              String                   @unique @default(uuid())
@@ -155,8 +155,8 @@ model ExternalSystem {
 }
 
 model ExternalModule {
-  id       String         @id @default(cuid())
-  systemId String
+  id       String         @id @default(uuid(7)) @db.Uuid
+  systemId String         @db.Uuid
   system   ExternalSystem @relation(fields: [systemId], references: [id], onDelete: Cascade)
   name     String
   actions  Json
@@ -167,13 +167,13 @@ model ExternalModule {
 }
 
 model Role {
-  id              String               @id @default(cuid())
+  id              String               @id @default(uuid(7)) @db.Uuid
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
   name            String               @unique
   description     String?
   scope           RoleScope            @default(local)
-  systemId        String?
+  systemId        String?              @db.Uuid
   externalSystem  ExternalSystem?      @relation(fields: [systemId], references: [id], onDelete: SetNull)
   permissions     RolePermission[]
   userAssignments UserRoleAssignment[]
@@ -184,8 +184,8 @@ model Role {
 }
 
 model UserRoleAssignment {
-  userId String
-  roleId String
+  userId String @db.Uuid
+  roleId String @db.Uuid
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
@@ -194,7 +194,7 @@ model UserRoleAssignment {
 }
 
 model Permission {
-  id        String                   @id @default(cuid())
+  id        String                   @id @default(uuid(7)) @db.Uuid
   subject   String
   action    String
   roles     RolePermission[]
@@ -205,8 +205,8 @@ model Permission {
 }
 
 model RolePermission {
-  roleId       String
-  permissionId String
+  roleId       String     @db.Uuid
+  permissionId String     @db.Uuid
   role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
   permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
 
@@ -215,17 +215,18 @@ model RolePermission {
 }
 
 model Session {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid(7)) @db.Uuid
   expiresAt DateTime
   token     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   ipAddress String?
   userAgent String?
-  userId    String
+  userId    String   @db.Uuid
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  impersonatedBy String?
+  // Admin user id that impersonates the session
+  impersonatedBy String? @db.Uuid
 
   oauthrefreshtokens OauthRefreshToken[]
   oauthaccesstokens  OauthAccessToken[]
@@ -236,10 +237,10 @@ model Session {
 }
 
 model Account {
-  id                    String    @id @default(cuid())
+  id                    String    @id @default(uuid(7)) @db.Uuid
   accountId             String
   providerId            String
-  userId                String
+  userId                String    @db.Uuid
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken           String?   @db.Text
   refreshToken          String?   @db.Text
@@ -256,7 +257,7 @@ model Account {
 }
 
 model Verification {
-  id         String    @id @default(cuid())
+  id         String    @id @default(uuid(7)) @db.Uuid
   identifier String
   // Holds JSON payloads (e.g. OAuth authorization codes)
   value      String    @db.Text
@@ -269,7 +270,10 @@ model Verification {
 }
 
 model SystemConfig {
-  id         String   @id @default("singleton")
+  // Fixed singleton row. Prisma cannot compare a UUID literal default written
+  // as `@default("…")` on @db.Uuid (it would always report drift), so it is a
+  // database default.
+  id         String   @id @default(dbgenerated("'00000000-0000-0000-0000-000000000001'::uuid")) @db.Uuid
   systemName String?
   logoUrl    String?
   createdAt  DateTime @default(now())
@@ -281,7 +285,8 @@ model SystemConfig {
 // Who can get in and how: set from the manager; while there is no row the
 // defaults in src/server/access-settings.ts apply
 model AccessSettings {
-  id                String   @id @default("singleton")
+  // Fixed singleton row (see SystemConfig)
+  id                String   @id @default(dbgenerated("'00000000-0000-0000-0000-000000000001'::uuid")) @db.Uuid
   // false: accounts only by invitation or created by an admin
   signupEnabled     Boolean
   // Email domains new accounts and invitations may use; empty: any
@@ -302,7 +307,8 @@ model AccessSettings {
 // Mail settings saved from the manager; while there are none, the center
 // sends with EMAIL_SERVER and EMAIL_FROM from the environment
 model MailSettings {
-  id          String   @id @default("singleton")
+  // Fixed singleton row (see SystemConfig)
+  id          String   @id @default(dbgenerated("'00000000-0000-0000-0000-000000000001'::uuid")) @db.Uuid
   // smtp sends; log writes the messages to the server log instead
   mailer      String   @default("smtp")
   host        String?
@@ -321,13 +327,13 @@ model MailSettings {
 }
 
 model Book {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid(7)) @db.Uuid
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   title     String
   author    String
   genre     Genre?   @relation(fields: [genreId], references: [id])
-  genreId   String
+  genreId   String   @db.Uuid
   publisher String?
   coverId   String?
 
@@ -336,7 +342,7 @@ model Book {
 }
 
 model Author {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid(7)) @db.Uuid
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   name      String   @unique
@@ -345,7 +351,7 @@ model Author {
 }
 
 model Genre {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid(7)) @db.Uuid
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   name      String   @unique
@@ -356,7 +362,7 @@ model Genre {
 }
 
 model Publisher {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid(7)) @db.Uuid
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   name      String   @unique
@@ -365,7 +371,7 @@ model Publisher {
 }
 
 model Jwks {
-  id         String    @id
+  id         String    @id @db.Uuid
   publicKey  String    @db.Text
   privateKey String    @db.Text
   createdAt  DateTime
@@ -377,7 +383,7 @@ model Jwks {
 }
 
 model OauthClient {
-  id                               String                @id
+  id                               String                @id @db.Uuid
   clientId                         String
   clientSecret                     String?               @db.Text
   clientDiscoveryId                String?               @db.Text
@@ -387,7 +393,7 @@ model OauthClient {
   subjectType                      String?               @db.Text
   scopes                           String?
   clientCredentialsScopes          String?
-  userId                           String?
+  userId                           String?               @db.Uuid
   user                             User?                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt                        DateTime?
   updatedAt                        DateTime?
@@ -426,7 +432,7 @@ model OauthClient {
 }
 
 model OauthResource {
-  id                            String                @id
+  id                            String                @id @db.Uuid
   identifier                    String
   name                          String                @db.Text
   accessTokenTtl                Int?
@@ -448,7 +454,7 @@ model OauthResource {
 }
 
 model OauthClientResource {
-  id            String        @id
+  id            String        @id @db.Uuid
   clientId      String
   oauthclient   OauthClient   @relation(fields: [clientId], references: [clientId], onDelete: Cascade)
   resourceId    String
@@ -463,13 +469,13 @@ model OauthClientResource {
 }
 
 model OauthRefreshToken {
-  id                      String             @id
+  id                      String             @id @db.Uuid
   token                   String
   clientId                String
   oauthclient             OauthClient        @relation(fields: [clientId], references: [clientId], onDelete: Cascade)
-  sessionId               String?
+  sessionId               String?            @db.Uuid
   session                 Session?           @relation(fields: [sessionId], references: [id], onDelete: SetNull)
-  userId                  String
+  userId                  String             @db.Uuid
   user                    User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   referenceId             String?            @db.Text
   authorizationCodeId     String?            @db.Text
@@ -495,19 +501,19 @@ model OauthRefreshToken {
 }
 
 model OauthAccessToken {
-  id                      String             @id
+  id                      String             @id @db.Uuid
   token                   String
   clientId                String
   oauthclient             OauthClient        @relation(fields: [clientId], references: [clientId], onDelete: Cascade)
-  sessionId               String?
+  sessionId               String?            @db.Uuid
   session                 Session?           @relation(fields: [sessionId], references: [id], onDelete: SetNull)
-  userId                  String?
+  userId                  String?            @db.Uuid
   user                    User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
   referenceId             String?            @db.Text
   authorizationCodeId     String?            @db.Text
   resources               String?
   requestedUserInfoClaims String?
-  refreshId               String?
+  refreshId               String?            @db.Uuid
   oauthrefreshtoken       OauthRefreshToken? @relation(fields: [refreshId], references: [id], onDelete: Cascade)
   expiresAt               DateTime
   createdAt               DateTime
@@ -525,10 +531,10 @@ model OauthAccessToken {
 }
 
 model OauthConsent {
-  id                      String      @id
+  id                      String      @id @db.Uuid
   clientId                String
   oauthclient             OauthClient @relation(fields: [clientId], references: [clientId], onDelete: Cascade)
-  userId                  String?
+  userId                  String?     @db.Uuid
   user                    User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
   referenceId             String?     @db.Text
   resources               String?
@@ -543,7 +549,7 @@ model OauthConsent {
 }
 
 model OauthClientAssertion {
-  id        String   @id
+  id        String   @id @db.Uuid
   expiresAt DateTime
 
   @@map("oauthClientAssertion")
@@ -559,17 +565,17 @@ enum PermissionEffect {
 // Effective permissions = roles + grants - denies (deny wins), expired
 // privileges ignored.
 model UserPermissionOverride {
-  id           String           @id @default(cuid())
-  userId       String
+  id           String           @id @default(uuid(7)) @db.Uuid
+  userId       String           @db.Uuid
   user         User             @relation("overrideUser", fields: [userId], references: [id], onDelete: Cascade)
-  systemId     String?
+  systemId     String?          @db.Uuid
   system       ExternalSystem?  @relation(fields: [systemId], references: [id], onDelete: Cascade)
-  permissionId String
+  permissionId String           @db.Uuid
   permission   Permission       @relation(fields: [permissionId], references: [id], onDelete: Cascade)
   effect       PermissionEffect
   reason       String?
   expiresAt    DateTime?
-  grantedById  String?
+  grantedById  String?          @db.Uuid
   grantedBy    User?            @relation("overrideGrantedBy", fields: [grantedById], references: [id], onDelete: SetNull)
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt

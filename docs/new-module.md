@@ -49,7 +49,7 @@ src/
 
 ```prisma
 model NombreModelo {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid(7)) @db.Uuid
   campo1    String?
   campo2    String?
   createdAt DateTime @default(now())
@@ -66,8 +66,8 @@ miModelo MiModelo?
 
 // Nuevo modelo
 model MiModelo {
-  id     String @id @default(cuid())
-  userId String @unique
+  id     String @id @default(uuid(7)) @db.Uuid
+  userId String @unique @db.Uuid
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   // ...campos
   @@map("mi_tabla")
