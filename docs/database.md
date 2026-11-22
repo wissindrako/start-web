@@ -51,6 +51,33 @@ que arranca (`<base>_shadow`, con `docker/postgres-init/shadow.sh`).
 
 `pnpm db:deploy` no la usa: en CI y producción no hace falta.
 
+## Ids: UUID
+
+Las columnas `id` y las claves foráneas son `uuid` en PostgreSQL (`@db.Uuid`).
+Las filas nuevas reciben un **UUID v7** (ordenable por tiempo, lo genera Prisma
+con `@default(uuid(7))`); Better Auth genera las suyas con `crypto.randomUUID()`
+(UUID v4) para las tablas cuyo `id` no tiene default (clientes y tokens OAuth…).
+
+La migración `20261122154324_uuid_ids` convirtió los ids antiguos (cuid) de
+forma determinista, para que las relaciones siguieran cuadrando sin tablas
+intermedias:
+
+```sql
+uuid_generate_v5('6ba7b811-9dad-11d1-80b4-00c04fd430c8'::uuid, '<id antiguo>')
+```
+
+`6ba7b811-9dad-11d1-80b4-00c04fd430c8` es el namespace URL de `uuid-ossp`
+(la extensión se crea en la propia migración). Un valor que ya era un UUID se
+dejó igual. Por eso un sistema externo que haya guardado un id antiguo —por
+ejemplo una aplicación cliente con el `sub` que le dio el OIDC— puede calcular
+el nuevo con esa misma expresión (o con cualquier librería UUID v5 y el mismo
+namespace). Las filas únicas de configuración (`system_config`,
+`access_settings`, `mail_settings`) usan el id fijo
+`00000000-0000-0000-0000-000000000001`. Los pocos ids que Better Auth deriva
+de un valor (el `jti` de una client assertion, las reservas de verificación)
+también se convierten a UUID v5 con ese namespace en
+`src/server/db/uuid-ids.ts`, para que sigan siendo deterministas.
+
 ## Venir de MySQL (hasta noviembre de 2026)
 
 nucleo-admin usó MySQL hasta el 10/11/2026. La migración inicial

@@ -15,7 +15,7 @@ import {
 const now = new Date();
 
 const mockGenre = {
-  id: 'genre-1',
+  id: '11111111-1111-4111-8111-777777777777',
   name: 'Fiction',
   color: '#ff0000',
   createdAt: now,
@@ -23,11 +23,11 @@ const mockGenre = {
 };
 
 const mockBookFromDb = {
-  id: 'book-1',
+  id: '11111111-1111-4111-8111-555555555555',
   title: 'Test Book',
   author: 'Test Author',
   genre: mockGenre,
-  genreId: 'genre-1',
+  genreId: '11111111-1111-4111-8111-777777777777',
   publisher: 'Test Publisher',
   coverId: null,
   createdAt: now,
@@ -107,7 +107,9 @@ describe('book router', () => {
     it('should return a book when found', async () => {
       mockDb.book.findUnique.mockResolvedValue(mockBookFromDb);
 
-      const result = await call(bookRouter.getById, { id: 'book-1' });
+      const result = await call(bookRouter.getById, {
+        id: '11111111-1111-4111-8111-555555555555',
+      });
 
       expect(result).toEqual(toExpectedBook(mockBookFromDb));
     });
@@ -116,7 +118,7 @@ describe('book router', () => {
       mockDb.book.findUnique.mockResolvedValue(null);
 
       await expect(
-        call(bookRouter.getById, { id: 'nonexistent' })
+        call(bookRouter.getById, { id: '11111111-1111-4111-8111-999999999999' })
       ).rejects.toMatchObject({
         code: 'NOT_FOUND',
       });
@@ -126,7 +128,7 @@ describe('book router', () => {
       mockGetSession.mockResolvedValue(null);
 
       await expect(
-        call(bookRouter.getById, { id: 'book-1' })
+        call(bookRouter.getById, { id: '11111111-1111-4111-8111-555555555555' })
       ).rejects.toMatchObject({
         code: 'UNAUTHORIZED',
       });
@@ -135,7 +137,9 @@ describe('book router', () => {
     it('should require book read permission', async () => {
       mockDb.book.findUnique.mockResolvedValue(mockBookFromDb);
 
-      await call(bookRouter.getById, { id: 'book-1' });
+      await call(bookRouter.getById, {
+        id: '11111111-1111-4111-8111-555555555555',
+      });
 
       expect(mockSatisfiesPermission).toHaveBeenCalledWith(expect.any(Array), {
         book: ['read'],
@@ -146,7 +150,7 @@ describe('book router', () => {
       mockUserPermissions({});
 
       await expect(
-        call(bookRouter.getById, { id: 'book-1' })
+        call(bookRouter.getById, { id: '11111111-1111-4111-8111-555555555555' })
       ).rejects.toMatchObject({
         code: 'FORBIDDEN',
       });
@@ -157,7 +161,7 @@ describe('book router', () => {
     const createInput = {
       title: 'New Book',
       author: 'New Author',
-      genreId: 'genre-1',
+      genreId: '11111111-1111-4111-8111-777777777777',
       publisher: 'Publisher',
       coverId: null,
     };
@@ -166,7 +170,7 @@ describe('book router', () => {
       const createdBookFromDb = {
         ...mockBookFromDb,
         ...createInput,
-        id: 'new-book-1',
+        id: '11111111-1111-4111-8111-666666666666',
       };
       mockDb.book.create.mockResolvedValue(createdBookFromDb);
 
@@ -230,10 +234,10 @@ describe('book router', () => {
 
   describe('updateById', () => {
     const updateInput = {
-      id: 'book-1',
+      id: '11111111-1111-4111-8111-555555555555',
       title: 'Updated Title',
       author: 'Updated Author',
-      genreId: 'genre-1',
+      genreId: '11111111-1111-4111-8111-777777777777',
       publisher: 'Updated Publisher',
       coverId: 'cover-1',
     };
@@ -330,7 +334,9 @@ describe('book router', () => {
       mockDb.book.delete.mockResolvedValue(mockBookFromDb);
 
       await expect(
-        call(bookRouter.deleteById, { id: 'book-1' })
+        call(bookRouter.deleteById, {
+          id: '11111111-1111-4111-8111-555555555555',
+        })
       ).resolves.toBeUndefined();
     });
 
@@ -343,7 +349,9 @@ describe('book router', () => {
       );
 
       await expect(
-        call(bookRouter.deleteById, { id: 'nonexistent' })
+        call(bookRouter.deleteById, {
+          id: '11111111-1111-4111-8111-999999999999',
+        })
       ).rejects.toMatchObject({
         code: 'NOT_FOUND',
       });
@@ -353,7 +361,9 @@ describe('book router', () => {
       mockDb.book.delete.mockRejectedValue(new Error('DB connection lost'));
 
       await expect(
-        call(bookRouter.deleteById, { id: 'book-1' })
+        call(bookRouter.deleteById, {
+          id: '11111111-1111-4111-8111-555555555555',
+        })
       ).rejects.toMatchObject({
         code: 'INTERNAL_SERVER_ERROR',
       });
@@ -363,7 +373,9 @@ describe('book router', () => {
       mockGetSession.mockResolvedValue(null);
 
       await expect(
-        call(bookRouter.deleteById, { id: 'book-1' })
+        call(bookRouter.deleteById, {
+          id: '11111111-1111-4111-8111-555555555555',
+        })
       ).rejects.toMatchObject({
         code: 'UNAUTHORIZED',
       });
@@ -372,7 +384,9 @@ describe('book router', () => {
     it('should require book delete permission', async () => {
       mockDb.book.delete.mockResolvedValue(mockBookFromDb);
 
-      await call(bookRouter.deleteById, { id: 'book-1' });
+      await call(bookRouter.deleteById, {
+        id: '11111111-1111-4111-8111-555555555555',
+      });
 
       expect(mockSatisfiesPermission).toHaveBeenCalledWith(expect.any(Array), {
         book: ['delete'],
@@ -383,7 +397,9 @@ describe('book router', () => {
       mockUserPermissions({});
 
       await expect(
-        call(bookRouter.deleteById, { id: 'book-1' })
+        call(bookRouter.deleteById, {
+          id: '11111111-1111-4111-8111-555555555555',
+        })
       ).rejects.toMatchObject({
         code: 'FORBIDDEN',
       });

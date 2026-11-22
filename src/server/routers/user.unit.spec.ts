@@ -30,7 +30,7 @@ vi.mock('@/server/auth', () => ({
 const now = new Date();
 
 const mockUserFromDb = {
-  id: 'target-user-1',
+  id: '11111111-1111-4111-8111-111111111111',
   name: 'Target User',
   email: 'target@example.com',
   emailVerified: true,
@@ -42,7 +42,7 @@ const mockUserFromDb = {
 };
 
 const mockSessionFromDb = {
-  id: 'session-1',
+  id: '11111111-1111-4111-8111-333333333333',
   token: 'session-token-1',
   createdAt: now,
   updatedAt: now,
@@ -68,7 +68,10 @@ describe('user router', () => {
     });
 
     it('should flatten the role assignments into roles', async () => {
-      const role = { id: 'role-1', name: 'Editor' };
+      const role = {
+        id: '11111111-1111-4111-8111-444444444444',
+        name: 'Editor',
+      };
       mockDb.user.count.mockResolvedValue(1);
       mockDb.user.findMany.mockResolvedValue([
         { ...mockUserFromDb, roles: [{ role }] },
@@ -82,7 +85,7 @@ describe('user router', () => {
     it('should return nextCursor when there are more items than limit', async () => {
       const usersFromDb = Array.from({ length: 4 }, (_, i) => ({
         ...listedUserFromDb,
-        id: `user-${i + 1}`,
+        id: `11111111-1111-4111-8111-${String(i + 1).padStart(12, '0')}`,
       }));
       mockDb.user.count.mockResolvedValue(10);
       mockDb.user.findMany.mockResolvedValue(usersFromDb);
@@ -90,7 +93,7 @@ describe('user router', () => {
       const result = await call(userRouter.getAll, { limit: 3 });
 
       expect(result.items).toHaveLength(3);
-      expect(result.nextCursor).toBe('user-4');
+      expect(result.nextCursor).toBe('11111111-1111-4111-8111-000000000004');
       expect(result.total).toBe(10);
     });
 
@@ -135,7 +138,9 @@ describe('user router', () => {
     it('should return a user when found', async () => {
       mockDb.user.findUnique.mockResolvedValue(mockUserFromDb);
 
-      const result = await call(userRouter.getById, { id: 'target-user-1' });
+      const result = await call(userRouter.getById, {
+        id: '11111111-1111-4111-8111-111111111111',
+      });
 
       expect(result).toEqual(mockUserFromDb);
     });
@@ -144,7 +149,7 @@ describe('user router', () => {
       mockDb.user.findUnique.mockResolvedValue(null);
 
       await expect(
-        call(userRouter.getById, { id: 'nonexistent' })
+        call(userRouter.getById, { id: '11111111-1111-4111-8111-999999999999' })
       ).rejects.toMatchObject({
         code: 'NOT_FOUND',
       });
@@ -154,7 +159,7 @@ describe('user router', () => {
       mockGetSession.mockResolvedValue(null);
 
       await expect(
-        call(userRouter.getById, { id: 'target-user-1' })
+        call(userRouter.getById, { id: '11111111-1111-4111-8111-111111111111' })
       ).rejects.toMatchObject({
         code: 'UNAUTHORIZED',
       });
@@ -163,7 +168,9 @@ describe('user router', () => {
     it('should require user list permission', async () => {
       mockDb.user.findUnique.mockResolvedValue(mockUserFromDb);
 
-      await call(userRouter.getById, { id: 'target-user-1' });
+      await call(userRouter.getById, {
+        id: '11111111-1111-4111-8111-111111111111',
+      });
 
       expect(mockSatisfiesPermission).toHaveBeenCalledWith(expect.any(Array), {
         user: ['list'],
@@ -174,7 +181,7 @@ describe('user router', () => {
       mockUserPermissions({});
 
       await expect(
-        call(userRouter.getById, { id: 'target-user-1' })
+        call(userRouter.getById, { id: '11111111-1111-4111-8111-111111111111' })
       ).rejects.toMatchObject({
         code: 'FORBIDDEN',
       });
@@ -189,7 +196,11 @@ describe('user router', () => {
     };
 
     it('should create a user and return it', async () => {
-      const createdUser = { ...mockUserFromDb, ...createInput, id: 'new-1' };
+      const createdUser = {
+        ...mockUserFromDb,
+        ...createInput,
+        id: '11111111-1111-4111-8111-888888888888',
+      };
       mockDb.user.create.mockResolvedValue(createdUser);
 
       const result = await call(userRouter.create, createInput);
@@ -252,7 +263,7 @@ describe('user router', () => {
 
   describe('updateById', () => {
     const updateInput = {
-      id: 'target-user-1',
+      id: '11111111-1111-4111-8111-111111111111',
       name: 'Updated Name',
       email: 'updated@example.com',
       role: 'admin' as const,
@@ -379,7 +390,9 @@ describe('user router', () => {
       mockRemoveUser.mockResolvedValue({ success: true });
 
       await expect(
-        call(userRouter.deleteById, { id: 'target-user-1' })
+        call(userRouter.deleteById, {
+          id: '11111111-1111-4111-8111-111111111111',
+        })
       ).resolves.toBeUndefined();
     });
 
@@ -395,7 +408,9 @@ describe('user router', () => {
       mockRemoveUser.mockResolvedValue({ success: false });
 
       await expect(
-        call(userRouter.deleteById, { id: 'target-user-1' })
+        call(userRouter.deleteById, {
+          id: '11111111-1111-4111-8111-111111111111',
+        })
       ).rejects.toMatchObject({
         code: 'INTERNAL_SERVER_ERROR',
       });
@@ -405,7 +420,9 @@ describe('user router', () => {
       mockGetSession.mockResolvedValue(null);
 
       await expect(
-        call(userRouter.deleteById, { id: 'target-user-1' })
+        call(userRouter.deleteById, {
+          id: '11111111-1111-4111-8111-111111111111',
+        })
       ).rejects.toMatchObject({
         code: 'UNAUTHORIZED',
       });
@@ -414,7 +431,9 @@ describe('user router', () => {
     it('should require user delete permission', async () => {
       mockRemoveUser.mockResolvedValue({ success: true });
 
-      await call(userRouter.deleteById, { id: 'target-user-1' });
+      await call(userRouter.deleteById, {
+        id: '11111111-1111-4111-8111-111111111111',
+      });
 
       expect(mockSatisfiesPermission).toHaveBeenCalledWith(expect.any(Array), {
         user: ['delete'],
@@ -425,7 +444,9 @@ describe('user router', () => {
       mockUserPermissions({});
 
       await expect(
-        call(userRouter.deleteById, { id: 'target-user-1' })
+        call(userRouter.deleteById, {
+          id: '11111111-1111-4111-8111-111111111111',
+        })
       ).rejects.toMatchObject({
         code: 'FORBIDDEN',
       });
@@ -438,7 +459,7 @@ describe('user router', () => {
       mockDb.session.findMany.mockResolvedValue([mockSessionFromDb]);
 
       const result = await call(userRouter.getUserSessions, {
-        userId: 'target-user-1',
+        userId: '11111111-1111-4111-8111-111111111111',
       });
 
       expect(result).toEqual({
@@ -457,7 +478,7 @@ describe('user router', () => {
       mockDb.session.findMany.mockResolvedValue(sessions);
 
       const result = await call(userRouter.getUserSessions, {
-        userId: 'target-user-1',
+        userId: '11111111-1111-4111-8111-111111111111',
         limit: 3,
       });
 
@@ -470,7 +491,9 @@ describe('user router', () => {
       mockGetSession.mockResolvedValue(null);
 
       await expect(
-        call(userRouter.getUserSessions, { userId: 'target-user-1' })
+        call(userRouter.getUserSessions, {
+          userId: '11111111-1111-4111-8111-111111111111',
+        })
       ).rejects.toMatchObject({
         code: 'UNAUTHORIZED',
       });
@@ -480,7 +503,9 @@ describe('user router', () => {
       mockDb.session.count.mockResolvedValue(0);
       mockDb.session.findMany.mockResolvedValue([]);
 
-      await call(userRouter.getUserSessions, { userId: 'target-user-1' });
+      await call(userRouter.getUserSessions, {
+        userId: '11111111-1111-4111-8111-111111111111',
+      });
 
       expect(mockSatisfiesPermission).toHaveBeenCalledWith(expect.any(Array), {
         session: ['list'],
@@ -491,7 +516,9 @@ describe('user router', () => {
       mockUserPermissions({});
 
       await expect(
-        call(userRouter.getUserSessions, { userId: 'target-user-1' })
+        call(userRouter.getUserSessions, {
+          userId: '11111111-1111-4111-8111-111111111111',
+        })
       ).rejects.toMatchObject({
         code: 'FORBIDDEN',
       });
@@ -507,10 +534,15 @@ describe('user router', () => {
       mockDb.session.deleteMany.mockResolvedValue({ count: 2 });
 
       await expect(
-        call(userRouter.revokeUserSessions, { id: 'target-user-1' })
+        call(userRouter.revokeUserSessions, {
+          id: '11111111-1111-4111-8111-111111111111',
+        })
       ).resolves.toBeUndefined();
       expect(mockDb.session.deleteMany).toHaveBeenCalledWith({
-        where: { userId: 'target-user-1', token: { not: 'my-token' } },
+        where: {
+          userId: '11111111-1111-4111-8111-111111111111',
+          token: { not: 'my-token' },
+        },
       });
     });
 
@@ -520,7 +552,9 @@ describe('user router', () => {
       );
 
       await expect(
-        call(userRouter.revokeUserSessions, { id: 'target-user-1' })
+        call(userRouter.revokeUserSessions, {
+          id: '11111111-1111-4111-8111-111111111111',
+        })
       ).rejects.toMatchObject({
         code: 'INTERNAL_SERVER_ERROR',
       });
@@ -530,7 +564,9 @@ describe('user router', () => {
       mockGetSession.mockResolvedValue(null);
 
       await expect(
-        call(userRouter.revokeUserSessions, { id: 'target-user-1' })
+        call(userRouter.revokeUserSessions, {
+          id: '11111111-1111-4111-8111-111111111111',
+        })
       ).rejects.toMatchObject({
         code: 'UNAUTHORIZED',
       });
@@ -539,7 +575,9 @@ describe('user router', () => {
     it('should require session revoke permission', async () => {
       mockDb.session.deleteMany.mockResolvedValue({ count: 0 });
 
-      await call(userRouter.revokeUserSessions, { id: 'target-user-1' });
+      await call(userRouter.revokeUserSessions, {
+        id: '11111111-1111-4111-8111-111111111111',
+      });
 
       expect(mockSatisfiesPermission).toHaveBeenCalledWith(expect.any(Array), {
         session: ['revoke'],
@@ -550,7 +588,9 @@ describe('user router', () => {
       mockUserPermissions({});
 
       await expect(
-        call(userRouter.revokeUserSessions, { id: 'target-user-1' })
+        call(userRouter.revokeUserSessions, {
+          id: '11111111-1111-4111-8111-111111111111',
+        })
       ).rejects.toMatchObject({
         code: 'FORBIDDEN',
       });
@@ -563,12 +603,15 @@ describe('user router', () => {
 
       await expect(
         call(userRouter.revokeUserSession, {
-          id: 'target-user-1',
+          id: '11111111-1111-4111-8111-111111111111',
           sessionToken: 'other-token',
         })
       ).resolves.toBeUndefined();
       expect(mockDb.session.delete).toHaveBeenCalledWith({
-        where: { token: 'other-token', userId: 'target-user-1' },
+        where: {
+          token: 'other-token',
+          userId: '11111111-1111-4111-8111-111111111111',
+        },
       });
     });
 
@@ -593,7 +636,7 @@ describe('user router', () => {
 
       await expect(
         call(userRouter.revokeUserSession, {
-          id: 'target-user-1',
+          id: '11111111-1111-4111-8111-111111111111',
           sessionToken: 'other-token',
         })
       ).rejects.toMatchObject({
@@ -606,7 +649,7 @@ describe('user router', () => {
 
       await expect(
         call(userRouter.revokeUserSession, {
-          id: 'target-user-1',
+          id: '11111111-1111-4111-8111-111111111111',
           sessionToken: 'other-token',
         })
       ).rejects.toMatchObject({
@@ -618,7 +661,7 @@ describe('user router', () => {
       mockDb.session.delete.mockResolvedValue(mockSessionFromDb);
 
       await call(userRouter.revokeUserSession, {
-        id: 'target-user-1',
+        id: '11111111-1111-4111-8111-111111111111',
         sessionToken: 'other-token',
       });
 
@@ -632,7 +675,7 @@ describe('user router', () => {
 
       await expect(
         call(userRouter.revokeUserSession, {
-          id: 'target-user-1',
+          id: '11111111-1111-4111-8111-111111111111',
           sessionToken: 'other-token',
         })
       ).rejects.toMatchObject({

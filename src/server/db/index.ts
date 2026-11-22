@@ -3,6 +3,7 @@ import { timingStore } from '@/server/timing-store';
 
 import { PrismaClient } from './generated/client';
 import { oauthLists } from './oauth-lists';
+import { deterministicIds } from './uuid-ids';
 
 const levels = {
   trace: ['query', 'error', 'warn', 'info'],
@@ -18,6 +19,7 @@ function createPrisma() {
     log: levels[envServer.LOGGER_LEVEL],
   })
     .$extends(oauthLists)
+    .$extends(deterministicIds)
     .$extends({
       name: 'external-module-actions-as-array',
       result: {

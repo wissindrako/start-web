@@ -88,6 +88,25 @@ const pgCast = (column: Column) => {
   return column.udt;
 };
 
+// Ids are UUID columns now. Old MySQL ids (cuid) are converted exactly as the
+// uuid_ids migration does, so ids and foreign keys keep matching:
+// uuid_generate_v5(URL namespace, old id).
+const UUID_NAMESPACE = '6ba7b811-9dad-11d1-80b4-00c04fd430c8';
+// Fixed id of the rows that hold the center settings
+const SINGLETON_TABLES = new Set([
+  'system_config',
+  'access_settings',
+  'mail_settings',
+]);
+const SINGLETON_ID = '00000000-0000-0000-0000-000000000001';
+const uuidValue = (parameter: string, singletonColumn: boolean) =>
+  `(CASE ${
+    singletonColumn
+      ? `WHEN ${parameter} = 'singleton' THEN '${SINGLETON_ID}'::uuid `
+      : ''
+  }WHEN ${parameter} ~* '^[0-9a-f-]{36}$' THEN ${parameter}::uuid
+    ELSE uuid_generate_v5('${UUID_NAMESPACE}'::uuid, ${parameter}) END)`;
+
 const main = async () => {
   const sourceTables = new Set(
     mysql(
@@ -169,7 +188,13 @@ const main = async () => {
               `(${columns
                 .map((column) => {
                   params.push(pgValue(column, row[column.name]));
-                  return `$${params.length}::${pgCast(column)}`;
+                  const parameter = `$${params.length}`;
+                  return column.udt === 'uuid'
+                    ? uuidValue(
+                        parameter,
+                        column.name === 'id' && SINGLETON_TABLES.has(table)
+                      )
+                    : `${parameter}::${pgCast(column)}`;
                 })
                 .join(', ')})`
           );

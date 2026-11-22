@@ -4,7 +4,8 @@ import { protectedProcedure, publicProcedure } from '@/server/orpc';
 
 const tags = ['system-config'];
 
-const SINGLETON_ID = 'singleton';
+// The singleton row of the system config (see prisma/schema.prisma)
+const SINGLETON_ID = '00000000-0000-0000-0000-000000000001';
 
 const zSystemConfigOutput = z.object({
   systemName: z.string().nullish(),
