@@ -70,6 +70,29 @@ variable only on the dev servers it starts. Without it, behaviour is upstream's.
 fails if a patch no longer applies: redo it with `pnpm patch <pkg>@<version>` (search for `OAUTH_DEV_ALLOW_HTTP`) or
 drop it if upstream gained an option for this. Never set the variable in a deployed `.env`.
 
+## Decisions (database layout)
+
+- **Ids are UUID** (v7 for new rows); migration in progress on branch `feat/uuid-ids`. Old text ids are converted
+  with `uuid_generate_v5(URL namespace, old_id)`, so systems that stored an old id can compute the new one.
+- **One PostgreSQL schema per domain, with Spanish names** (decided 22/11/2026, modelled on `D:\javascript\rr-hh\rrhh-db`:
+  its structure, not its data). After the UUID migration, the current tables move with `ALTER TABLE … SET SCHEMA`:
+  - `identidad`: accounts and sessions (Better Auth, OAuth), invitations;
+  - `acceso`: external systems, modules, roles, permissions and assignments;
+  - `configuracion`: system, access and mail settings;
+  - the template's demo tables (book, author, genre, publisher) go to `demo` or are dropped.
+- **Human resources, new schemas:**
+  - `personal`: the person (stable anchor, like rr-hh's `fun_id`) and their personal data; a person may exist without
+    an account, and the account (`identidad.user`) points to the person;
+  - `organizacion`: dependencies (tree DGE → unit → area, with validity) and positions (item or temporary post);
+  - `movilidad`: assignments person ↔ position (titular, interim, rotation, commission; several at once, with dates),
+    movements (HR acts) and delegations; as-of-date functions here, like rr-hh's `movilidad_en_fecha` but returning
+    **every** assignment in force, not one per person;
+  - `parametrica`: catalogues (bond type, movement type, assignment type).
+- SQL functions live in repeatable files (rr-hh's `ddl/R__*.sql` idea), applied after `migrate deploy`.
+- Open-ended dates are `NULL` (or a `daterange`), never rr-hh's `1900-01-01` sentinel.
+- Raw SQL that names tables (SIGECON `scripts/nucleo-sql.ts`, `scripts/movil.mjs`; `prisma/from-mysql.ts`) must use
+  schema-qualified names once tables move.
+
 ## Module structure
 
 See the [Creating a new module](README.md#creating-a-new-module) section in README.md for the step-by-step guide.
