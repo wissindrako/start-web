@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 20
 
     services:
-      # Only for the migrations check: Prisma replays them in this database
+      # Migrations check (shadow) and SQL function tests (ci, created by Prisma)
       postgres:
         image: postgres:17-alpine
         env:
@@ -77,3 +77,10 @@ jobs:
           --to-schema-datamodel prisma/schema.prisma
           --shadow-database-url postgresql://postgres:postgres@localhost:5432/shadow
           --exit-code
+
+      # Migrations and SQL functions (prisma/ddl) on an empty database, then
+      # the SQL tests of those functions (they roll their data back)
+      - name: SQL functions
+        run: pnpm db:deploy && pnpm db:test-funciones
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ci

@@ -103,7 +103,8 @@ SIGECON).
 
 **Funciones SQL** (consultas por fecha de RR.HH.): en `prisma/ddl/R__NN_*.sql`,
 con `CREATE OR REPLACE`. `pnpm db:deploy` las aplica después de las
-migraciones; tras `pnpm db:migrate` (desarrollo) correr `pnpm db:funciones`.
+migraciones; tras `pnpm db:migrate` (desarrollo) correr `pnpm db:funciones`. Sus pruebas:
+`pnpm db:test-funciones` (ver [rrhh.md](rrhh.md)).
 
 ## Venir de MySQL (hasta noviembre de 2026)
 

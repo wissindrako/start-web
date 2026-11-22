@@ -40,6 +40,7 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy && pnpm db:funciones",
     "db:funciones": "dotenv -- cross-env node ./run-jiti ./prisma/ddl/apply.ts",
+    "db:test-funciones": "dotenv -- cross-env node ./run-jiti ./prisma/ddl/test.ts",
     "db:status": "prisma migrate status",
     "db:reset": "prisma migrate reset",
     "db:ui": "prisma studio",

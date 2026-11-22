@@ -47,9 +47,12 @@ SELECT * FROM movilidad.asignaciones_en_fecha('2026-03-15');
 SELECT * FROM movilidad.jefe_inmediato_en_fecha('<persona_id>', '2026-11-20');
 ```
 
-Probado (22/11/2026) con un caso de ejemplo en una transacción descartada: titular más interina en dos puestos,
-jefatura acéfala que sube a la unidad, delegación por vacación, la directora sin jefe y el rechazo de un segundo
-titular superpuesto.
+**Pruebas:** `pnpm db:test-funciones` corre `prisma/ddl/tests/*.test.sql`. Cada archivo arma su caso dentro de una
+transacción que se descarta al final (no deja nada en la base) y falla con `FALLA: …` si un resultado no es el esperado.
+`movilidad.test.sql` cubre: titular más interina en dos puestos, el último día inclusive, el fin de un interinato,
+jefatura acéfala que sube a la unidad, delegación por vacación y su fin, la directora sin jefe, el rechazo de un segundo
+titular superpuesto y de fechas invertidas. También corre en CI (paso "SQL functions", sobre una base vacía).
+Al cambiar o agregar una función, agregar su caso ahí.
 
 ## Pendiente
 
