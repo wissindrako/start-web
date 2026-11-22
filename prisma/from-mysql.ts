@@ -114,22 +114,33 @@ const main = async () => {
     )
   );
 
+  // Tables live in one schema per domain (identidad, acceso, …); MySQL had
+  // them all in one database, so they are matched by table name
   const rows = await db.$queryRaw<
-    { table: string; column: string; type: string; udt: string }[]
-  >`SELECT table_name AS "table", column_name AS "column", data_type AS "type", udt_name AS "udt"
+    {
+      schema: string;
+      table: string;
+      column: string;
+      type: string;
+      udt: string;
+    }[]
+  >`SELECT table_schema AS "schema", table_name AS "table", column_name AS "column", data_type AS "type", udt_name AS "udt"
     FROM information_schema.columns
-    WHERE table_schema = 'public' AND table_name <> '_prisma_migrations'
+    WHERE table_schema IN ('identidad', 'acceso', 'configuracion', 'demo')
     ORDER BY table_name, ordinal_position`;
   const targetTables = new Map<string, Column[]>();
+  const schemaOf = new Map<string, string>();
   for (const row of rows) {
     const columns = targetTables.get(row.table) ?? [];
     columns.push({ name: row.column, type: row.type, udt: row.udt });
     targetTables.set(row.table, columns);
+    schemaOf.set(row.table, row.schema);
   }
+  const qualified = (table: string) => `"${schemaOf.get(table)}"."${table}"`;
 
   const [{ count } = { count: 0n }] = await db.$queryRaw<
     { count: bigint }[]
-  >`SELECT count(*) AS count FROM "user"`;
+  >`SELECT count(*) AS count FROM identidad."user"`;
   if (count > 0n && !replace) {
     throw new Error(
       `PostgreSQL already has ${count} user(s). Run with --replace to empty it first.`
@@ -147,7 +158,7 @@ const main = async () => {
       );
       if (replace) {
         await tx.$executeRawUnsafe(
-          `TRUNCATE ${[...targetTables.keys()].map((table) => `"${table}"`).join(', ')} CASCADE`
+          `TRUNCATE ${[...targetTables.keys()].map(qualified).join(', ')} CASCADE`
         );
       }
 
@@ -199,7 +210,7 @@ const main = async () => {
                 .join(', ')})`
           );
           await tx.$executeRawUnsafe(
-            `INSERT INTO "${table}" (${names}) VALUES ${values.join(', ')}`,
+            `INSERT INTO ${qualified(table)} (${names}) VALUES ${values.join(', ')}`,
             ...params
           );
         }

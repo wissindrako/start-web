@@ -12,16 +12,22 @@ datasource db {
   url               = env("DATABASE_URL")
   // Scratch database for `prisma migrate dev` (see docs/database.md)
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  // One schema per domain, Spanish names (see CLAUDE.md "Decisions")
+  schemas           = ["identidad", "acceso", "configuracion", "demo"]
 }
 
 enum UserRole {
   user
   admin
+
+  @@schema("identidad")
 }
 
 enum Genero {
   M
   F
+
+  @@schema("identidad")
 }
 
 model User {
@@ -61,6 +67,7 @@ model User {
 
   @@unique([email])
   @@map("user")
+  @@schema("identidad")
 }
 
 model PersonalData {
@@ -85,11 +92,14 @@ model PersonalData {
   updatedAt           DateTime  @updatedAt
 
   @@map("personal_data")
+  @@schema("identidad")
 }
 
 enum RoleScope {
   local
   external
+
+  @@schema("acceso")
 }
 
 // Invitation to join while public sign-up is closed: the invited email can
@@ -111,6 +121,7 @@ model Invitation {
   @@index([email])
   @@index([systemId])
   @@map("invitation")
+  @@schema("identidad")
 }
 
 model TwoFactor {
@@ -125,6 +136,7 @@ model TwoFactor {
 
   @@index([userId])
   @@map("twoFactor")
+  @@schema("identidad")
 }
 
 model ExternalSystem {
@@ -152,6 +164,7 @@ model ExternalSystem {
   updatedAt           DateTime                 @updatedAt
 
   @@map("external_system")
+  @@schema("acceso")
 }
 
 model ExternalModule {
@@ -164,6 +177,7 @@ model ExternalModule {
 
   @@unique([systemId, name])
   @@map("external_module")
+  @@schema("acceso")
 }
 
 model Role {
@@ -181,6 +195,7 @@ model Role {
   invitations Invitation[]
 
   @@map("role")
+  @@schema("acceso")
 }
 
 model UserRoleAssignment {
@@ -191,6 +206,7 @@ model UserRoleAssignment {
 
   @@id([userId, roleId])
   @@map("user_role_assignment")
+  @@schema("acceso")
 }
 
 model Permission {
@@ -202,6 +218,7 @@ model Permission {
 
   @@unique([subject, action])
   @@map("permission")
+  @@schema("acceso")
 }
 
 model RolePermission {
@@ -212,6 +229,7 @@ model RolePermission {
 
   @@id([roleId, permissionId])
   @@map("role_permission")
+  @@schema("acceso")
 }
 
 model Session {
@@ -234,6 +252,7 @@ model Session {
   @@unique([token])
   @@index([userId])
   @@map("session")
+  @@schema("identidad")
 }
 
 model Account {
@@ -254,6 +273,7 @@ model Account {
 
   @@index([userId])
   @@map("account")
+  @@schema("identidad")
 }
 
 model Verification {
@@ -267,6 +287,7 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+  @@schema("identidad")
 }
 
 model SystemConfig {
@@ -280,6 +301,7 @@ model SystemConfig {
   updatedAt  DateTime @updatedAt
 
   @@map("system_config")
+  @@schema("configuracion")
 }
 
 // Who can get in and how: set from the manager; while there is no row the
@@ -302,6 +324,7 @@ model AccessSettings {
   updatedAt         DateTime @updatedAt
 
   @@map("access_settings")
+  @@schema("configuracion")
 }
 
 // Mail settings saved from the manager; while there are none, the center
@@ -324,6 +347,7 @@ model MailSettings {
   updatedAt   DateTime @updatedAt
 
   @@map("mail_settings")
+  @@schema("configuracion")
 }
 
 model Book {
@@ -339,6 +363,7 @@ model Book {
 
   @@unique([title, author])
   @@map("book")
+  @@schema("demo")
 }
 
 model Author {
@@ -348,6 +373,7 @@ model Author {
   name      String   @unique
 
   @@map("author")
+  @@schema("demo")
 }
 
 model Genre {
@@ -359,6 +385,7 @@ model Genre {
   Book      Book[]
 
   @@map("genre")
+  @@schema("demo")
 }
 
 model Publisher {
@@ -368,6 +395,7 @@ model Publisher {
   name      String   @unique
 
   @@map("publisher")
+  @@schema("demo")
 }
 
 model Jwks {
@@ -380,6 +408,7 @@ model Jwks {
   crv        String?   @db.Text
 
   @@map("jwks")
+  @@schema("identidad")
 }
 
 model OauthClient {
@@ -429,6 +458,7 @@ model OauthClient {
   @@unique([clientId])
   @@index([userId])
   @@map("oauthClient")
+  @@schema("identidad")
 }
 
 model OauthResource {
@@ -451,6 +481,7 @@ model OauthResource {
 
   @@unique([identifier])
   @@map("oauthResource")
+  @@schema("identidad")
 }
 
 model OauthClientResource {
@@ -466,6 +497,7 @@ model OauthClientResource {
   @@index([clientId])
   @@index([resourceId])
   @@map("oauthClientResource")
+  @@schema("identidad")
 }
 
 model OauthRefreshToken {
@@ -498,6 +530,7 @@ model OauthRefreshToken {
   @@index([userId])
   @@index([authorizationCodeId])
   @@map("oauthRefreshToken")
+  @@schema("identidad")
 }
 
 model OauthAccessToken {
@@ -528,6 +561,7 @@ model OauthAccessToken {
   @@index([authorizationCodeId])
   @@index([refreshId])
   @@map("oauthAccessToken")
+  @@schema("identidad")
 }
 
 model OauthConsent {
@@ -546,6 +580,7 @@ model OauthConsent {
   @@index([clientId])
   @@index([userId])
   @@map("oauthConsent")
+  @@schema("identidad")
 }
 
 model OauthClientAssertion {
@@ -553,11 +588,14 @@ model OauthClientAssertion {
   expiresAt DateTime
 
   @@map("oauthClientAssertion")
+  @@schema("identidad")
 }
 
 enum PermissionEffect {
   grant
   deny
+
+  @@schema("acceso")
 }
 
 // Privilege: grants or denies one permission to one user, on top of their
@@ -583,4 +621,5 @@ model UserPermissionOverride {
   @@unique([userId, systemId, permissionId])
   @@index([permissionId])
   @@map("user_permission_override")
+  @@schema("acceso")
 }

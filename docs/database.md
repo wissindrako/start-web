@@ -78,6 +78,25 @@ de un valor (el `jti` de una client assertion, las reservas de verificación)
 también se convierten a UUID v5 con ese namespace en
 `src/server/db/uuid-ids.ts`, para que sigan siendo deterministas.
 
+## Esquemas por dominio
+
+Las tablas no están en `public`: cada dominio tiene su esquema, con nombre en
+español (`schemas` en el `datasource` y `@@schema` en cada modelo y enum):
+
+| Esquema | Qué guarda |
+|---|---|
+| `identidad` | Cuentas, sesiones, verificaciones, invitaciones, 2FA y todo lo de OAuth/OIDC (Better Auth) |
+| `acceso` | Sistemas externos y sus módulos, roles, permisos y sus asignaciones |
+| `configuracion` | Ajustes del sistema, de acceso y de correo |
+| `demo` | Tablas de ejemplo de la plantilla (libros) |
+
+En `public` quedan solo `_prisma_migrations` y la extensión `uuid-ossp`. Un
+modelo nuevo **debe** llevar `@@schema("…")`; Prisma no deja omitirlo. El SQL
+escrito a mano tiene que calificar las tablas (`identidad."user"`,
+`acceso.role`), igual que los sistemas que escriben en esta base (los scripts de
+SIGECON). Próximos esquemas: `personal`, `organizacion`, `movilidad` y
+`parametrica` (RR.HH.; ver `CLAUDE.md`).
+
 ## Venir de MySQL (hasta noviembre de 2026)
 
 nucleo-admin usó MySQL hasta el 10/11/2026. La migración inicial
