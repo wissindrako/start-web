@@ -89,13 +89,21 @@ español (`schemas` en el `datasource` y `@@schema` en cada modelo y enum):
 | `acceso` | Sistemas externos y sus módulos, roles, permisos y sus asignaciones |
 | `configuracion` | Ajustes del sistema, de acceso y de correo |
 | `demo` | Tablas de ejemplo de la plantilla (libros) |
+| `personal` | La persona (antes `identidad.personal_data`) |
+| `organizacion` | Organigrama: dependencias y puestos |
+| `movilidad` | Asignaciones persona ↔ puesto con fechas, movimientos y delegaciones |
+| `parametrica` | Catálogos de RR.HH. (tipos de vínculo y de movimiento) |
 
-En `public` quedan solo `_prisma_migrations` y la extensión `uuid-ossp`. Un
+Los cuatro últimos son de RR.HH.: ver [rrhh.md](rrhh.md). En `public` quedan
+solo `_prisma_migrations` y las extensiones `uuid-ossp` y `btree_gist`. Un
 modelo nuevo **debe** llevar `@@schema("…")`; Prisma no deja omitirlo. El SQL
 escrito a mano tiene que calificar las tablas (`identidad."user"`,
 `acceso.role`), igual que los sistemas que escriben en esta base (los scripts de
-SIGECON). Próximos esquemas: `personal`, `organizacion`, `movilidad` y
-`parametrica` (RR.HH.; ver `CLAUDE.md`).
+SIGECON).
+
+**Funciones SQL** (consultas por fecha de RR.HH.): en `prisma/ddl/R__NN_*.sql`,
+con `CREATE OR REPLACE`. `pnpm db:deploy` las aplica después de las
+migraciones; tras `pnpm db:migrate` (desarrollo) correr `pnpm db:funciones`.
 
 ## Venir de MySQL (hasta noviembre de 2026)
 

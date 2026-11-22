@@ -88,7 +88,10 @@ drop it if upstream gained an option for this. Never set the variable in a deplo
     movements (HR acts) and delegations; as-of-date functions here, like rr-hh's `movilidad_en_fecha` but returning
     **every** assignment in force, not one per person;
   - `parametrica`: catalogues (bond type, movement type, assignment type).
-- SQL functions live in repeatable files (rr-hh's `ddl/R__*.sql` idea), applied after `migrate deploy`.
+- SQL functions live in repeatable files `prisma/ddl/R__NN_*.sql` (rr-hh's `ddl/R__*.sql` idea), applied by
+  `pnpm db:funciones` (also part of `pnpm db:deploy`). After `prisma migrate dev`, run `pnpm db:funciones` too.
+- **HR schemas are built** (22/11/2026): see `docs/rrhh.md`. `personal.persona` is the former `personal_data`
+  (Prisma model still `PersonalData`); it may exist without an account.
 - Open-ended dates are `NULL` (or a `daterange`), never rr-hh's `1900-01-01` sentinel.
 - Raw SQL that names tables (SIGECON `scripts/nucleo-sql.ts`, `scripts/movil.mjs`; `prisma/from-mysql.ts`) must use
   schema-qualified names once tables move.

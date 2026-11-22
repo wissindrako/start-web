@@ -13,7 +13,7 @@ datasource db {
   // Scratch database for `prisma migrate dev` (see docs/database.md)
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
   // One schema per domain, Spanish names (see CLAUDE.md "Decisions")
-  schemas           = ["identidad", "acceso", "configuracion", "demo"]
+  schemas           = ["identidad", "acceso", "configuracion", "demo", "personal", "organizacion", "movilidad", "parametrica"]
 }
 
 enum UserRole {
@@ -27,7 +27,7 @@ enum Genero {
   M
   F
 
-  @@schema("identidad")
+  @@schema("personal")
 }
 
 model User {
@@ -70,10 +70,14 @@ model User {
   @@schema("identidad")
 }
 
+/// The person (personal.persona): stable anchor for HR, like the fun_id of
+/// rr-hh. It may exist without an account (userId null), e.g. before the
+/// person has an institutional email; the account, when there is one, is
+/// linked here.
 model PersonalData {
   id                  String    @id @default(uuid(7)) @db.Uuid
-  userId              String    @unique @db.Uuid
-  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId              String?   @unique @db.Uuid
+  user                User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   nombre              String?
   primerApellido      String?
   segundoApellido     String?
@@ -91,8 +95,13 @@ model PersonalData {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  @@map("personal_data")
-  @@schema("identidad")
+  asignaciones          Asignacion[]
+  movimientos           Movimiento[]
+  delegacionesDadas     Delegacion[] @relation("delegante")
+  delegacionesRecibidas Delegacion[] @relation("delegado")
+
+  @@map("persona")
+  @@schema("personal")
 }
 
 enum RoleScope {
@@ -622,4 +631,173 @@ model UserPermissionOverride {
   @@index([permissionId])
   @@map("user_permission_override")
   @@schema("acceso")
+}
+
+// ─── Human resources ─────────────────────────────────────────────────────────
+// Schemas parametrica, organizacion and movilidad (personal.persona is the
+// PersonalData model above). Column names are snake_case Spanish so the SQL
+// functions in prisma/ddl read like those of rr-hh. Open-ended dates are NULL.
+// See docs/rrhh.md.
+
+/// Kind of bond of a post: item (planta), temporary contract, consultancy
+model TipoVinculo {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  codigo      String   @unique
+  nombre      String
+  descripcion String?
+  activo      Boolean  @default(true)
+  orden       Int      @default(0)
+  puestos     Puesto[]
+
+  @@map("tipo_vinculo")
+  @@schema("parametrica")
+}
+
+/// Kind of HR act that changes assignments (alta, rotación, baja…)
+model TipoMovimiento {
+  id          String       @id @default(uuid(7)) @db.Uuid
+  codigo      String       @unique
+  nombre      String
+  descripcion String?
+  activo      Boolean      @default(true)
+  orden       Int          @default(0)
+  movimientos Movimiento[]
+
+  @@map("tipo_movimiento")
+  @@schema("parametrica")
+}
+
+/// Level of a dependency in the organization chart
+enum NivelDependencia {
+  DIRECCION
+  UNIDAD
+  AREA
+
+  @@schema("organizacion")
+}
+
+/// A box of the organization chart (DGE → unit → area). Renaming or closing
+/// keeps the row: vigente_hasta closes it and a new row opens the next one.
+model Dependencia {
+  id            String           @id @default(uuid(7)) @db.Uuid
+  codigo        String           @unique
+  sigla         String?
+  nombre        String
+  nivel         NivelDependencia
+  padreId       String?          @map("padre_id") @db.Uuid
+  padre         Dependencia?     @relation("arbol", fields: [padreId], references: [id])
+  hijas         Dependencia[]    @relation("arbol")
+  orden         Int              @default(0)
+  vigenteDesde  DateTime         @map("vigente_desde") @db.Date
+  vigenteHasta  DateTime?        @map("vigente_hasta") @db.Date
+  observaciones String?
+  puestos       Puesto[]
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+
+  @@index([padreId])
+  @@map("dependencia")
+  @@schema("organizacion")
+}
+
+/// A post of the structure: an item (planta) or a temporary post, with its
+/// title and dependency. es_jefatura marks the head of that dependency.
+model Puesto {
+  id            String       @id @default(uuid(7)) @db.Uuid
+  dependenciaId String       @map("dependencia_id") @db.Uuid
+  dependencia   Dependencia  @relation(fields: [dependenciaId], references: [id])
+  tipoVinculoId String       @map("tipo_vinculo_id") @db.Uuid
+  tipoVinculo   TipoVinculo  @relation(fields: [tipoVinculoId], references: [id])
+  /// Item number (planta) or contract number (eventual); null while unknown
+  numero        String?
+  denominacion  String
+  esJefatura    Boolean      @default(false) @map("es_jefatura")
+  vigenteDesde  DateTime     @map("vigente_desde") @db.Date
+  vigenteHasta  DateTime?    @map("vigente_hasta") @db.Date
+  observaciones String?
+  asignaciones  Asignacion[]
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+
+  @@index([dependenciaId])
+  @@map("puesto")
+  @@schema("organizacion")
+}
+
+/// How a person holds a post. Only TITULAR is exclusive per post and period
+/// (an exclusion constraint in the migration); the others may overlap it.
+enum TipoAsignacion {
+  TITULAR
+  INTERINO
+  ROTACION
+  COMISION
+  SUPLENCIA
+
+  @@schema("movilidad")
+}
+
+/// The HR act (memorándum, resolución) behind assignment changes
+model Movimiento {
+  id               String         @id @default(uuid(7)) @db.Uuid
+  personaId        String         @map("persona_id") @db.Uuid
+  persona          PersonalData   @relation(fields: [personaId], references: [id])
+  tipoMovimientoId String         @map("tipo_movimiento_id") @db.Uuid
+  tipoMovimiento   TipoMovimiento @relation(fields: [tipoMovimientoId], references: [id])
+  fechaEfectiva    DateTime       @map("fecha_efectiva") @db.Date
+  documento        String?
+  observaciones    String?
+  /// Account that registered it (null when loaded from a spreadsheet)
+  registradoPorId  String?        @map("registrado_por_id") @db.Uuid
+  abiertas         Asignacion[]   @relation("movimientoInicio")
+  cerradas         Asignacion[]   @relation("movimientoFin")
+  createdAt        DateTime       @default(now()) @map("created_at")
+
+  @@index([personaId, fechaEfectiva])
+  @@map("movimiento")
+  @@schema("movilidad")
+}
+
+/// Person ↔ post for a period: the mobility history. Never overwritten: a
+/// change closes one row (hasta) and opens another.
+model Asignacion {
+  id                 String         @id @default(uuid(7)) @db.Uuid
+  personaId          String         @map("persona_id") @db.Uuid
+  persona            PersonalData   @relation(fields: [personaId], references: [id])
+  puestoId           String         @map("puesto_id") @db.Uuid
+  puesto             Puesto         @relation(fields: [puestoId], references: [id])
+  tipo               TipoAsignacion
+  desde              DateTime       @db.Date
+  /// Last day in the post (inclusive); null: still in force
+  hasta              DateTime?      @db.Date
+  movimientoInicioId String?        @map("movimiento_inicio_id") @db.Uuid
+  movimientoInicio   Movimiento?    @relation("movimientoInicio", fields: [movimientoInicioId], references: [id])
+  movimientoFinId    String?        @map("movimiento_fin_id") @db.Uuid
+  movimientoFin      Movimiento?    @relation("movimientoFin", fields: [movimientoFinId], references: [id])
+  observaciones      String?
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @updatedAt @map("updated_at")
+
+  @@index([personaId, desde])
+  @@index([puestoId, desde])
+  @@map("asignacion")
+  @@schema("movilidad")
+}
+
+/// Temporary cover of authority while someone is away (delegaciones of rr-hh)
+model Delegacion {
+  id                 String       @id @default(uuid(7)) @db.Uuid
+  delegantePersonaId String       @map("delegante_persona_id") @db.Uuid
+  delegante          PersonalData @relation("delegante", fields: [delegantePersonaId], references: [id])
+  delegadoPersonaId  String       @map("delegado_persona_id") @db.Uuid
+  delegado           PersonalData @relation("delegado", fields: [delegadoPersonaId], references: [id])
+  motivo             String?
+  documento          String?
+  desde              DateTime     @db.Date
+  /// Last day (inclusive); null until revoked
+  hasta              DateTime?    @db.Date
+  createdAt          DateTime     @default(now()) @map("created_at")
+
+  @@index([delegantePersonaId, desde])
+  @@map("delegacion")
+  @@schema("movilidad")
 }

@@ -14,7 +14,8 @@ export type PersonalData = z.infer<ReturnType<typeof zPersonalData>>;
 export const zPersonalData = () =>
   z.object({
     id: z.string(),
-    userId: z.string(),
+    // null: a person registered by HR who has no account yet
+    userId: z.string().nullable(),
     nombre: zu.fieldText.nullish(),
     primerApellido: zu.fieldText.nullish(),
     segundoApellido: zu.fieldText.nullish(),
