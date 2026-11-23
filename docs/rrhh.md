@@ -132,3 +132,5 @@ una delegación del jefe de la UAF cambia el jefe inmediato de su personal ("por
 - Editar datos de una persona, crear o cerrar dependencias y puestos desde pantalla (hoy: con la planilla).
 - Los códigos de dependencia son provisionales: la UCE pasará los oficiales.
 - API para que los sistemas (SIGECON) consulten los cargos vigentes de un usuario.
+- La planilla de la UCE aún tiene 10 ítems vacantes sin dependencia y 2 asignaciones sin "Desde": RR.HH. los completa y se vuelve a importar (la base de desarrollo tiene una copia cargada sin esas filas).
+- En otra instalación, tras `git pull`: `pnpm install`, `pnpm db:deploy` y `pnpm db:roles`; los datos se importan de nuevo con la planilla.
