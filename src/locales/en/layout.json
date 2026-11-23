@@ -13,6 +13,10 @@
     "openApp": "Open App",
     "apiDocumentation": "API Documentation",
     "rrhh": "Human resources",
-    "rrhhImportar": "Import spreadsheet"
+    "rrhhImportar": "Import spreadsheet",
+    "rrhhPersonal": "Staff",
+    "rrhhOrganigrama": "Org chart",
+    "rrhhPuestos": "Posts",
+    "rrhhDelegaciones": "Delegations"
   }
 }

@@ -106,9 +106,29 @@ sin dependencia, 2 asignaciones sin fecha de ingreso). Con esos huecos llenados 
 de la base: la segunda importación da todo "iguales"; al 20/11 hay 164 asignaciones vigentes (13 contratos vencieron el
 17–18/11) y todas tienen jefe inmediato salvo la DGE.
 
+## Pantallas (Recursos humanos)
+
+Todas con un **selector de fecha** (hoy por defecto): con otra fecha muestran cómo estaba todo ese día.
+
+| Pantalla | Ruta | Permiso | Qué hace |
+|---|---|---|---|
+| Personal | `/manager/rrhh/personal` | `persona:read` | Personas con sus puestos en la fecha; busca por nombre o C.I., filtra por dependencia; opción de incluir a quienes no tienen puesto ese día |
+| Ficha | `/manager/rrhh/personal/$id` | `persona:read` | Puestos vigentes con su **jefe inmediato** (y si es por delegación), datos, cuenta, historial de puestos con el movimiento que abrió y cerró cada uno, movimientos y delegaciones |
+| Registrar movimiento | botón en la ficha | `movilidad:update` | Tipo (alta, designación, interinato, rotación, comisión, suplencia, conclusión, baja), **fecha efectiva** (primer día del cambio: lo que se cierra termina el día anterior), documento; qué puestos cierra y cuál asigna (con su tipo y fecha de fin opcional). El tipo propone qué hacer (p. ej. baja cierra todo). Todo en una transacción; un segundo titular se rechaza con un mensaje claro |
+| Organigrama | `/manager/rrhh/organigrama` | `organizacion:read` | Árbol DGE → unidad → área con quién ejerce cada jefatura (o **Acéfala**), interinos y delegaciones, personas, puestos y vacantes; enlace a sus puestos. Es la **consulta a una fecha** |
+| Puestos | `/manager/rrhh/puestos` | `organizacion:read` | Puestos por dependencia con quién los ocupa o "Vacante"; filtro de solo vacantes |
+| Delegaciones | `/manager/rrhh/delegaciones` | `movilidad:read` (registrar y terminar: `movilidad:update`) | Vigentes (o todas), nueva delegación y "Terminar hoy" (nunca se borran) |
+| Importar planilla | `/manager/rrhh/importar` | los tres `…:update` | Ver arriba |
+
+Servidor: `src/server/rrhh/consultas.ts` (consultas y el movimiento) y `src/server/routers/rrhh.ts`.
+
+**Probado en Firefox (22/11/2026)** con la planilla de la UCE importada en una copia de la base: 164 personas al 20/11,
+organigrama con 4 dependencias acéfalas, 13 puestos vacantes; ficha con jefe inmediato e historial; un interinato
+registrado desde la ficha aparece al 25/11; un segundo titular en un puesto ocupado se rechaza y no deja nada guardado;
+una delegación del jefe de la UAF cambia el jefe inmediato de su personal ("por delegación") y se termina.
+
 ## Pendiente
 
-- Pantallas de consulta y trámite: personal, ficha de la persona, registrar movimiento, organigrama, puestos,
-  delegaciones y consulta a una fecha.
+- Editar datos de una persona, crear o cerrar dependencias y puestos desde pantalla (hoy: con la planilla).
 - Los códigos de dependencia son provisionales: la UCE pasará los oficiales.
 - API para que los sistemas (SIGECON) consulten los cargos vigentes de un usuario.

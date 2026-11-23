@@ -39,7 +39,11 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
 import { Route as ManagerUsersNewIndexRouteImport } from './routes/manager/users/new.index'
 import { Route as ManagerUsersInvitationsIndexRouteImport } from './routes/manager/users/invitations.index'
 import { Route as ManagerUsersIdIndexRouteImport } from './routes/manager/users/$id.index'
+import { Route as ManagerRrhhPuestosIndexRouteImport } from './routes/manager/rrhh/puestos.index'
+import { Route as ManagerRrhhPersonalIndexRouteImport } from './routes/manager/rrhh/personal.index'
+import { Route as ManagerRrhhOrganigramaIndexRouteImport } from './routes/manager/rrhh/organigrama.index'
 import { Route as ManagerRrhhImportarIndexRouteImport } from './routes/manager/rrhh/importar.index'
+import { Route as ManagerRrhhDelegacionesIndexRouteImport } from './routes/manager/rrhh/delegaciones.index'
 import { Route as ManagerRolesNewIndexRouteImport } from './routes/manager/roles/new.index'
 import { Route as ManagerRolesIdIndexRouteImport } from './routes/manager/roles/$id.index'
 import { Route as ManagerExternalSystemsNewIndexRouteImport } from './routes/manager/external-systems/new.index'
@@ -52,6 +56,7 @@ import { Route as ApiOpenapiAppSchemaRouteImport } from './routes/api/openapi/ap
 import { Route as ApiDevEmailTemplateRouteImport } from './routes/api/dev.email.$template'
 import { Route as ManagerUsersIdUpdateIndexRouteImport } from './routes/manager/users/$id.update.index'
 import { Route as ManagerUsersIdPersonalDataIndexRouteImport } from './routes/manager/users/$id.personal-data.index'
+import { Route as ManagerRrhhPersonalIdIndexRouteImport } from './routes/manager/rrhh/personal.$id.index'
 import { Route as ManagerRolesIdUpdateIndexRouteImport } from './routes/manager/roles/$id.update.index'
 import { Route as ManagerExternalSystemsIdUpdateIndexRouteImport } from './routes/manager/external-systems/$id.update.index'
 import { Route as ManagerBooksIdUpdateIndexRouteImport } from './routes/manager/books/$id.update.index'
@@ -208,10 +213,33 @@ const ManagerUsersIdIndexRoute = ManagerUsersIdIndexRouteImport.update({
   path: '/users/$id/',
   getParentRoute: () => ManagerRouteRoute,
 } as any)
+const ManagerRrhhPuestosIndexRoute = ManagerRrhhPuestosIndexRouteImport.update({
+  id: '/rrhh/puestos/',
+  path: '/rrhh/puestos/',
+  getParentRoute: () => ManagerRouteRoute,
+} as any)
+const ManagerRrhhPersonalIndexRoute =
+  ManagerRrhhPersonalIndexRouteImport.update({
+    id: '/rrhh/personal/',
+    path: '/rrhh/personal/',
+    getParentRoute: () => ManagerRouteRoute,
+  } as any)
+const ManagerRrhhOrganigramaIndexRoute =
+  ManagerRrhhOrganigramaIndexRouteImport.update({
+    id: '/rrhh/organigrama/',
+    path: '/rrhh/organigrama/',
+    getParentRoute: () => ManagerRouteRoute,
+  } as any)
 const ManagerRrhhImportarIndexRoute =
   ManagerRrhhImportarIndexRouteImport.update({
     id: '/rrhh/importar/',
     path: '/rrhh/importar/',
+    getParentRoute: () => ManagerRouteRoute,
+  } as any)
+const ManagerRrhhDelegacionesIndexRoute =
+  ManagerRrhhDelegacionesIndexRouteImport.update({
+    id: '/rrhh/delegaciones/',
+    path: '/rrhh/delegaciones/',
     getParentRoute: () => ManagerRouteRoute,
   } as any)
 const ManagerRolesNewIndexRoute = ManagerRolesNewIndexRouteImport.update({
@@ -278,6 +306,12 @@ const ManagerUsersIdPersonalDataIndexRoute =
     path: '/users/$id/personal-data/',
     getParentRoute: () => ManagerRouteRoute,
   } as any)
+const ManagerRrhhPersonalIdIndexRoute =
+  ManagerRrhhPersonalIdIndexRouteImport.update({
+    id: '/rrhh/personal/$id/',
+    path: '/rrhh/personal/$id/',
+    getParentRoute: () => ManagerRouteRoute,
+  } as any)
 const ManagerRolesIdUpdateIndexRoute =
   ManagerRolesIdUpdateIndexRouteImport.update({
     id: '/roles/$id/update/',
@@ -335,13 +369,18 @@ export interface FileRoutesByFullPath {
   '/manager/external-systems/new/': typeof ManagerExternalSystemsNewIndexRoute
   '/manager/roles/$id/': typeof ManagerRolesIdIndexRoute
   '/manager/roles/new/': typeof ManagerRolesNewIndexRoute
+  '/manager/rrhh/delegaciones/': typeof ManagerRrhhDelegacionesIndexRoute
   '/manager/rrhh/importar/': typeof ManagerRrhhImportarIndexRoute
+  '/manager/rrhh/organigrama/': typeof ManagerRrhhOrganigramaIndexRoute
+  '/manager/rrhh/personal/': typeof ManagerRrhhPersonalIndexRoute
+  '/manager/rrhh/puestos/': typeof ManagerRrhhPuestosIndexRoute
   '/manager/users/$id/': typeof ManagerUsersIdIndexRoute
   '/manager/users/invitations/': typeof ManagerUsersInvitationsIndexRoute
   '/manager/users/new/': typeof ManagerUsersNewIndexRoute
   '/manager/books/$id/update/': typeof ManagerBooksIdUpdateIndexRoute
   '/manager/external-systems/$id/update/': typeof ManagerExternalSystemsIdUpdateIndexRoute
   '/manager/roles/$id/update/': typeof ManagerRolesIdUpdateIndexRoute
+  '/manager/rrhh/personal/$id/': typeof ManagerRrhhPersonalIdIndexRoute
   '/manager/users/$id/personal-data/': typeof ManagerUsersIdPersonalDataIndexRoute
   '/manager/users/$id/update/': typeof ManagerUsersIdUpdateIndexRoute
 }
@@ -380,13 +419,18 @@ export interface FileRoutesByTo {
   '/manager/external-systems/new': typeof ManagerExternalSystemsNewIndexRoute
   '/manager/roles/$id': typeof ManagerRolesIdIndexRoute
   '/manager/roles/new': typeof ManagerRolesNewIndexRoute
+  '/manager/rrhh/delegaciones': typeof ManagerRrhhDelegacionesIndexRoute
   '/manager/rrhh/importar': typeof ManagerRrhhImportarIndexRoute
+  '/manager/rrhh/organigrama': typeof ManagerRrhhOrganigramaIndexRoute
+  '/manager/rrhh/personal': typeof ManagerRrhhPersonalIndexRoute
+  '/manager/rrhh/puestos': typeof ManagerRrhhPuestosIndexRoute
   '/manager/users/$id': typeof ManagerUsersIdIndexRoute
   '/manager/users/invitations': typeof ManagerUsersInvitationsIndexRoute
   '/manager/users/new': typeof ManagerUsersNewIndexRoute
   '/manager/books/$id/update': typeof ManagerBooksIdUpdateIndexRoute
   '/manager/external-systems/$id/update': typeof ManagerExternalSystemsIdUpdateIndexRoute
   '/manager/roles/$id/update': typeof ManagerRolesIdUpdateIndexRoute
+  '/manager/rrhh/personal/$id': typeof ManagerRrhhPersonalIdIndexRoute
   '/manager/users/$id/personal-data': typeof ManagerUsersIdPersonalDataIndexRoute
   '/manager/users/$id/update': typeof ManagerUsersIdUpdateIndexRoute
 }
@@ -429,13 +473,18 @@ export interface FileRoutesById {
   '/manager/external-systems/new/': typeof ManagerExternalSystemsNewIndexRoute
   '/manager/roles/$id/': typeof ManagerRolesIdIndexRoute
   '/manager/roles/new/': typeof ManagerRolesNewIndexRoute
+  '/manager/rrhh/delegaciones/': typeof ManagerRrhhDelegacionesIndexRoute
   '/manager/rrhh/importar/': typeof ManagerRrhhImportarIndexRoute
+  '/manager/rrhh/organigrama/': typeof ManagerRrhhOrganigramaIndexRoute
+  '/manager/rrhh/personal/': typeof ManagerRrhhPersonalIndexRoute
+  '/manager/rrhh/puestos/': typeof ManagerRrhhPuestosIndexRoute
   '/manager/users/$id/': typeof ManagerUsersIdIndexRoute
   '/manager/users/invitations/': typeof ManagerUsersInvitationsIndexRoute
   '/manager/users/new/': typeof ManagerUsersNewIndexRoute
   '/manager/books/$id/update/': typeof ManagerBooksIdUpdateIndexRoute
   '/manager/external-systems/$id/update/': typeof ManagerExternalSystemsIdUpdateIndexRoute
   '/manager/roles/$id/update/': typeof ManagerRolesIdUpdateIndexRoute
+  '/manager/rrhh/personal/$id/': typeof ManagerRrhhPersonalIdIndexRoute
   '/manager/users/$id/personal-data/': typeof ManagerUsersIdPersonalDataIndexRoute
   '/manager/users/$id/update/': typeof ManagerUsersIdUpdateIndexRoute
 }
@@ -479,13 +528,18 @@ export interface FileRouteTypes {
     | '/manager/external-systems/new/'
     | '/manager/roles/$id/'
     | '/manager/roles/new/'
+    | '/manager/rrhh/delegaciones/'
     | '/manager/rrhh/importar/'
+    | '/manager/rrhh/organigrama/'
+    | '/manager/rrhh/personal/'
+    | '/manager/rrhh/puestos/'
     | '/manager/users/$id/'
     | '/manager/users/invitations/'
     | '/manager/users/new/'
     | '/manager/books/$id/update/'
     | '/manager/external-systems/$id/update/'
     | '/manager/roles/$id/update/'
+    | '/manager/rrhh/personal/$id/'
     | '/manager/users/$id/personal-data/'
     | '/manager/users/$id/update/'
   fileRoutesByTo: FileRoutesByTo
@@ -524,13 +578,18 @@ export interface FileRouteTypes {
     | '/manager/external-systems/new'
     | '/manager/roles/$id'
     | '/manager/roles/new'
+    | '/manager/rrhh/delegaciones'
     | '/manager/rrhh/importar'
+    | '/manager/rrhh/organigrama'
+    | '/manager/rrhh/personal'
+    | '/manager/rrhh/puestos'
     | '/manager/users/$id'
     | '/manager/users/invitations'
     | '/manager/users/new'
     | '/manager/books/$id/update'
     | '/manager/external-systems/$id/update'
     | '/manager/roles/$id/update'
+    | '/manager/rrhh/personal/$id'
     | '/manager/users/$id/personal-data'
     | '/manager/users/$id/update'
   id:
@@ -572,13 +631,18 @@ export interface FileRouteTypes {
     | '/manager/external-systems/new/'
     | '/manager/roles/$id/'
     | '/manager/roles/new/'
+    | '/manager/rrhh/delegaciones/'
     | '/manager/rrhh/importar/'
+    | '/manager/rrhh/organigrama/'
+    | '/manager/rrhh/personal/'
+    | '/manager/rrhh/puestos/'
     | '/manager/users/$id/'
     | '/manager/users/invitations/'
     | '/manager/users/new/'
     | '/manager/books/$id/update/'
     | '/manager/external-systems/$id/update/'
     | '/manager/roles/$id/update/'
+    | '/manager/rrhh/personal/$id/'
     | '/manager/users/$id/personal-data/'
     | '/manager/users/$id/update/'
   fileRoutesById: FileRoutesById
@@ -811,11 +875,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerUsersIdIndexRouteImport
       parentRoute: typeof ManagerRouteRoute
     }
+    '/manager/rrhh/puestos/': {
+      id: '/manager/rrhh/puestos/'
+      path: '/rrhh/puestos'
+      fullPath: '/manager/rrhh/puestos/'
+      preLoaderRoute: typeof ManagerRrhhPuestosIndexRouteImport
+      parentRoute: typeof ManagerRouteRoute
+    }
+    '/manager/rrhh/personal/': {
+      id: '/manager/rrhh/personal/'
+      path: '/rrhh/personal'
+      fullPath: '/manager/rrhh/personal/'
+      preLoaderRoute: typeof ManagerRrhhPersonalIndexRouteImport
+      parentRoute: typeof ManagerRouteRoute
+    }
+    '/manager/rrhh/organigrama/': {
+      id: '/manager/rrhh/organigrama/'
+      path: '/rrhh/organigrama'
+      fullPath: '/manager/rrhh/organigrama/'
+      preLoaderRoute: typeof ManagerRrhhOrganigramaIndexRouteImport
+      parentRoute: typeof ManagerRouteRoute
+    }
     '/manager/rrhh/importar/': {
       id: '/manager/rrhh/importar/'
       path: '/rrhh/importar'
       fullPath: '/manager/rrhh/importar/'
       preLoaderRoute: typeof ManagerRrhhImportarIndexRouteImport
+      parentRoute: typeof ManagerRouteRoute
+    }
+    '/manager/rrhh/delegaciones/': {
+      id: '/manager/rrhh/delegaciones/'
+      path: '/rrhh/delegaciones'
+      fullPath: '/manager/rrhh/delegaciones/'
+      preLoaderRoute: typeof ManagerRrhhDelegacionesIndexRouteImport
       parentRoute: typeof ManagerRouteRoute
     }
     '/manager/roles/new/': {
@@ -902,6 +994,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerUsersIdPersonalDataIndexRouteImport
       parentRoute: typeof ManagerRouteRoute
     }
+    '/manager/rrhh/personal/$id/': {
+      id: '/manager/rrhh/personal/$id/'
+      path: '/rrhh/personal/$id'
+      fullPath: '/manager/rrhh/personal/$id/'
+      preLoaderRoute: typeof ManagerRrhhPersonalIdIndexRouteImport
+      parentRoute: typeof ManagerRouteRoute
+    }
     '/manager/roles/$id/update/': {
       id: '/manager/roles/$id/update/'
       path: '/roles/$id/update'
@@ -978,13 +1077,18 @@ interface ManagerRouteRouteChildren {
   ManagerExternalSystemsNewIndexRoute: typeof ManagerExternalSystemsNewIndexRoute
   ManagerRolesIdIndexRoute: typeof ManagerRolesIdIndexRoute
   ManagerRolesNewIndexRoute: typeof ManagerRolesNewIndexRoute
+  ManagerRrhhDelegacionesIndexRoute: typeof ManagerRrhhDelegacionesIndexRoute
   ManagerRrhhImportarIndexRoute: typeof ManagerRrhhImportarIndexRoute
+  ManagerRrhhOrganigramaIndexRoute: typeof ManagerRrhhOrganigramaIndexRoute
+  ManagerRrhhPersonalIndexRoute: typeof ManagerRrhhPersonalIndexRoute
+  ManagerRrhhPuestosIndexRoute: typeof ManagerRrhhPuestosIndexRoute
   ManagerUsersIdIndexRoute: typeof ManagerUsersIdIndexRoute
   ManagerUsersInvitationsIndexRoute: typeof ManagerUsersInvitationsIndexRoute
   ManagerUsersNewIndexRoute: typeof ManagerUsersNewIndexRoute
   ManagerBooksIdUpdateIndexRoute: typeof ManagerBooksIdUpdateIndexRoute
   ManagerExternalSystemsIdUpdateIndexRoute: typeof ManagerExternalSystemsIdUpdateIndexRoute
   ManagerRolesIdUpdateIndexRoute: typeof ManagerRolesIdUpdateIndexRoute
+  ManagerRrhhPersonalIdIndexRoute: typeof ManagerRrhhPersonalIdIndexRoute
   ManagerUsersIdPersonalDataIndexRoute: typeof ManagerUsersIdPersonalDataIndexRoute
   ManagerUsersIdUpdateIndexRoute: typeof ManagerUsersIdUpdateIndexRoute
 }
@@ -1003,7 +1107,11 @@ const ManagerRouteRouteChildren: ManagerRouteRouteChildren = {
   ManagerExternalSystemsNewIndexRoute: ManagerExternalSystemsNewIndexRoute,
   ManagerRolesIdIndexRoute: ManagerRolesIdIndexRoute,
   ManagerRolesNewIndexRoute: ManagerRolesNewIndexRoute,
+  ManagerRrhhDelegacionesIndexRoute: ManagerRrhhDelegacionesIndexRoute,
   ManagerRrhhImportarIndexRoute: ManagerRrhhImportarIndexRoute,
+  ManagerRrhhOrganigramaIndexRoute: ManagerRrhhOrganigramaIndexRoute,
+  ManagerRrhhPersonalIndexRoute: ManagerRrhhPersonalIndexRoute,
+  ManagerRrhhPuestosIndexRoute: ManagerRrhhPuestosIndexRoute,
   ManagerUsersIdIndexRoute: ManagerUsersIdIndexRoute,
   ManagerUsersInvitationsIndexRoute: ManagerUsersInvitationsIndexRoute,
   ManagerUsersNewIndexRoute: ManagerUsersNewIndexRoute,
@@ -1011,6 +1119,7 @@ const ManagerRouteRouteChildren: ManagerRouteRouteChildren = {
   ManagerExternalSystemsIdUpdateIndexRoute:
     ManagerExternalSystemsIdUpdateIndexRoute,
   ManagerRolesIdUpdateIndexRoute: ManagerRolesIdUpdateIndexRoute,
+  ManagerRrhhPersonalIdIndexRoute: ManagerRrhhPersonalIdIndexRoute,
   ManagerUsersIdPersonalDataIndexRoute: ManagerUsersIdPersonalDataIndexRoute,
   ManagerUsersIdUpdateIndexRoute: ManagerUsersIdUpdateIndexRoute,
 }

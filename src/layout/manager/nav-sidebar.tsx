@@ -1,8 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import {
+  BriefcaseIcon,
   FileSpreadsheetIcon,
+  HandshakeIcon,
+  IdCardIcon,
   LayoutDashboardIcon,
+  NetworkIcon,
   PanelLeftIcon,
   ServerIcon,
   SettingsIcon,
@@ -127,32 +131,108 @@ export const NavSidebar = (props: { children?: ReactNode }) => {
           </SidebarGroup>
           <WithPermissions
             permissions={[
-              {
-                persona: ['update'],
-                organizacion: ['update'],
-                movilidad: ['update'],
-              },
+              { persona: ['read'] },
+              { organizacion: ['read'] },
+              { movilidad: ['read'] },
             ]}
           >
             <SidebarGroup>
               <SidebarGroupLabel>{t('layout:nav.rrhh')}</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  <SidebarMenuItem>
-                    <Link to="/manager/rrhh/importar">
-                      {({ isActive }) => (
-                        <SidebarMenuButton
-                          isActive={isActive}
-                          render={
-                            <span>
-                              <FileSpreadsheetIcon />
-                              <span>{t('layout:nav.rrhhImportar')}</span>
-                            </span>
-                          }
-                        />
-                      )}
-                    </Link>
-                  </SidebarMenuItem>
+                  <WithPermissions permissions={[{ persona: ['read'] }]}>
+                    <SidebarMenuItem>
+                      <Link to="/manager/rrhh/personal">
+                        {({ isActive }) => (
+                          <SidebarMenuButton
+                            isActive={isActive}
+                            render={
+                              <span>
+                                <IdCardIcon />
+                                <span>{t('layout:nav.rrhhPersonal')}</span>
+                              </span>
+                            }
+                          />
+                        )}
+                      </Link>
+                    </SidebarMenuItem>
+                  </WithPermissions>
+                  <WithPermissions permissions={[{ organizacion: ['read'] }]}>
+                    <SidebarMenuItem>
+                      <Link to="/manager/rrhh/organigrama">
+                        {({ isActive }) => (
+                          <SidebarMenuButton
+                            isActive={isActive}
+                            render={
+                              <span>
+                                <NetworkIcon />
+                                <span>{t('layout:nav.rrhhOrganigrama')}</span>
+                              </span>
+                            }
+                          />
+                        )}
+                      </Link>
+                    </SidebarMenuItem>
+                  </WithPermissions>
+                  <WithPermissions permissions={[{ organizacion: ['read'] }]}>
+                    <SidebarMenuItem>
+                      <Link to="/manager/rrhh/puestos">
+                        {({ isActive }) => (
+                          <SidebarMenuButton
+                            isActive={isActive}
+                            render={
+                              <span>
+                                <BriefcaseIcon />
+                                <span>{t('layout:nav.rrhhPuestos')}</span>
+                              </span>
+                            }
+                          />
+                        )}
+                      </Link>
+                    </SidebarMenuItem>
+                  </WithPermissions>
+                  <WithPermissions permissions={[{ movilidad: ['read'] }]}>
+                    <SidebarMenuItem>
+                      <Link to="/manager/rrhh/delegaciones">
+                        {({ isActive }) => (
+                          <SidebarMenuButton
+                            isActive={isActive}
+                            render={
+                              <span>
+                                <HandshakeIcon />
+                                <span>{t('layout:nav.rrhhDelegaciones')}</span>
+                              </span>
+                            }
+                          />
+                        )}
+                      </Link>
+                    </SidebarMenuItem>
+                  </WithPermissions>
+                  <WithPermissions
+                    permissions={[
+                      {
+                        persona: ['update'],
+                        organizacion: ['update'],
+                        movilidad: ['update'],
+                      },
+                    ]}
+                  >
+                    <SidebarMenuItem>
+                      <Link to="/manager/rrhh/importar">
+                        {({ isActive }) => (
+                          <SidebarMenuButton
+                            isActive={isActive}
+                            render={
+                              <span>
+                                <FileSpreadsheetIcon />
+                                <span>{t('layout:nav.rrhhImportar')}</span>
+                              </span>
+                            }
+                          />
+                        )}
+                      </Link>
+                    </SidebarMenuItem>
+                  </WithPermissions>
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>

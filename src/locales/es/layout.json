@@ -13,6 +13,10 @@
     "openApp": "Abrir App",
     "apiDocumentation": "Documentación API",
     "rrhh": "Recursos humanos",
-    "rrhhImportar": "Importar planilla"
+    "rrhhImportar": "Importar planilla",
+    "rrhhPersonal": "Personal",
+    "rrhhOrganigrama": "Organigrama",
+    "rrhhPuestos": "Puestos",
+    "rrhhDelegaciones": "Delegaciones"
   }
 }
