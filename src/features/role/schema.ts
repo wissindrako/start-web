@@ -31,6 +31,11 @@ export const AVAILABLE_PERMISSIONS = [
   // Per-user grant/deny exceptions to role permissions
   { subject: 'privilege', scope: 'local', actions: ['read', 'manage'] },
   { subject: 'systemConfig', scope: 'local', actions: ['read', 'update'] },
+  // Human resources: people, org chart (dependencies and posts) and mobility
+  // (assignments, movements, delegations). update on the three = import
+  { subject: 'persona', scope: 'local', actions: ['read', 'update'] },
+  { subject: 'organizacion', scope: 'local', actions: ['read', 'update'] },
+  { subject: 'movilidad', scope: 'local', actions: ['read', 'update'] },
   {
     subject: 'book',
     scope: 'both',

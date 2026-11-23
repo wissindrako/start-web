@@ -16,6 +16,7 @@ import layout from './layout.json' with { type: 'json' };
 import personalData from './personal-data.json' with { type: 'json' };
 import privilege from './privilege.json' with { type: 'json' };
 import role from './role.json' with { type: 'json' };
+import rrhh from './rrhh.json' with { type: 'json' };
 import systemConfig from './system-config.json' with { type: 'json' };
 import user from './user.json' with { type: 'json' };
 
@@ -36,6 +37,7 @@ export default {
   'personal-data': personalData,
   privilege,
   role,
+  rrhh,
   'system-config': systemConfig,
   user,
 } as const;

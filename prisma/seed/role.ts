@@ -40,6 +40,42 @@ const ROLES = [
       { subject: 'systemConfig', action: 'update' },
       { subject: 'privilege', action: 'read' },
       { subject: 'privilege', action: 'manage' },
+      { subject: 'persona', action: 'read' },
+      { subject: 'persona', action: 'update' },
+      { subject: 'organizacion', action: 'read' },
+      { subject: 'organizacion', action: 'update' },
+      { subject: 'movilidad', action: 'read' },
+      { subject: 'movilidad', action: 'update' },
+    ],
+  },
+  {
+    // Human resources: keeps people, the org chart and mobility (docs/rrhh.md)
+    name: 'RR.HH.',
+    scope: 'local' as const,
+    description:
+      'Recursos Humanos: personas, organigrama, puestos y movilidad (importa la planilla)',
+    permissions: [
+      { subject: 'apps', action: 'manager' },
+      { subject: 'account', action: 'update' },
+      { subject: 'persona', action: 'read' },
+      { subject: 'persona', action: 'update' },
+      { subject: 'organizacion', action: 'read' },
+      { subject: 'organizacion', action: 'update' },
+      { subject: 'movilidad', action: 'read' },
+      { subject: 'movilidad', action: 'update' },
+    ],
+  },
+  {
+    name: 'RR.HH. (consulta)',
+    scope: 'local' as const,
+    description:
+      'Consulta de personas, organigrama y movilidad, sin editar (p. ej. auditoría)',
+    permissions: [
+      { subject: 'apps', action: 'manager' },
+      { subject: 'account', action: 'update' },
+      { subject: 'persona', action: 'read' },
+      { subject: 'organizacion', action: 'read' },
+      { subject: 'movilidad', action: 'read' },
     ],
   },
   {

@@ -1,0 +1,31 @@
+{
+  "sheets": {
+    "dependencias": "Dependencies",
+    "puestos": "Posts",
+    "personas": "People",
+    "asignaciones": "Assignments",
+    "delegaciones": "Delegations"
+  },
+  "importar": {
+    "title": "Import HR spreadsheet",
+    "fileTitle": "Spreadsheet",
+    "help": "Choose the spreadsheet (.xlsx) with the sheets Dependencias, Puestos, Personas, Asignaciones and Delegaciones. It is checked first: you see what would be created or changed and the errors row by row, and nothing is saved. With no errors, everything is imported at once. Importing the same spreadsheet again duplicates nothing.",
+    "choose": "Choose file",
+    "check": "Check",
+    "apply": "Import",
+    "previewTitle": "Check (nothing saved yet)",
+    "doneTitle": "Spreadsheet imported",
+    "sheet": "Sheet",
+    "new": "New",
+    "changed": "Changed",
+    "same": "Same",
+    "errors_one": "{{count}} error: fix it in the spreadsheet and check it again",
+    "errors_other": "{{count}} errors: fix them in the spreadsheet and check it again",
+    "warnings_one": "{{count}} warning (does not prevent importing)",
+    "warnings_other": "{{count}} warnings (do not prevent importing)",
+    "readyToApply": "No errors: it can be imported.",
+    "row": "row {{row}}",
+    "imported": "Spreadsheet imported",
+    "error": "The spreadsheet could not be processed"
+  }
+}

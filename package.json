@@ -45,7 +45,9 @@
     "db:reset": "prisma migrate reset",
     "db:ui": "prisma studio",
     "db:from-mysql": "dotenv -- cross-env node ./run-jiti ./prisma/from-mysql.ts",
-    "db:seed": "dotenv -- cross-env node ./run-jiti ./prisma/seed/index.ts"
+    "db:roles": "dotenv -- cross-env node ./run-jiti ./prisma/seed/roles-locales.ts",
+    "db:seed": "dotenv -- cross-env node ./run-jiti ./prisma/seed/index.ts",
+    "rrhh:importar": "dotenv -- cross-env node ./run-jiti ./prisma/rrhh-importar.ts"
   },
   "prisma": {
     "seed": "dotenv -- cross-env node ./run-jiti ./prisma/seed/index.ts"
@@ -83,6 +85,7 @@
     "clsx": "2.1.1",
     "colorette": "2.0.20",
     "dayjs": "1.11.19",
+    "exceljs": "4.4.0",
     "i18next": "25.8.0",
     "i18next-browser-languagedetector": "8.2.0",
     "input-otp": "1.4.2",

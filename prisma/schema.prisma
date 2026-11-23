@@ -75,25 +75,31 @@ model User {
 /// person has an institutional email; the account, when there is one, is
 /// linked here.
 model PersonalData {
-  id                  String    @id @default(uuid(7)) @db.Uuid
-  userId              String?   @unique @db.Uuid
-  user                User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
-  nombre              String?
-  primerApellido      String?
-  segundoApellido     String?
-  tipoDocumento       String?
-  numeroDocumento     String?
-  fechaNacimiento     DateTime?
-  genero              Genero?
-  telefono            String?
-  telefonoAlternativo String?
-  pais                String?
-  departamento        String?
-  ciudad              String?
-  direccion           String?
-  codigoPostal        String?
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  id                   String    @id @default(uuid(7)) @db.Uuid
+  userId               String?   @unique @db.Uuid
+  user                 User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  nombre               String?
+  primerApellido       String?
+  segundoApellido      String?
+  tipoDocumento        String?
+  /// C.I. without its complement; the key RR.HH. imports by
+  numeroDocumento      String?   @unique
+  /// Complement or place of issue of the C.I. (1B, LP…)
+  complementoDocumento String?
+  /// Institutional email: links the person to their account (identidad.user)
+  /// as soon as one with this email exists
+  correo               String?
+  fechaNacimiento      DateTime?
+  genero               Genero?
+  telefono             String?
+  telefonoAlternativo  String?
+  pais                 String?
+  departamento         String?
+  ciudad               String?
+  direccion            String?
+  codigoPostal         String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
   asignaciones          Asignacion[]
   movimientos           Movimiento[]
@@ -704,6 +710,8 @@ model Dependencia {
 /// title and dependency. es_jefatura marks the head of that dependency.
 model Puesto {
   id            String       @id @default(uuid(7)) @db.Uuid
+  /// Key of the post in RR.HH.'s spreadsheet (IT-042 = item 42; EV-011-2026)
+  codigo        String       @unique
   dependenciaId String       @map("dependencia_id") @db.Uuid
   dependencia   Dependencia  @relation(fields: [dependenciaId], references: [id])
   tipoVinculoId String       @map("tipo_vinculo_id") @db.Uuid
@@ -777,7 +785,7 @@ model Asignacion {
   createdAt          DateTime       @default(now()) @map("created_at")
   updatedAt          DateTime       @updatedAt @map("updated_at")
 
-  @@index([personaId, desde])
+  @@unique([personaId, puestoId, desde])
   @@index([puestoId, desde])
   @@map("asignacion")
   @@schema("movilidad")
@@ -797,7 +805,7 @@ model Delegacion {
   hasta              DateTime?    @db.Date
   createdAt          DateTime     @default(now()) @map("created_at")
 
-  @@index([delegantePersonaId, desde])
+  @@unique([delegantePersonaId, delegadoPersonaId, desde])
   @@map("delegacion")
   @@schema("movilidad")
 }

@@ -13,6 +13,7 @@ import mailSettingsRouter from './routers/mail-settings';
 import personalDataRouter from './routers/personal-data';
 import privilegeRouter from './routers/privilege';
 import roleRouter from './routers/role';
+import rrhhRouter from './routers/rrhh';
 import systemConfigRouter from './routers/system-config';
 import userRouter from './routers/user';
 
@@ -32,6 +33,7 @@ export const router = {
   personalData: personalDataRouter,
   privilege: privilegeRouter,
   role: roleRouter,
+  rrhh: rrhhRouter,
   systemConfig: systemConfigRouter,
   user: userRouter,
   config: configRouter,

@@ -54,9 +54,61 @@ jefatura acéfala que sube a la unidad, delegación por vacación y su fin, la d
 titular superpuesto y de fechas invertidas. También corre en CI (paso "SQL functions", sobre una base vacía).
 Al cambiar o agregar una función, agregar su caso ahí.
 
+## Rol y permisos
+
+| Permiso | Para qué |
+|---|---|
+| `persona:read` / `persona:update` | Ver / editar personas |
+| `organizacion:read` / `organizacion:update` | Ver / editar dependencias y puestos |
+| `movilidad:read` / `movilidad:update` | Ver / registrar asignaciones, movimientos y delegaciones |
+
+Roles locales (los crea `pnpm db:roles`, o `pnpm db:seed` en una base nueva):
+- **RR.HH.**: los seis permisos, más entrar al panel. Ve solo la sección "Recursos humanos" (no usuarios, roles ni
+  sistemas). Los roles de los sistemas (p. ej. SIGECON) no los asigna RR.HH.
+- **RR.HH. (consulta)**: solo lectura (p. ej. auditoría).
+- **admin**: también los tiene.
+
+## Importar la planilla
+
+Pantalla **Recursos humanos → Importar planilla** (`/manager/rrhh/importar`, pide los tres `…:update`) o, desde la
+consola, `pnpm rrhh:importar <planilla.xlsx> [--aplicar]`. La misma lógica en los dos (`src/server/rrhh/planilla.ts` lee
+y revisa; `src/server/rrhh/importar.ts` compara con la base y guarda):
+
+1. **Revisar:** muestra por hoja cuántas filas son nuevas, cambian o quedan iguales, los **errores** fila por fila y los
+   avisos. No guarda nada.
+2. **Importar:** solo si no hay errores; guarda todo o nada (una transacción). Cada asignación nueva registra también
+   su movimiento (designación, interinato…, con el documento) y quién importó.
+3. Se puede repetir: cada fila se reconoce por su clave (código de dependencia, código de puesto, C.I., persona + puesto
+   + desde), así que no duplica. **Nunca borra**: lo que no está en la planilla queda como está; cerrar algo es poner su
+   fecha de fin.
+
+**Formato** (una hoja por tabla, encabezados en la fila 1; los obligatorios llevan `*`):
+
+| Hoja | Columnas |
+|---|---|
+| Dependencias | Código*, Sigla, Nombre*, Nivel* (Dirección, Unidad, Área), Depende de (código), Vigente desde*, Vigente hasta, Orden, Observaciones |
+| Puestos | Código de puesto*, Tipo de vínculo* (Ítem de planta, Eventual, Consultor), N° ítem o contrato, Denominación*, Código de dependencia*, ¿Jefatura?* (Sí/No), Vigente desde*, Vigente hasta, Observaciones |
+| Personas | C.I.*, Complemento / expedido, Nombres*, Primer apellido*, Segundo apellido, Fecha de nacimiento, Género (M/F), Celular, Correo institucional |
+| Asignaciones | C.I.*, Código de puesto*, Tipo* (Titular, Interino, Rotación, Comisión, Suplencia), Desde*, Hasta, Tipo de movimiento, Documento, Observaciones |
+| Delegaciones | C.I. de quien delega*, C.I. de quien la recibe*, Desde*, Hasta, Motivo, Documento (opcional) |
+
+Revisa: obligatorios, valores de las listas, fechas (de Excel o `DD/MM/AAAA`; fin no antes del inicio), claves
+repetidas, referencias entre hojas, que el organigrama no dé vueltas, un solo titular por puesto y periodo (también
+contra lo que ya está en la base) y que la cuenta con ese correo no esté vinculada a otra persona. El **correo
+institucional** vincula a la persona con su cuenta si ya existe; si no, queda guardado (aviso).
+
+La planilla de la UCE se genera en SIGECON (`scripts/datos-uce/plantilla-rrhh.py`, ver su
+`docs/fuentes-organigrama-2026.md` §5); la copia con nombres y C.I. no va a ningún repositorio.
+
+**Probado (22/11/2026):** 10 pruebas unitarias del lector (`planilla.unit.spec.ts`); la planilla real de la UCE da 23
+dependencias, 190 puestos, 177 personas y 177 asignaciones, con 12 errores que RR.HH. debe completar (10 ítems vacantes
+sin dependencia, 2 asignaciones sin fecha de ingreso). Con esos huecos llenados a modo de prueba, importada en una copia
+de la base: la segunda importación da todo "iguales"; al 20/11 hay 164 asignaciones vigentes (13 contratos vencieron el
+17–18/11) y todas tienen jefe inmediato salvo la DGE.
+
 ## Pendiente
 
-- Permisos y rol de RR.HH. en este centro, y pantallas para personas, organigrama, puestos y movimientos.
-- Carga inicial desde la planilla de cargos de la UCE (`docs/datos/cargos-uce.xlsx` en SIGECON, sin personas; la
-  versión con nombres no va a los repositorios).
+- Pantallas de consulta y trámite: personal, ficha de la persona, registrar movimiento, organigrama, puestos,
+  delegaciones y consulta a una fecha.
+- Los códigos de dependencia son provisionales: la UCE pasará los oficiales.
 - API para que los sistemas (SIGECON) consulten los cargos vigentes de un usuario.

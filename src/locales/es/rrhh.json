@@ -1,0 +1,31 @@
+{
+  "sheets": {
+    "dependencias": "Dependencias",
+    "puestos": "Puestos",
+    "personas": "Personas",
+    "asignaciones": "Asignaciones",
+    "delegaciones": "Delegaciones"
+  },
+  "importar": {
+    "title": "Importar planilla de RR.HH.",
+    "fileTitle": "Planilla",
+    "help": "Elige la planilla (.xlsx) con las hojas Dependencias, Puestos, Personas, Asignaciones y Delegaciones. Primero se revisa: se muestra qué se crearía o cambiaría y los errores fila por fila, sin guardar nada. Si no hay errores, se importa todo junto. Importar la misma planilla otra vez no duplica nada.",
+    "choose": "Elegir archivo",
+    "check": "Revisar",
+    "apply": "Importar",
+    "previewTitle": "Revisión (todavía no se guardó nada)",
+    "doneTitle": "Planilla importada",
+    "sheet": "Hoja",
+    "new": "Nuevas",
+    "changed": "Cambian",
+    "same": "Iguales",
+    "errors_one": "{{count}} error: corrígelo en la planilla y vuelve a revisarla",
+    "errors_other": "{{count}} errores: corrígelos en la planilla y vuelve a revisarla",
+    "warnings_one": "{{count}} aviso (no impide importar)",
+    "warnings_other": "{{count}} avisos (no impiden importar)",
+    "readyToApply": "Sin errores: ya se puede importar.",
+    "row": "fila {{row}}",
+    "imported": "Planilla importada",
+    "error": "No se pudo procesar la planilla"
+  }
+}

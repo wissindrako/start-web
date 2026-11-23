@@ -11,6 +11,8 @@
     "settings": "Settings",
     "account": "Account",
     "openApp": "Open App",
-    "apiDocumentation": "API Documentation"
+    "apiDocumentation": "API Documentation",
+    "rrhh": "Human resources",
+    "rrhhImportar": "Import spreadsheet"
   }
 }

@@ -39,6 +39,7 @@ import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
 import { Route as ManagerUsersNewIndexRouteImport } from './routes/manager/users/new.index'
 import { Route as ManagerUsersInvitationsIndexRouteImport } from './routes/manager/users/invitations.index'
 import { Route as ManagerUsersIdIndexRouteImport } from './routes/manager/users/$id.index'
+import { Route as ManagerRrhhImportarIndexRouteImport } from './routes/manager/rrhh/importar.index'
 import { Route as ManagerRolesNewIndexRouteImport } from './routes/manager/roles/new.index'
 import { Route as ManagerRolesIdIndexRouteImport } from './routes/manager/roles/$id.index'
 import { Route as ManagerExternalSystemsNewIndexRouteImport } from './routes/manager/external-systems/new.index'
@@ -207,6 +208,12 @@ const ManagerUsersIdIndexRoute = ManagerUsersIdIndexRouteImport.update({
   path: '/users/$id/',
   getParentRoute: () => ManagerRouteRoute,
 } as any)
+const ManagerRrhhImportarIndexRoute =
+  ManagerRrhhImportarIndexRouteImport.update({
+    id: '/rrhh/importar/',
+    path: '/rrhh/importar/',
+    getParentRoute: () => ManagerRouteRoute,
+  } as any)
 const ManagerRolesNewIndexRoute = ManagerRolesNewIndexRouteImport.update({
   id: '/roles/new/',
   path: '/roles/new/',
@@ -328,6 +335,7 @@ export interface FileRoutesByFullPath {
   '/manager/external-systems/new/': typeof ManagerExternalSystemsNewIndexRoute
   '/manager/roles/$id/': typeof ManagerRolesIdIndexRoute
   '/manager/roles/new/': typeof ManagerRolesNewIndexRoute
+  '/manager/rrhh/importar/': typeof ManagerRrhhImportarIndexRoute
   '/manager/users/$id/': typeof ManagerUsersIdIndexRoute
   '/manager/users/invitations/': typeof ManagerUsersInvitationsIndexRoute
   '/manager/users/new/': typeof ManagerUsersNewIndexRoute
@@ -372,6 +380,7 @@ export interface FileRoutesByTo {
   '/manager/external-systems/new': typeof ManagerExternalSystemsNewIndexRoute
   '/manager/roles/$id': typeof ManagerRolesIdIndexRoute
   '/manager/roles/new': typeof ManagerRolesNewIndexRoute
+  '/manager/rrhh/importar': typeof ManagerRrhhImportarIndexRoute
   '/manager/users/$id': typeof ManagerUsersIdIndexRoute
   '/manager/users/invitations': typeof ManagerUsersInvitationsIndexRoute
   '/manager/users/new': typeof ManagerUsersNewIndexRoute
@@ -420,6 +429,7 @@ export interface FileRoutesById {
   '/manager/external-systems/new/': typeof ManagerExternalSystemsNewIndexRoute
   '/manager/roles/$id/': typeof ManagerRolesIdIndexRoute
   '/manager/roles/new/': typeof ManagerRolesNewIndexRoute
+  '/manager/rrhh/importar/': typeof ManagerRrhhImportarIndexRoute
   '/manager/users/$id/': typeof ManagerUsersIdIndexRoute
   '/manager/users/invitations/': typeof ManagerUsersInvitationsIndexRoute
   '/manager/users/new/': typeof ManagerUsersNewIndexRoute
@@ -469,6 +479,7 @@ export interface FileRouteTypes {
     | '/manager/external-systems/new/'
     | '/manager/roles/$id/'
     | '/manager/roles/new/'
+    | '/manager/rrhh/importar/'
     | '/manager/users/$id/'
     | '/manager/users/invitations/'
     | '/manager/users/new/'
@@ -513,6 +524,7 @@ export interface FileRouteTypes {
     | '/manager/external-systems/new'
     | '/manager/roles/$id'
     | '/manager/roles/new'
+    | '/manager/rrhh/importar'
     | '/manager/users/$id'
     | '/manager/users/invitations'
     | '/manager/users/new'
@@ -560,6 +572,7 @@ export interface FileRouteTypes {
     | '/manager/external-systems/new/'
     | '/manager/roles/$id/'
     | '/manager/roles/new/'
+    | '/manager/rrhh/importar/'
     | '/manager/users/$id/'
     | '/manager/users/invitations/'
     | '/manager/users/new/'
@@ -798,6 +811,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManagerUsersIdIndexRouteImport
       parentRoute: typeof ManagerRouteRoute
     }
+    '/manager/rrhh/importar/': {
+      id: '/manager/rrhh/importar/'
+      path: '/rrhh/importar'
+      fullPath: '/manager/rrhh/importar/'
+      preLoaderRoute: typeof ManagerRrhhImportarIndexRouteImport
+      parentRoute: typeof ManagerRouteRoute
+    }
     '/manager/roles/new/': {
       id: '/manager/roles/new/'
       path: '/roles/new'
@@ -958,6 +978,7 @@ interface ManagerRouteRouteChildren {
   ManagerExternalSystemsNewIndexRoute: typeof ManagerExternalSystemsNewIndexRoute
   ManagerRolesIdIndexRoute: typeof ManagerRolesIdIndexRoute
   ManagerRolesNewIndexRoute: typeof ManagerRolesNewIndexRoute
+  ManagerRrhhImportarIndexRoute: typeof ManagerRrhhImportarIndexRoute
   ManagerUsersIdIndexRoute: typeof ManagerUsersIdIndexRoute
   ManagerUsersInvitationsIndexRoute: typeof ManagerUsersInvitationsIndexRoute
   ManagerUsersNewIndexRoute: typeof ManagerUsersNewIndexRoute
@@ -982,6 +1003,7 @@ const ManagerRouteRouteChildren: ManagerRouteRouteChildren = {
   ManagerExternalSystemsNewIndexRoute: ManagerExternalSystemsNewIndexRoute,
   ManagerRolesIdIndexRoute: ManagerRolesIdIndexRoute,
   ManagerRolesNewIndexRoute: ManagerRolesNewIndexRoute,
+  ManagerRrhhImportarIndexRoute: ManagerRrhhImportarIndexRoute,
   ManagerUsersIdIndexRoute: ManagerUsersIdIndexRoute,
   ManagerUsersInvitationsIndexRoute: ManagerUsersInvitationsIndexRoute,
   ManagerUsersNewIndexRoute: ManagerUsersNewIndexRoute,

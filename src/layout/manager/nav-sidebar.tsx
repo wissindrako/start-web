@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import {
+  FileSpreadsheetIcon,
   LayoutDashboardIcon,
   PanelLeftIcon,
   ServerIcon,
@@ -124,6 +125,38 @@ export const NavSidebar = (props: { children?: ReactNode }) => {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
+          <WithPermissions
+            permissions={[
+              {
+                persona: ['update'],
+                organizacion: ['update'],
+                movilidad: ['update'],
+              },
+            ]}
+          >
+            <SidebarGroup>
+              <SidebarGroupLabel>{t('layout:nav.rrhh')}</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <Link to="/manager/rrhh/importar">
+                      {({ isActive }) => (
+                        <SidebarMenuButton
+                          isActive={isActive}
+                          render={
+                            <span>
+                              <FileSpreadsheetIcon />
+                              <span>{t('layout:nav.rrhhImportar')}</span>
+                            </span>
+                          }
+                        />
+                      )}
+                    </Link>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </WithPermissions>
           <WithPermissions
             permissions={[
               {
